@@ -1,0 +1,29 @@
+{
+  "quotmark": "single",
+  "bitwise": true,
+  "camelcase": true,
+  "strict": true,
+  "trailing": true,
+  "curly": true,
+  "eqeqeq": true,
+  "immed": true,
+  "latedef": true,
+  "newcap": true,
+  "noempty": true,
+  "unused": true,
+  "noarg": true,
+  "sub": true,
+  "undef": true,
+  "maxdepth": 4,
+  "maxlen": 120,
+  "node": true,
+  "white": false,
+  "globals": {
+    "suite": false,
+    "suiteSetup": false,
+    "suiteTeardown": false,
+    "setup": false,
+    "teardown": false,
+    "test": false
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "version": "1.0.0",
+  "name": "ngsi_adapter",
+  "main": "lib/adapter.js",
+  "description": "Generic NGSI Probe Adapter",
+  "keywords": ["FI-WARE", "Monitoring", "NGSI"],
+  "author": "Telefónica I+D",
+  "engines": {
+    "node": ">=0.10.18"
+  },
+  "dependencies": {
+    "retry": ">=0.6.0",
+    "winston": ">=0.7.2",
+    "dateformat": "1.0.6-1.2.3",
+    "optimist": ">=0.6.0"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-exec": "~0.4.2",
+    "grunt-contrib-jshint": "~0.6.3",
+    "grunt-simple-mocha": "~0.4.0",
+    "istanbul": "~0.1.45",
+    "dox-foundation": "~0.5.4",
+    "xml2js": ">=0.2.8"
+  },
+  "scripts": {
+    "start": "adapter",
+    "test": "grunt test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Fiware/fiware-monitoring.git"
+  },
+  "license": "Apache License 2.0",
+  "readmeFilename": "README.md"
+}
