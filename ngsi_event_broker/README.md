@@ -1,4 +1,4 @@
-# ngsi_event_broker
+# NGSI Event Broker
 
 Nagios event broker ([NEB][NEB_ref]) module to forward plugin data
 to [NGSI Adapter][NGSI_Adapter_ref].
