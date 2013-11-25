@@ -46,5 +46,5 @@ http://nagios.sourceforge.net/download/contrib/documentation/misc/NEB%202x%20Mod
 "The Nagios Event Broker API"
 
 [NGSI_Adapter_ref]:
-https://github.com/Fiware/fiware-monitoring/ngsi_adapter
+https://github.com/Fiware/fiware-monitoring/tree/master/ngsi_adapter
 "NGSI Adapter"
