@@ -1,4 +1,4 @@
-# ngsi_adapter
+# NGSI Adapter
 
 Generic adapter to transform monitoring data from probes to NGSI context
 attributes, and forward them through a NGSI Context Broker.
