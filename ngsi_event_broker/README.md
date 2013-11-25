@@ -1,15 +1,22 @@
 # NGSI Event Broker
 
-Nagios event broker ([NEB][NEB_ref]) module to forward plugin data
-to [NGSI Adapter][NGSI_Adapter_ref].
+Nagios event broker ([NEB][NEB_ref]) module to forward plugin data to
+[NGSI Adapter][NGSI_Adapter_ref].
 
-## Usage
+## Installation
 
-As the module is an architecture-dependent compiled shared object, from
-source code distribution these steps should be followed (assuming autotools
-and libtool are installed):
+As the module is an architecture-dependent compiled shared object,
+first we'll get sources either from this repository or downloading a
+[source code distribution][src_dist_ref].
 
+The first option requires autotools and libtool to be installed, in order
+to generate configuration script
+
+    $ mkdir m4
     $ autoreconf --install
+
+Once configuration script is generated/downloaded, follow these steps:
+
     $ ./configure
     $ make
     $ make check
@@ -18,6 +25,8 @@ and libtool are installed):
 Last step will try to copy generated shared object to the Nagios library
 directory, thus requiring sudoer privileges. Installation directory will
 usually be */usr/lib/nagios* or */usr/lib64/nagios*.
+
+## Usage
 
 Stop Nagios service and edit configuration file at */etc/nagios/nagios.cfg*
 to add a new broker module:
@@ -48,3 +57,7 @@ http://nagios.sourceforge.net/download/contrib/documentation/misc/NEB%202x%20Mod
 [NGSI_Adapter_ref]:
 https://github.com/Fiware/fiware-monitoring/tree/master/ngsi_adapter
 "NGSI Adapter"
+
+[src_dist_ref]:
+https://forge.fi-ware.eu/frs/?group_id=23&release_id=311
+"NGSI Event Broker source distribution package"
