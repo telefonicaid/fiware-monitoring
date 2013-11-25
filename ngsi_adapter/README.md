@@ -3,12 +3,14 @@
 Generic adapter to transform monitoring data from probes to NGSI context
 attributes, and forward them through a NGSI Context Broker.
 
-## Usage
+## Installation
 
 Dependencies must be resolved prior running the adapter. Be sure Node.js and npm
 are installed, and then run:
 
     $ npm install
+
+## Usage
 
 Adapter runs as a standalone server listening for HTTP POST requests at the
 given endpoint. Context Broker URL must be indicated at command line:
@@ -40,7 +42,7 @@ Adapter processes requests asynchronously, indicating in the response
 status code whether *{probe}* is recognized (status 200) or not (404).
 
 In case of known probes, adapter dynamically loads a custom probe
-parser that should be located at *parsers/{probe}.js* and invokes
+parser that should be located at *lib/parsers/{probe}.js* and invokes
 its *getContextAttrs()* method, passing probe raw data splitted into
 two components: probe data and optional performance data.
 
