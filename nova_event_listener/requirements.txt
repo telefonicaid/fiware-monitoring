@@ -1,0 +1,2 @@
+celery==3.1.5
+https://launchpad.net/ceilometer/grizzly/2013.1.4/+download/ceilometer-2013.1.4.tar.gz
