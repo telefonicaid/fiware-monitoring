@@ -10,7 +10,7 @@ fi
 AM_INIT_AUTOMAKE([foreign])
 
 # Libtool initialization.
-LT_INIT([shared pic-only])
+LT_INIT([shared disable-static pic-only])
 
 # Source files and directories.
 AC_CONFIG_MACRO_DIR(m4)
