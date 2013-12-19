@@ -79,16 +79,16 @@ AC_CACHE_CHECK([for libcURL],
    [AC_LANG_SOURCE([[#include "curl/curl.h"]])],
    my_cv_libcurl=yes, my_cv_libcurl=no)])
 if test "$my_cv_libcurl" = "no"; then
-   AC_MSG_ERROR([libcurl package must be installed])
+   AC_MSG_ERROR([libcURL development files must be installed])
 fi
 
-AC_CACHE_CHECK([for yajl library],
+AC_CACHE_CHECK([for yajl],
    [my_cv_yajl_library],
    [AC_PREPROC_IFELSE(
    [AC_LANG_SOURCE([[#include "yajl/yajl_common.h"]])],
    my_cv_yajl_library=yes, my_cv_yajl_library=no)])
 if test "$my_cv_yajl_library" = "no"; then
-   AC_MSG_ERROR([yajl-devel package must be installed])
+   AC_MSG_ERROR([yajl development files must be installed])
 fi
 
 # Checks for typedefs, structures, and compiler characteristics.
@@ -96,7 +96,7 @@ AC_CHECK_TYPES([yajl_parser_config],
    [my_cv_yajl_v1=yes], [my_cv_yajl_v1=no],
    [[#include "yajl/yajl_parse.h"]])
 if test "$my_cv_yajl_v1" = "no"; then
-   AC_MSG_ERROR([yajl-devel 1.0.x package must be installed])
+   AC_MSG_ERROR([yajl 1.0.x must be installed])
 fi
 
 # Checks for library functions.
