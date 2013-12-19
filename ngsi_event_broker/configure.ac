@@ -50,7 +50,12 @@ AC_SUBST([PACKAGE_DISTNAME])
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
-ifdef([AM_PATH_CPPUNIT], [AM_PATH_CPPUNIT([1.11.0])], [])
+if test "$CXX" = "no" || test "$CXX:$GXX" = "g++:"; then
+   AC_MSG_ERROR([no C++ compiler found])
+fi
+ifdef([AM_PATH_CPPUNIT],
+   [AM_PATH_CPPUNIT(1.11.0)],
+   [AC_MSG_ERROR([CppUnit is required for unit tests])])
 
 # Checks for packages and dependencies.
 AC_CACHE_CHECK([for Nagios sources],
