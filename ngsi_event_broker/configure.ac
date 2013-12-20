@@ -31,7 +31,7 @@ AS_CASE([$host], [x86_64*],
    [libdir=$exec_prefix/lib64/nagios],
    [libdir=$exec_prefix/lib/nagios])
 
-# Configuration arguments
+# Configuration arguments.
 AC_ARG_WITH(nagios-srcdir,
    AC_HELP_STRING([--with-nagios-srcdir=DIR],
    [Sets path to Nagios sources @<:@default=/usr/local/src/nagios@:>@], 30),
@@ -43,7 +43,7 @@ CPPFLAGS="$CPPFLAGS -I$nagios_srcdir/include"
 VERSION_SPEC=$(echo $VERSION | sed 's/\./:/g')
 AC_SUBST([VERSION_SPEC])
 
-# Package specification attributes
+# Package specification attributes.
 PACKAGE_DISTNAME=$PACKAGE
 AC_SUBST([PACKAGE_DISTNAME])
 
@@ -55,7 +55,7 @@ if test "$CXX" = "no" || test "$CXX:$GXX" = "g++:"; then
 fi
 ifdef([AM_PATH_CPPUNIT],
    [AM_PATH_CPPUNIT(1.11.0)],
-   [AC_MSG_ERROR([CppUnit is required for unit tests])])
+   [AC_MSG_ERROR([please install CppUnit for tests (requires autoreconf)])])
 
 # Checks for packages and dependencies.
 AC_CACHE_CHECK([for Nagios sources],
