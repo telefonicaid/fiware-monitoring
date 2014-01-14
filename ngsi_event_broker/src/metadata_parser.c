@@ -43,6 +43,26 @@
  *	    },
  *	    "uuid": "d8e02d56-2648-49a3-bf97-6be8f1204f38"
  *	}
+ *
+ * REGIONS SUPPORT:
+ * A key "region" should be supplied as part of the server's metadata, invoking
+ * the Compute API [http://api.openstack.org/api-ref-compute.html] either on
+ * server creation or as an update. Then, sample JSON would look like this:
+ *	{
+ *	    "availability_zone": "nova",
+ *	    "hostname": "test.novalocal",
+ *	    "launch_index": 0,
+ *	    "meta": {
+ *	        "priority": "low",
+ *	        "role": "webserver",
+ *	        "region": "myregion"
+ *	    },
+ *	    "name": "test",
+ *	    "public_keys": {
+ *	        "mykey": "ssh-rsa ...\n"
+ *	    },
+ *	    "uuid": "d8e02d56-2648-49a3-bf97-6be8f1204f38"
+ *	}
  */
 
 
@@ -51,8 +71,8 @@ static host_metadata_t*	yajl_metadata = NULL;
 static char*		yajl_last_key = NULL;
 static char*		key_uuid_str;
 static size_t		key_uuid_len;
-static char*		key_availability_zone_str;
-static size_t		key_availability_zone_len;
+static char*		key_region_str;
+static size_t		key_region_len;
 
 
 /* initialize metadata */
@@ -65,9 +85,9 @@ static void init_metadata(host_metadata_t* metadata)
 	key_uuid_str			= "uuid";
 	key_uuid_len			= strlen(key_uuid_str);
 
-	metadata->availability_zone	= NULL;
-	key_availability_zone_str	= "availability_zone";
-	key_availability_zone_len	= strlen(key_availability_zone_str);
+	metadata->region		= NULL;
+	key_region_str			= "region";
+	key_region_len			= strlen(key_region_str);
 }
 
 
@@ -77,9 +97,9 @@ static int callback_string(void* ctx, const unsigned char* val, unsigned int len
 	if (!strncmp(yajl_last_key, key_uuid_str, key_uuid_len)) {
 		free(yajl_metadata->uuid);
 		yajl_metadata->uuid = strndup((const char*) val, len);
-	} else if (!strncmp(yajl_last_key, key_availability_zone_str, key_availability_zone_len)) {
-		free(yajl_metadata->availability_zone);
-		yajl_metadata->availability_zone = strndup((const char*) val, len);
+	} else if (!strncmp(yajl_last_key, key_region_str, key_region_len)) {
+		free(yajl_metadata->region);
+		yajl_metadata->region = strndup((const char*) val, len);
 	}
 	return 1;
 }
@@ -142,7 +162,7 @@ void free_metadata(host_metadata_t* metadata)
 {
 	assert(metatada != NULL);
 	free(metadata->uuid);
-	free(metadata->availability_zone);
+	free(metadata->region);
 	yajl_metadata = NULL;
 	yajl_last_key = NULL;
 }
