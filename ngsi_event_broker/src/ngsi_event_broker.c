@@ -42,10 +42,10 @@
 #endif /*ENTITY_TYPE*/
 
 
-/* adapter request query string fields */
+/* adapter request query string fields (id = region:uniqueid) */
 #define ADAPTER_QUERY_FIELD_ID		"id"
 #define ADAPTER_QUERY_FIELD_TYPE	"type"
-#define ADAPTER_QUERY_FORMAT		ADAPTER_QUERY_FIELD_ID "=%s" \
+#define ADAPTER_QUERY_FORMAT		ADAPTER_QUERY_FIELD_ID "=%s:%s" \
 					"&" ADAPTER_QUERY_FIELD_TYPE "=%s"
 
 
@@ -118,7 +118,7 @@ int nebmodule_init(int flags, char* args, void* handle)
 		neb_set_module_info(module_handle, NEBMODULE_MODINFO_TITLE,   MODULE_NAME);
 		neb_set_module_info(module_handle, NEBMODULE_MODINFO_VERSION, MODULE_VERSION);
 	} else {
-		nebmodule_deinit(0, NEBMODULE_ERROR_BAD_INIT);   
+		nebmodule_deinit(0, NEBMODULE_ERROR_BAD_INIT);
 	}
 
 	return result;
@@ -266,7 +266,7 @@ int callback_service_check(int callback_type, void* data)
 		if ((curl_result = curl_easy_perform(curl_handle)) == CURLE_OK) {
 			logging("info", "%s - Request sent to NGSI adapter", MODULE_NAME);
 		} else {
-			logging("error", "%s - Could not send request to  adapter: %s",
+			logging("error", "%s - Could not send request to adapter: %s",
 			        MODULE_NAME, curl_easy_strerror(curl_result));
 		}
 		curl_slist_free_all(curl_headers);
@@ -303,9 +303,14 @@ char* get_adapter_request_query()
 			if (parse_metadata(buffer, &metadata)) {
 				logging("error", "%s - Invalid OpenStack version (>= %s required)",
 				        MODULE_NAME, OPENSTACK_MIN_REQ_VERSION);
+			/* check whether region is supplied as metadata */
+			} else if (metadata.region == NULL) {
+				logging("error", "%s - No region supplied as part of metadata",
+				        MODULE_NAME);
+			/* format adapter query */
 			} else {
 				snprintf(buffer, sizeof(buffer)-1, ADAPTER_QUERY_FORMAT,
-				        metadata.uuid,
+				        metadata.region, metadata.uuid,
 				        ENTITY_TYPE);
 				buffer[sizeof(buffer)-1] = '\0';
 				result = strdup(buffer);

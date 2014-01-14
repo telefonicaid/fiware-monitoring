@@ -26,8 +26,8 @@ extern "C" {
 
 
 typedef struct {
-	char* uuid;
-	char* availability_zone;
+	char* uuid;	/* server's unique id assigned by Compute service */
+	char* region;	/* region MUST be supplied by server's creator    */
 } host_metadata_t;
 
 
