@@ -2,57 +2,239 @@
 
 module.exports = function(grunt) {
 
-  // Project configuration.
-  grunt.initConfig({
-    pkgFile: 'package.json',
-    pkg: grunt.file.readJSON('package.json'),
-    jshint: {
-      options: {
-        jshintrc: '.jshintrc'
-      },
-      gruntfile: {
-        src: 'Gruntfile.js'
-      },
-      lib: {
-        src: ['lib/**/*.js']
-      },
-      test: {
-        src: ['test/**/*.js']
-      }
-    },
-    simplemocha: {
-      options: {
-        ui: 'tdd',
-        reporter: 'spec',
-        timeout: 30000,
-        ignoreLeaks: false
-      },
-      unit: {
-        src: ['test/unit/**/*.js']
-      }
-    },
-    exec: {
-      istanbul: {
-        cmd: 'node ./node_modules/.bin/istanbul cover --root lib/ -- grunt test && ' +
-             'node ./node_modules/.bin/istanbul report --root target/coverage/ cobertura'
-      },
-      doxfoundation: {
-        cmd: 'node ./node_modules/.bin/dox-foundation --source lib --target target/doc'
-      }
-    }
-  });
+    grunt.initConfig({
+        pkgFile: 'package.json',
+        pkg: grunt.file.readJSON('package.json'),
 
-  // These plugins provide necessary tasks.
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-simple-mocha');
-  grunt.loadNpmTasks('grunt-exec');
+        clean: {
+            reportTest: ['report/test'],
+            reportLint: ['report/lint'],
+            reportCoverage: ['report/coverage'],
+            siteCoverage: ['site/coverage'],
+            siteReport: ['site/report'],
+            siteDoc: ['site/doc']
+        },
 
-  // Available tasks.
-  grunt.registerTask('test', ['simplemocha']);
-  grunt.registerTask('coverage', ['exec:istanbul']);
-  grunt.registerTask('doc', ['exec:doxfoundation']);
+        mkdir: {
+            reportTest: {
+                options: {
+                    create: ['<%= clean.reportTest[0] %>']
+                }
+            },
+            reportLint: {
+                options: {
+                    create: ['<%= clean.reportLint[0] %>']
+                }
+            },
+            reportCoverage: {
+                options: {
+                    create: ['<%= clean.reportCoverage[0] %>']
+                }
+            },
+            siteCoverage: {
+                options: {
+                    create: ['<%= clean.siteCoverage[0] %>']
+                }
+            },
+            siteDoc: {
+                options: {
+                    create: ['<%= clean.siteDoc[0] %>']
+                }
+            },
+            siteReport: {
+                options: {
+                    create: ['<%= clean.siteReport[0] %>']
+                }
+            }
+        },
 
-  // Default task.
-  grunt.registerTask('default', ['jshint', 'test']);
+        jshint: {
+            options: {
+                jshintrc: '.jshintrc'
+            },
+            gruntfile: {
+                src: 'Gruntfile.js'
+            },
+            lib: {
+                src: ['lib/**/*.js']
+            },
+            test: {
+                src: ['test/**/*.js']
+            },
+            reportGruntfile: {
+                src: 'Gruntfile.js',
+                options: {
+                    reporter: 'checkstyle',
+                    reporterOutput: '<%= clean.reportLint[0] %>/jshint-gruntfile.xml'
+                }
+            },
+            reportLib: {
+                src: 'lib/**/*.js',
+                options: {
+                    reporter: 'checkstyle',
+                    reporterOutput: '<%= clean.reportLint[0] %>/jshint-lib.xml'
+                }
+            },
+            reportTest: {
+                src: 'test/**/*.js',
+                options: {
+                    reporter: 'checkstyle',
+                    reporterOutput: '<%= clean.reportLint[0] %>/jshint-test.xml'
+                }
+            }
+        },
+
+        watch: {
+            gruntfile: {
+                files: '<%= jshint.gruntfile.src %>',
+                tasks: ['jshint:gruntfile']
+            },
+            lib: {
+                files: '<%= jshint.lib.src %>',
+                tasks: ['jshint:lib', 'test']
+            },
+            test: {
+                files: '<%= jshint.test.src %>',
+                tasks: ['jshint:test', 'test']
+            }
+        },
+
+        mochaTest: {
+            unit: {
+                options: {
+                    ui: 'tdd',
+                    reporter: 'spec',
+                    timeout: 30000,
+                    ignoreLeaks: false
+                },
+                src: [
+                    '<%= jshint.test.src %>'
+                ]
+            },
+            unitReport: {
+                options: {
+                    ui: 'tdd',
+                    reporter: 'tap',
+                    quiet: true,
+                    captureFile: '<%= clean.reportTest[0] %>/unit_tests.tap'
+                },
+                src: [
+                    '<%= jshint.test.src %>'
+                ]
+            }
+        },
+
+        dox: {
+            options: {
+                title: 'NGSI Adapter Documentation'
+            },
+            files: {
+                src: ['<%= jshint.lib.src %>'],
+                dest: '<%= clean.siteDoc[0] %>'
+            }
+        },
+
+        exec: {
+            istanbul: {
+                cmd:
+                    'bash -c "./node_modules/.bin/istanbul cover --root lib/ --dir <%= clean.siteCoverage[0] %> -- ' +
+                    '\\"`npm root -g`/grunt-cli/bin/grunt\\" test && ' +
+                    './node_modules/.bin/istanbul report --dir <%= clean.siteCoverage[0] %> text-summary"'
+            },
+            istanbulCobertura: {
+                cmd:
+                    'bash -c "./node_modules/.bin/istanbul report --dir <%= clean.siteCoverage[0] %> cobertura && ' +
+                    'mv <%= clean.siteCoverage[0] %>/cobertura-coverage.xml <%= clean.reportCoverage[0] %>"'
+            }
+        },
+
+        plato: {
+            options: {
+                jshint: grunt.file.readJSON('.jshintrc')
+            },
+            lib: {
+                files: {
+                    '<%= clean.siteReport[0] %>': '<%= jshint.lib.src %>'
+                }
+            }
+        },
+
+        gjslint: {
+            options: {
+                reporter: {
+                    name: 'console'
+                },
+                flags: [
+                    '--flagfile .gjslintrc' //use flag file'
+                ],
+                force: false
+            },
+            gruntfile: {
+                src: '<%= jshint.gruntfile.src %>'
+            },
+            lib: {
+                src: '<%= jshint.lib.src %>'
+            },
+            test: {
+                src: '<%= jshint.test.src %>'
+            },
+            report: {
+                options: {
+                    reporter: {
+                        name: 'gjslint_xml',
+                        dest: '<%= clean.reportLint[0] %>/gjslint.xml'
+                    },
+                    flags: [
+                        '--flagfile .gjslintrc'
+                    ],
+                    force: false
+                },
+                src: ['<%= jshint.gruntfile.src %>', '<%= jshint.lib.src %>', '<%= jshint.test.src %>']
+            }
+        }
+    });
+
+    // These plugins provide necessary tasks.
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-mocha-test');
+    grunt.loadNpmTasks('grunt-exec');
+    grunt.loadNpmTasks('grunt-plato');
+    grunt.loadNpmTasks('grunt-gjslint');
+    grunt.loadNpmTasks('grunt-dox');
+    grunt.loadNpmTasks('grunt-mkdir');
+
+    grunt.registerTask('test', 'Run tests', ['mochaTest:unit']);
+
+    grunt.registerTask('test-report', 'Generate tests reports',
+        ['clean:reportTest', 'mkdir:reportTest', 'mochaTest:unitReport']);
+
+    grunt.registerTask('coverage', 'Print coverage report',
+        ['clean:siteCoverage', 'exec:istanbul']);
+
+    grunt.registerTask('coverage-report', 'Generate Cobertura report',
+        ['clean:reportCoverage', 'mkdir:reportCoverage', 'coverage', 'exec:istanbulCobertura']);
+
+    grunt.registerTask('complexity', 'Generate code complexity reports', ['plato']);
+
+    grunt.registerTask('doc', 'Generate source code JSDoc', ['dox']);
+
+    grunt.registerTask('lint-jshint', 'Check source code style with JsHint',
+        ['jshint:gruntfile', 'jshint:lib', 'jshint:test']);
+
+    grunt.registerTask('lint-gjslint', 'Check source code style with Google Closure Linter',
+        ['gjslint:gruntfile', 'gjslint:lib', 'gjslint:test']);
+
+    grunt.registerTask('lint', 'Check source code style', ['lint-jshint', 'lint-gjslint']);
+
+    grunt.registerTask('lint-report', 'Generate checkstyle reports',
+        ['clean:reportLint', 'mkdir:reportLint', 'jshint:reportGruntfile', 'jshint:reportLib',
+        'jshint:reportTest', 'gjslint:report']);
+
+    grunt.registerTask('site', ['doc', 'coverage', 'complexity']);
+
+    // Default task.
+    grunt.registerTask('default', ['lint-jshint', 'test']);
 
 };

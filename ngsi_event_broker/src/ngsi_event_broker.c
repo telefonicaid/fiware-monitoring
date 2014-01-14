@@ -24,11 +24,10 @@
 #include <sys/param.h>
 #include "config.h"
 #include "metadata_parser.h"
-#include "nagios/nebstructs.h"
-#include "nagios/nebmodules.h"
-#include "nagios/nebcallbacks.h"
-#include "nagios/objects.h"
-#include "nagios/broker.h"
+#include "nebstructs.h"
+#include "nebmodules.h"
+#include "nebcallbacks.h"
+#include "broker.h"
 #include "curl/curl.h"
 
 
