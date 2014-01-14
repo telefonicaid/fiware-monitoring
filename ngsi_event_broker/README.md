@@ -59,5 +59,5 @@ https://github.com/Fiware/fiware-monitoring/tree/master/ngsi_adapter
 "NGSI Adapter"
 
 [src_dist_ref]:
-https://forge.fi-ware.eu/frs/?group_id=23&release_id=311
+https://forge.fi-ware.eu/frs/?group_id=23&release_id=343
 "NGSI Event Broker source distribution package"
