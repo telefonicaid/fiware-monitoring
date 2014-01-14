@@ -37,10 +37,16 @@ to add a new broker module:
 Pay attention to the module argument: the endpoint of the NGSI Adapter
 to forward plugin data to, usually listening at a local port.
 
-Finally, start Nagios service. Check in log files that Nagios loads the module
-and that adapter server requests are sent in response to plugin executions.
+Finally, start Nagios service. Check log files for module initialization (may
+fail for missing arguments, or if OpenStack metadata cannot be retrieved, or if
+"region" key hasn't been supplied as part of the metadata). And also check that
+adapter server requests are sent in response to plugin executions.
 
 ## Changelog
+
+Version 1.0.1
+
+* Added regions support (value retrieved from a metadata key named "region")
 
 Version 1.0.0
 
