@@ -17,6 +17,7 @@
 
 
 'use strict';
+/* jshint -W101, laxbreak: true */
 
 
 var util   = require('util'),
@@ -24,7 +25,6 @@ var util   = require('util'),
     common = require('./common');
 
 
-/* jshint laxbreak: true */
 suite('check_disk', function() {
 
     suiteSetup(function() {
