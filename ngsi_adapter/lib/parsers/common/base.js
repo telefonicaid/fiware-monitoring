@@ -17,6 +17,7 @@
 
 
 'use strict';
+/* jshint unused: false */
 
 
 var url = require('url');

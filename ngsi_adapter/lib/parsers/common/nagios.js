@@ -17,6 +17,7 @@
 
 
 'use strict';
+/* jshint curly: false */
 
 
 var baseParser = require('./base').parser;
