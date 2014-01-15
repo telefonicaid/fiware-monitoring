@@ -20,7 +20,6 @@
 
 
 var http   = require('http'),
-    util   = require('util'),
     url    = require('url'),
     retry  = require('retry'),
     logger = require('../config/logger'),
@@ -40,6 +39,7 @@ function doPost(request, callback) {
             path:     remoteUrlData.path,
             method:   'POST'
         };
+        /* jshint unused: false */
         var operation = retry.operation({ retries: opts.retries });
         operation.attempt(function(currentAttempt) {
             logger.info('%s %s...', updateReqOpts.method, opts.brokerUrl);

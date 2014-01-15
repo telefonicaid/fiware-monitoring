@@ -17,6 +17,7 @@
 
 
 'use strict';
+/* jshint -W101, unused: false */
 
 
 var nagios = require('./common/nagios');

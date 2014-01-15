@@ -37,7 +37,8 @@ function doPost(request, response) {
         'Content-Type':   'text/xml'
     });
     response.end(responseBody, 'utf8');
-    console.log(util.format('[INFO ] >> %d %s: %s', response.statusCode, http.STATUS_CODES[response.statusCode], responseBody));
+    console.log(util.format('[INFO ] >> %d %s: %s', response.statusCode, http.STATUS_CODES[response.statusCode],
+        responseBody));
 }
 
 
@@ -72,7 +73,7 @@ exports.main = function() {
         .options('p', { alias: 'listenPort', 'default': defaults.listenPort, describe: 'Broker listen port' })
         .options('h', { alias: 'help',       'boolean': true,                describe: 'Show help'          })
         .demand([]);
-    var extra = (opts.argv._.length > 0) || (Object.keys(opts.argv).length != 2 + 2 * (Object.keys(defaults).length + 1));
+    var extra = (opts.argv._.length > 0) || (Object.keys(opts.argv).length !== 2 + 2*(Object.keys(defaults).length+1));
     if (opts.argv.help || extra) {
         opts.showHelp();
         process.exit(1);
@@ -84,7 +85,7 @@ exports.main = function() {
         process.exit(1);
     });
     http.createServer(syncRequestListener).listen(opts.argv.listenPort, opts.argv.listenHost, function() {
-        console.log(util.format('[INFO ] Server running at http://%s:%d/', this.address().address, this.address().port));
+        console.log(util.format('[INFO ] Server running at http://%s:%d/', this.address().address,this.address().port));
     });
 };
 
