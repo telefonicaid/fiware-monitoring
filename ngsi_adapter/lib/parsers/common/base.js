@@ -17,7 +17,7 @@
 
 
 'use strict';
-/* jshint unused: false */
+/* jshint unused: false, laxbreak: true */
 
 
 var url = require('url');
@@ -33,6 +33,12 @@ baseParser.setRequest = function(request) {
 };
 
 
+// Adapter calls this function to get the Content-Type of requests
+baseParser.getRequestContentType = function() {
+    return 'application/xml';
+};
+
+
 // Adapter calls this function to get the updateContext() request
 baseParser.updateContextRequest = function() {
     var query = url.parse(this.request.url, true).query;
@@ -43,7 +49,9 @@ baseParser.updateContextRequest = function() {
     } else {
         var entityData = this.parseRequest();
         var entityAttrs = this.getContextAttrs(entityData.data, entityData.perfData);
-        return this.getUpdateContextXML(entityId, entityType, entityAttrs);
+        return (this.getRequestContentType() === 'application/xml')
+            ? this.getUpdateContextXML(entityId, entityType, entityAttrs)
+            : this.getUpdateContextJSON(entityId, entityType, entityAttrs);
     }
 };
 
@@ -52,7 +60,7 @@ baseParser.updateContextRequest = function() {
 baseParser.parseRequest = function() {
     throw new Error('Must implement');
 };
-baseParser.getContextAttrs = function(multilineData, multilinePerfData) {
+baseParser.getContextAttrs = function(data, optionalPerfData) {
     throw new Error('Must implement');
 };
 
