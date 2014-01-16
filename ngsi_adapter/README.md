@@ -51,6 +51,7 @@ two components: probe data and optional performance data.
 
 Version 1.0.1
 
+* NGSI9 and NGSI10 decoupled in update requests by using append action
 * Bugfixing: solved errors in update requests
 
 Version 1.0.0
