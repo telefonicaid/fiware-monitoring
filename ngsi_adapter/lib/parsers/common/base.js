@@ -17,7 +17,7 @@
 
 
 'use strict';
-/* jshint unused: false */
+/* jshint unused: false, laxbreak: true */
 
 
 var url = require('url');
@@ -36,7 +36,7 @@ baseParser.setRequest = function(request) {
 // Adapter calls this function to get the Content-Type of requests
 baseParser.getRequestContentType = function() {
     return 'application/xml';
-}
+};
 
 
 // Adapter calls this function to get the updateContext() request
