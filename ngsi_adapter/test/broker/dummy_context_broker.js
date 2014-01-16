@@ -30,11 +30,29 @@ var defaults = {
 
 
 function doPost(request, response) {
-    console.log(util.format('[INFO ] << Body: %s', request.body));
-    var responseBody = '<ngsi>RESPONSE</ngsi>';
-    response.writeHead(200, {
+    var responseBody = '<ngsi>OK</ngsi>';
+    var responseCode = 200;
+    if (request.url !== '/NGSI10/updateContext') {
+        responseBody = util.format('<ngsi>Invalid path %s</ngsi>', request.url);
+        responseCode = 404;
+    }
+    console.log(util.format('[DEBUG] << Body: %s', request.body));
+    response.writeHead(responseCode, {
         'Content-Length': responseBody.length,
-        'Content-Type':   'text/xml'
+        'Content-Type':   'application/xml'
+    });
+    response.end(responseBody, 'utf8');
+    console.log(util.format('[INFO ] >> %d %s: %s', response.statusCode, http.STATUS_CODES[response.statusCode],
+        responseBody));
+}
+
+
+function lengthNeeded(request, response) {
+    var responseBody = '<ngsi>Missing Content-Length</ngsi>';
+    var responseCode = 500;
+    response.writeHead(responseCode, {
+        'Content-Length': responseBody.length,
+        'Content-Type':   'application/xml'
     });
     response.end(responseBody, 'utf8');
     console.log(util.format('[INFO ] >> %d %s: %s', response.statusCode, http.STATUS_CODES[response.statusCode],
@@ -50,9 +68,14 @@ function doNotAllowed(request, response) {
 
 
 function syncRequestListener(request, response) {
-    console.log(util.format('\n[INFO ] << HTTP %s', request.method));
+    console.log(util.format('\n[INFO ] << %s %s', request.method, request.url));
     var allowed = (request.method === 'POST');
-    if (allowed) {
+    var length  = request.headers['content-length'];
+    if (!allowed) {
+        doNotAllowed(request, response);
+    } else if (!length) {
+        lengthNeeded(request, response);
+    } else {
         request.body = '';
         request.on('data', function(chunk) {
             request.body += chunk;
@@ -60,8 +83,6 @@ function syncRequestListener(request, response) {
         request.on('end', function() {
             doPost(request, response);
         });
-    } else {
-        doNotAllowed(request, response);
     }
 }
 
