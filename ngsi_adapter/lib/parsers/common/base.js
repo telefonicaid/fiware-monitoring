@@ -92,7 +92,7 @@ baseParser.getUpdateContextXML = function(id, type, attrs) {
     result += '            </contextAttributeList>\n';
     result += '        </contextElement>\n';
     result += '    </contextElementList>\n';
-    result += '    <updateAction>UPDATE</updateAction>\n';
+    result += '    <updateAction>APPEND</updateAction>\n';
     result += '</updateContextRequest>\n';
     return result;
 };
