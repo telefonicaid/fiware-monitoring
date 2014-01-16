@@ -32,17 +32,24 @@ function doPost(request, callback) {
     try {
         logger.info('<< Body: %s', request.body);
         var remoteUrlData = url.parse(opts.brokerUrl);
+        var updateReqType = request.parser.getRequestContentType();
         var updateReqBody = request.parser.updateContextRequest();
         var updateReqOpts = {
             hostname: remoteUrlData.hostname,
             port:     remoteUrlData.port,
-            path:     remoteUrlData.path,
-            method:   'POST'
+            path:     '/NGSI10/updateContext',
+            method:   'POST',
+            headers: {
+               'Accept':            updateReqType,
+               'Content-Type':      updateReqType,
+               'Content-Length':    updateReqBody.length
+            }
         };
         /* jshint unused: false */
         var operation = retry.operation({ retries: opts.retries });
         operation.attempt(function(currentAttempt) {
             logger.info('%s %s...', updateReqOpts.method, opts.brokerUrl);
+            logger.debug('%s', updateReqBody);
             var updateReq = http.request(updateReqOpts, function(response) {
                 var responseBody = '';
                 response.setEncoding('utf8');

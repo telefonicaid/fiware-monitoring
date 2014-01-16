@@ -13,12 +13,13 @@ are installed, and then run:
 ## Usage
 
 Adapter runs as a standalone server listening for HTTP POST requests at the
-given endpoint. Context Broker URL must be indicated at command line:
+given endpoint. Context Broker URL, adapter listen port and other parameters may
+be supplied at command line, overriding default values in *config/options.js*:
 
     $ adapter --listenPort 1337 --brokerUrl http://{host}:{port}/
 
-For detailed information about command line options and default values,
-please run:
+For detailed information about command line options and their defaults, please
+run:
 
     $ adapter --help
 
@@ -47,6 +48,10 @@ its *getContextAttrs()* method, passing probe raw data splitted into
 two components: probe data and optional performance data.
 
 ## Changelog
+
+Version 1.0.1
+
+* Bugfixing: solved errors in update requests
 
 Version 1.0.0
 
