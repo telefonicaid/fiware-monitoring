@@ -36,13 +36,17 @@ import random
 import sys
 
 
+"""NGSI entity type for OpenStack's servers"""
+SERVER_ENTITY_TYPE = 'vm'
+
+
 """Default attributes for NGSI entities.
 
 A dictionary whose keys are the different entity types. Values are lists of valid entity attributes for that type. The
 set of types and/or attributes may be modified or extended via configuration file (see below).
 """
 ENTITY_ATTRIBUTES = {
-    'host': [                                           # entityType='host'
+    'vm': [                                             # entityType='vm'
         'cpuLoadPct',                                   # percentage of CPU load
         'freeSpacePct',                                 # percentage of free physical or virtual host disk
         'usedMemPct',                                   # percentage of RAM memory in use
@@ -61,7 +65,7 @@ name = os.path.splitext(os.path.basename(__file__))[0]
 cfg_filename = os.path.join(os.path.dirname(__file__), 'conf', '%s.cfg' % name)
 cfg_defaults = {
     'brokerUrl':            'http://127.0.0.1:1338/',   # context broker URL
-    'registerAppUrl':       'http://fiware/hosts/',     # NGSI register providing application
+    'registerAppUrl':       'http://fiware/vm/',        # NGSI register providing application (ignored)
     'registerDuration':     'P99Y',                     # NGSI register duration (99 years ~ infinity)
     'registerAttributes':   str(ENTITY_ATTRIBUTES),     # NGSI register entity attributes
     'retries':              2,                          # number of retries (exponential backoff)
@@ -223,7 +227,7 @@ def ngsi_request(self, event_msg,
             url=broker_url,
             data=get_register_context_xml(
                 entity_id=entity_id,
-                entity_type='host',
+                entity_type=SERVER_ENTITY_TYPE,
                 register_app_url=register_app_url,
                 register_duration=register_duration,
                 register_attributes=eval(register_attributes)),
