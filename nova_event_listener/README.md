@@ -14,8 +14,13 @@ are installed, and then run:
 
 Listener runs as a standalone process listening to AMQP queues, which responds
 to instance creation by sending a request to Context Broker (whose URL must be
-indicated at command line):
+given at command line or in configuration file *conf/nova_event_listener.cfg*)
 
+The requests to Context Broker are asynchronously processed by [Celery][celery]
+using the local AMQP as tasks queue. Therefore, a Celery worker must be started
+in addition to event listener:
+
+    $ celery --app=nova_event_listener worker --loglevel=info &
     $ nova_event_listener.py --brokerUrl http://{host}:{port}/
 
 For detailed information about command line options and default values,
@@ -26,6 +31,7 @@ please run:
 Logging options (such as level, console, rolling files, etc.) may be
 configured editing *conf/nova_event_listener.cfg* file.
 
+
 ## Entities
 
 New instances created by OpenStack Nova service are registered as NGSI entities,
@@ -33,7 +39,7 @@ with the following considerations:
 
 * *{entityId}* = *{regionId}*:*{instanceUUID}*
 
-* *{entityType}* = "host"
+* *{entityType}* = "vm"
 
 ## Changelog
 
@@ -48,3 +54,7 @@ Version 1.0.0
 [event_ref]:
 https://wiki.openstack.org/wiki/SystemUsageData
 "Nova notification system events"
+
+[celery]:
+http://www.celeryproject.org/
+"Celery: Distributed Task Queue"
