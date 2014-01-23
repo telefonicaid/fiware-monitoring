@@ -188,7 +188,7 @@ def ngsi_request(self, event_msg,
                  register_duration=cfg_defaults['registerDuration'],
                  register_attributes=cfg_defaults['registerAttributes']):
 
-    """Process an instance creation event message (asynchronously) by sending a NGSI request to Context Broker.
+    """Process an instance creation event message (asynchronously) by sending a NGSI9 request to Context Broker.
 
     :param task    self:                the asynchronous task being processed.
     :param dict    event_msg:           the event message that triggered the task.
@@ -223,16 +223,18 @@ def ngsi_request(self, event_msg,
             'user':         user
         })
         entity_id = '{0}:{1}'.format(region, instance_id)
+        request_data = get_register_context_xml(
+            entity_id=entity_id,
+            entity_type=SERVER_ENTITY_TYPE,
+            register_app_url=register_app_url,
+            register_duration=register_duration,
+            register_attributes=eval(register_attributes))
         response = urlopen(Request(
             url=broker_url,
-            data=get_register_context_xml(
-                entity_id=entity_id,
-                entity_type=SERVER_ENTITY_TYPE,
-                register_app_url=register_app_url,
-                register_duration=register_duration,
-                register_attributes=eval(register_attributes)),
+            data=request_data,
             headers={
-                'Content-type': 'application/xml; charset=utf8'
+                'Content-Type': 'application/xml; charset=utf8',
+                'Content-Length': len(request_data)
             }
         ))
         status = response.getcode()
