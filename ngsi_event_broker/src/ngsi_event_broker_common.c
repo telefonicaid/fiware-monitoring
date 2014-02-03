@@ -209,7 +209,7 @@ int callback_service_check(int callback_type, void* data)
 		return result;
 	}
 
-	/* Async POST request to adapter */
+	/* Async POST request to NGSI Adapter */
 	if ((request_url = get_adapter_request(check_data)) == ADAPTER_REQUEST_INVALID) {
 		logging("error", "%s - Cannot set adapter request URL", module_name);
 	} else if (!strcmp(request_url, ADAPTER_REQUEST_IGNORE)) {
@@ -229,7 +229,8 @@ int callback_service_check(int callback_type, void* data)
 		curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDSIZE, strlen(request_txt));
 		curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, curl_headers);
 		if ((curl_result = curl_easy_perform(curl_handle)) == CURLE_OK) {
-			logging("info", "%s - Request sent to NGSI Adapter", module_name);
+			logging("info", "%s - Request sent to %s", module_name,
+			        request_url);
 		} else {
 			logging("error", "%s - Could not send request to adapter: %s", module_name,
 			        curl_easy_strerror(curl_result));
