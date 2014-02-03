@@ -81,7 +81,6 @@ char* get_adapter_request(nebstruct_service_check_data* data)
 		logging("error", "%s - Cannot get plugin name", module_name);
 		result = ADAPTER_REQUEST_INVALID;
 	} else if (strcmp(plugin, SNMP_PLUGIN)) {
-		logging("info",  "%s - Ignoring plugin %s execution", module_name, plugin);
 		result = strdup(ADAPTER_REQUEST_IGNORE);
 	} else if (opts = parse_args(args, ":H:C:o:m:") == NULL) {
 		logging("error", "%s - Cannot get plugin options", module_name);

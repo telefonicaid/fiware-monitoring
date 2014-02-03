@@ -107,7 +107,7 @@ int init_module_variables(char* args)
 	option_list_t	opts	= NULL;
 
 	/* process arguments passed to module in Nagios configuration file */
-	if (opts = parse_args(args, ":u:r:") != NULL) {
+	if ((opts = parse_args(args, ":u:r:")) != NULL) {
 		size_t	i;
 		for (i = 0; opts[i].opt != -1; i++) {
 			switch(opts[i].opt) {
@@ -131,7 +131,7 @@ int init_module_variables(char* args)
 		result = -1;
 	} else {
 		logging("info", "%s - Adapter URL = %s", module_name, adapter_url);
-		logging("info", "%s - Region Id   = %s", module_name, region_id);
+		logging("info", "%s - Region Id = %s", module_name, region_id);
 	}
 
 	free(opts);

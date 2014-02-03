@@ -29,6 +29,7 @@
 /* parses a command line string using getopt() */
 option_list_t parse_args(char* args, const char* optstr)
 {
+	extern int	optind;
 	extern char*	optarg;
 	option_list_t	optlist	= NULL;
 	size_t		optsize	= 0;
@@ -36,14 +37,15 @@ option_list_t parse_args(char* args, const char* optstr)
 
 	int		argc = 0;
 	char*		argv[MAX_ARGS] = { "" };
-	char*		last;
 
-	char* ptr = args;
-	while (ptr && argc < MAX_ARGS-1) {
-		argv[++argc] = ptr = strtok_r(args, " ", &last);
+	char* last;
+	char* next = args;
+	while (next && argc < MAX_ARGS-1) {
+		argv[++argc] = next = strtok_r(args, " ", &last);
 		args = NULL;
 	}
 
+	optind  = 1;
 	optlist = (option_list_t) malloc(argc * sizeof(struct option_value));
 	while ((opt = getopt(argc, argv, optstr)) != -1) {
 		const struct option_value optval = {
