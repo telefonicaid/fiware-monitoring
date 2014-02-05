@@ -21,10 +21,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include "config.h"
 #include "nebstructs.h"
 #include "nebmodules.h"
 #include "nebcallbacks.h"
+#include "macros.h"
 #include "broker.h"
 #include "curl/curl.h"
 #include "argument_parser.h"
@@ -34,6 +38,7 @@
 /* define common global variables */
 char* adapter_url = NULL;
 char* region_id   = NULL;
+char* host_addr   = NULL;
 
 
 /************************************************************************/
@@ -103,8 +108,11 @@ int check_nagios_object_version(void)
 /* initializes module variables */
 int init_module_variables(char* args)
 {
-	int		result	= 0;
+	char		name[HOST_NAME_MAX];
+	char		addr[INET_ADDRSTRLEN];
+	struct hostent* host	= NULL;
 	option_list_t	opts	= NULL;
+	int		result	= 0;
 
 	/* process arguments passed to module in Nagios configuration file */
 	if ((opts = parse_args(args, ":u:r:")) != NULL) {
@@ -129,9 +137,17 @@ int init_module_variables(char* args)
 	if (!adapter_url || !region_id) {
 		logging("error", "%s - Missing required broker module options", module_name);
 		result = -1;
+	} else if (gethostname(name, HOST_NAME_MAX)) {
+		logging("error", "%s - Cannot get localhost name", module_name);
+		result = -1;
+	} else if (resolve_address(name, addr, INET_ADDRSTRLEN)) {
+		logging("error", "%s - Cannot get localhost address", module_name);
+		result = -1;
 	} else {
+		host_addr = strdup(addr);
 		logging("info", "%s - Adapter URL = %s", module_name, adapter_url);
 		logging("info", "%s - Region Id = %s", module_name, region_id);
+		logging("info", "%s - Host addr = %s", module_name, host_addr);
 	}
 
 	free(opts);
@@ -144,6 +160,7 @@ int free_module_variables(void)
 {
 	free(adapter_url);
 	free(region_id);
+	free(host_addr);
 	return 0;
 }
 
@@ -163,25 +180,53 @@ void logging(const char* level, const char* format, ...)
 }
 
 
-/* gets the name of the executed plugin */
+/* resolves the IP address of a hostname */
+int resolve_address(const char* hostname, char* addr, size_t addrmaxlen)
+{
+	int result = EXIT_SUCCESS;
+
+	struct hostent* hostent = gethostbyname(hostname);
+	if (!hostent || (inet_ntop(AF_INET, hostent->h_addr_list[0], addr, addrmaxlen) == NULL)) {
+		result = EXIT_FAILURE;
+	}
+
+	return result;
+}
+
+
+/* gets the name and arguments of the executed plugin */
 char* find_plugin_name(nebstruct_service_check_data* data, char** args)
 {
+	host*    check_host	= NULL;
 	service* check_service	= NULL;
 	command* check_command	= NULL;
 	char*    check_plugin	= NULL;
-	char*    ptr;
 
-	if ((check_service = find_service(data->host_name, data->service_description)) != NULL) {
+	if (((check_host = find_host(data->host_name)) != NULL)
+	    && ((check_service = find_service(data->host_name, data->service_description)) != NULL)) {
 		char* service_check_command = strdup(check_service->service_check_command);
-		strtok_r(service_check_command, "!", &ptr);
-		if ((check_command = find_command(service_check_command)) != NULL) {
-			char* last;
-			char* command_line = strdup(check_command->command_line);
-			strtok_r(command_line, " ", &last);
-			ptr = strrchr(command_line, '/');
-			check_plugin = strdup((ptr) ? ptr+1 : command_line);
-			if (args) *args = strdup(last);
-			free(command_line);
+		char* command_name;
+		char* command_args;
+		command_name = strtok_r(service_check_command, "!", &command_args);
+		if ((check_command = find_command(command_name)) != NULL) {
+			nagios_macros	mac;
+			char*		raw = NULL;
+			char*		cmd = NULL;
+			memset(&mac, 0, sizeof(mac));
+			grab_host_macros_r(&mac, check_host);
+			grab_service_macros_r(&mac, check_service);
+			get_raw_command_line_r(&mac, check_command, check_service->service_check_command, &raw, 0);
+			if (raw != NULL) {
+				char* ptr;
+				char* last;
+				process_macros_r(&mac, raw, &cmd, 0);
+				strtok_r(cmd, " ", &last);
+				ptr = strrchr(cmd, '/');
+				check_plugin = strdup((ptr) ? ++ptr : cmd);
+				if (args) *args = strdup(last);
+			}
+			my_free(raw);
+			my_free(cmd);
 		}
 		free(service_check_command);
 	}
@@ -232,8 +277,8 @@ int callback_service_check(int callback_type, void* data)
 			logging("info", "%s - Request sent to %s", module_name,
 			        request_url);
 		} else {
-			logging("error", "%s - Could not send request to adapter: %s", module_name,
-			        curl_easy_strerror(curl_result));
+			logging("error", "%s - Request to %s failed: %s", module_name,
+			        request_url, curl_easy_strerror(curl_result));
 		}
 		curl_slist_free_all(curl_headers);
 		curl_easy_cleanup(curl_handle);

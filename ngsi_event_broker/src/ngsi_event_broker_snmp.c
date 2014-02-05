@@ -58,7 +58,7 @@ int init_module_handle_info(void* handle)
 {
 	int result = 0;
 
-	module_handle  = handle;
+	module_handle = handle;
 	logging("info", "%s - Starting up (version %s)...", module_name, module_version);
 	neb_set_module_info(module_handle, NEBMODULE_MODINFO_TITLE,   module_name);
 	neb_set_module_info(module_handle, NEBMODULE_MODINFO_VERSION, module_version);
@@ -82,7 +82,7 @@ char* get_adapter_request(nebstruct_service_check_data* data)
 		result = ADAPTER_REQUEST_INVALID;
 	} else if (strcmp(plugin, SNMP_PLUGIN)) {
 		result = strdup(ADAPTER_REQUEST_IGNORE);
-	} else if (opts = parse_args(args, ":H:C:o:m:") == NULL) {
+	} else if ((opts = parse_args(args, ":H:C:o:m:")) == NULL) {
 		logging("error", "%s - Cannot get plugin options", module_name);
 		result = ADAPTER_REQUEST_INVALID;
 	} else {
@@ -101,7 +101,7 @@ char* get_adapter_request(nebstruct_service_check_data* data)
 				}
 				case 'o': {
 					char* ptr = strrchr(opts[i].val, '.');
-					port = (ptr) ? (atoi(ptr+1) - 1) : -1;
+					port = (ptr) ? (atoi(++ptr) - 1) : -1;
 					break;
 				}
 			}

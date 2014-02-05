@@ -38,13 +38,15 @@ option_list_t parse_args(char* args, const char* optstr)
 	int		argc = 0;
 	char*		argv[MAX_ARGS] = { "" };
 
+	/* split line into char* array */
 	char* last;
 	char* next = args;
-	while (next && argc < MAX_ARGS-1) {
+	while (next && (argc < MAX_ARGS-1)) {
 		argv[++argc] = next = strtok_r(args, " ", &last);
 		args = NULL;
 	}
 
+	/* fill option_value structs */
 	optind  = 1;
 	optlist = (option_list_t) malloc(argc * sizeof(struct option_value));
 	while ((opt = getopt(argc, argv, optstr)) != -1) {
@@ -57,6 +59,8 @@ option_list_t parse_args(char* args, const char* optstr)
 		}
 	}
 
+	/* end of list */
 	optlist[optsize].opt = -1;
+
 	return optlist;
 }

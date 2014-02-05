@@ -36,6 +36,9 @@ extern "C" {
 /* name of the SNMP plugin (ignored by some modules) */
 #define SNMP_PLUGIN			"check_snmp"
 
+/* name of the NRPE plugin (remote plugin executions) */
+#define NRPE_PLUGIN			"check_nrpe"
+
 
 /* get_adapter_request() results */
 #define ADAPTER_REQUEST_INVALID		NULL
@@ -65,6 +68,7 @@ extern char* const			module_version;
 extern void*				module_handle;
 extern char*				adapter_url;
 extern char*				region_id;
+extern char*				host_addr;
 
 
 /* declare module functions */
@@ -75,6 +79,7 @@ int    check_nagios_object_version(void);
 int    callback_service_check(int callback_type, void* data);
 char*  find_plugin_name(nebstruct_service_check_data* data, char** args);
 char*  get_adapter_request(nebstruct_service_check_data* data);
+int    resolve_address(const char* hostname, char* addr, size_t addrmaxlen);
 void   logging(const char* level, const char* format, ...);
 
 

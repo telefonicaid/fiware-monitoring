@@ -19,14 +19,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/param.h>
+#include <netinet/in.h>
 #include "config.h"
 #include "nebstructs.h"
 #include "nebmodules.h"
 #include "nebcallbacks.h"
 #include "broker.h"
-#include "curl/curl.h"
-#include "metadata_parser.h"
+#include "argument_parser.h"
 #include "ngsi_event_broker_common.h"
 
 
@@ -35,7 +34,8 @@ NEB_API_VERSION(CURRENT_NEB_API_VERSION)
 
 
 /* default attributes for entity being monitored */
-#define ENTITY_TYPE			"vm"
+#define ENTITY_TYPE_LOCAL		"host"
+#define ENTITY_TYPE_REMOTE		"vm"
 
 
 /* event broker module identification */
@@ -54,7 +54,7 @@ int init_module_handle_info(void* handle)
 {
 	int result = 0;
 
-	module_handle  = handle;
+	module_handle = handle;
 	logging("info", "%s - Starting up (version %s)...", module_name, module_version);
 	neb_set_module_info(module_handle, NEBMODULE_MODINFO_TITLE,   module_name);
 	neb_set_module_info(module_handle, NEBMODULE_MODINFO_VERSION, module_version);
@@ -66,70 +66,64 @@ int init_module_handle_info(void* handle)
 /* gets adapter request URL including query fields */
 char* get_adapter_request(nebstruct_service_check_data* data)
 {
-	char*    result = NULL;
-	char*    plugin = NULL;
+	char		buffer[MAXBUFLEN];
+	char*		result = NULL;
+	char*		plugin = NULL;
+	char*		args   = NULL;
+	option_list_t	opts   = NULL;
 
-	size_t   curl_callback(char*, size_t, size_t, void*);
-	CURL*    curl_handle = NULL;
-	CURLcode curl_result;
-
-	/* Get plugin name: if it is SNMP, then ignore; otherwise, get adapter
-	   query fields (POST request to OpenStack metadata service) and return request */
-	if ((plugin = find_plugin_name(data, NULL)) == NULL) {
+	/* Get plugin name: if it is SNMP, then ignore; otherwise, take adapter query fields from
+	   plugin arguments, distinguishing between local and NRPE (remote) plugin executions */
+	if ((plugin = find_plugin_name(data, &args)) == NULL) {
 		logging("error", "%s - Cannot get plugin name", module_name);
 		result = ADAPTER_REQUEST_INVALID;
 	} else if (!strcmp(plugin, SNMP_PLUGIN)) {
-		logging("info",  "%s - Ignoring plugin %s execution", module_name, plugin);
 		result = strdup(ADAPTER_REQUEST_IGNORE);
-	} else if ((curl_handle = curl_easy_init()) == NULL) {
-		logging("error", "%s - Cannot open HTTP session", module_name);
+	} else if (strcmp(plugin, NRPE_PLUGIN)) {
+		snprintf(buffer, sizeof(buffer)-1, ADAPTER_REQUEST_FORMAT,
+		         adapter_url, plugin,
+		         region_id, host_addr,
+		         ENTITY_TYPE_LOCAL);
+		buffer[sizeof(buffer)-1] = '\0';
+		result = strdup(buffer);
+	} else if ((opts = parse_args(args, ":H:c:t:")) == NULL) {
+		logging("error", "%s - Cannot get NRPE plugin options", module_name);
 		result = ADAPTER_REQUEST_INVALID;
 	} else {
-		char* request_url = OPENSTACK_METADATA_SERVICE_URL;
-		char  buffer[MAXBUFLEN] = { "" };
-
-		curl_easy_setopt(curl_handle, CURLOPT_URL, request_url);
-		curl_easy_setopt(curl_handle, CURLOPT_HTTPGET, 1);
-		curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, buffer);
-		curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, curl_callback);
-		if ((curl_result = curl_easy_perform(curl_handle)) == CURLE_OK) {
-			/* check for a valid JSON to detect unsupported OpenStack version */
-			host_metadata_t metadata;
-			if (parse_metadata(buffer, &metadata)) {
-				logging("error", "%s - Invalid OpenStack version (>= %s required)",
-				        module_name, OPENSTACK_MIN_REQ_VERSION);
-			/* check whether region is supplied as metadata */
-			} else if (metadata.region == NULL) {
-				logging("error", "%s - No region supplied as part of metadata",
-				        module_name);
-			/* format adapter request */
-			} else {
-				snprintf(buffer, sizeof(buffer)-1, ADAPTER_REQUEST_FORMAT,
-				        adapter_url, plugin,
-				        metadata.region, metadata.uuid,
-				        ENTITY_TYPE);
-				buffer[sizeof(buffer)-1] = '\0';
-				result = strdup(buffer);
+		char        addr[INET_ADDRSTRLEN];
+		const char* host = NULL;
+		const char* name = NULL;
+		size_t      i;
+		for (i = 0; opts[i].opt != -1; i++) {
+			switch(opts[i].opt) {
+				case 'H': {
+					host = opts[i].val;
+					break;
+				}
+				case 'c': {
+					name = opts[i].val;
+					break;
+				}
 			}
-			free_metadata(&metadata);
-		} else {
-			logging("error", "%s - Could not access OpenStack metadata service: %s",
-			        module_name, curl_easy_strerror(curl_result));
 		}
-		curl_easy_cleanup(curl_handle);
+		if (!host || !name) {
+			logging("error", "%s - Missing NRPE plugin options", module_name);
+			result = ADAPTER_REQUEST_INVALID;
+		} else if (resolve_address(host, addr, INET_ADDRSTRLEN)) {
+			logging("error", "%s - Cannot resolve remote address for %s", module_name, host);
+			result = ADAPTER_REQUEST_INVALID;
+		} else {
+			snprintf(buffer, sizeof(buffer)-1, ADAPTER_REQUEST_FORMAT,
+			         adapter_url, name,
+			         region_id, addr,
+			         ENTITY_TYPE_REMOTE);
+			buffer[sizeof(buffer)-1] = '\0';
+			result = strdup(buffer);
+		}
 	}
 
+	free(opts);
+	free(args);
 	free(plugin);
 	return result;
-}
-
-
-size_t curl_callback(char* ptr, size_t size, size_t nmemb, void* userdata)
-{
-	char*  buffer = (char*) userdata;
-	size_t offset = strlen(buffer);
-	size_t count  = MIN(MAXBUFLEN - offset - 1, size * nmemb);
-	memmove(buffer + offset, ptr, count);
-	buffer[offset + count] = '\0';
-	return count;
 }

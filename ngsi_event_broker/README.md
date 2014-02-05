@@ -1,11 +1,17 @@
 # NGSI Event Broker
 
-Nagios event broker ([NEB][NEB_ref]) module to forward plugin data to
-[NGSI Adapter][NGSI_Adapter_ref].
+Nagios event broker ([NEB][NEB_ref]) modules to forward plugin data to
+[NGSI Adapter][NGSI_Adapter_ref]. Two different event brokers are considered:
+
+* *ngsi_event_broker_snmp* to intercept SNMP plugin executions
+* *ngsi_event_broker_host* to intercept the rest of plugin executions
+
+Depending on our needs, either only one of them or both will be installed as
+part of Nagios Core server.
 
 ## Installation
 
-As the module is an architecture-dependent compiled shared object,
+As the modules are architecture-dependent compiled shared objects,
 first we'll get sources either from this repository or downloading a
 [source code distribution][src_dist_ref].
 
@@ -22,27 +28,43 @@ Once configuration script is generated/downloaded, follow these steps:
     $ make check
     $ sudo make install
 
-Last step will try to copy generated shared object to the Nagios library
+Last step will try to copy generated shared objects to the Nagios library
 directory, thus requiring sudoer privileges. Installation directory will
 usually be */usr/lib/nagios* or */usr/lib64/nagios*.
 
 ## Usage
 
 Stop Nagios service and edit configuration file at */etc/nagios/nagios.cfg*
-to add a new broker module:
+to add new broker module(s). The id of the [region][region_ref] that current
+infrastructure belongs to and the URL of NGSI Adapter must be supplied as
+arguments:
 
     event_broker_options=-1
-    broker_module={path}/ngsi_event_broker.so http://{host}:{port}
-
-Pay attention to the module argument: the endpoint of the NGSI Adapter
-to forward plugin data to, usually listening at a local port.
+    broker_module=/path/ngsi_event_broker_snmp.so -r region -u http://host:port
+    broker_module=/path/ngsi_event_broker_host.so -r region -u http://host:port
 
 Finally, start Nagios service. Check log files for module initialization (may
-fail for missing arguments, or if OpenStack metadata cannot be retrieved, or if
-"region" key hasn't been supplied as part of the metadata). And also check that
-adapter server requests are sent in response to plugin executions.
+fail for missing arguments, for example). Also check that requests are sent to
+adapter server in response to plugin executions. Requests will include some
+query parameters:
+
+* SNMP monitoring:
+```http://host:port/check_snmp?id=region:ifaddr/ifport&type=interface```
+
+* Other plugins executed locally:
+```http://host:port/check_xxxx?id=region:localaddr&type=host```
+
+* Other plugins executed remotely via NRPE:
+```http://host:port/check_xxxx?id=region:nrpeaddr&type=vm```
 
 ## Changelog
+
+Version 1.1.0
+
+* Broker splitted into _snmp and _host
+* IP address as unique identifier (within region) for hosts and vms
+* Added region as argument
+* Added NRPE support
 
 Version 1.0.1
 
@@ -67,3 +89,7 @@ https://github.com/Fiware/fiware-monitoring/tree/master/ngsi_adapter
 [src_dist_ref]:
 https://forge.fi-ware.eu/frs/?group_id=23&release_id=343
 "NGSI Event Broker source distribution package"
+
+[region_ref]:
+http://docs.openstack.org/glossary/content/glossary.html#region
+"OpenStack Glossary: Region"
