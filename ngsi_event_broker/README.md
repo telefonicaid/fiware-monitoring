@@ -49,13 +49,19 @@ adapter server in response to plugin executions. Requests will include some
 query parameters:
 
 * SNMP monitoring:
-```http://host:port/check_snmp?id=region:ifaddr/ifport&type=interface```
+```
+http://host:port/check_snmp?id=region:ifaddr/ifport&type=interface
+```
 
 * Other plugins executed locally:
-```http://host:port/check_xxxx?id=region:localaddr&type=host```
+```
+http://host:port/check_xxxx?id=region:localaddr&type=host
+```
 
 * Other plugins executed remotely via NRPE:
-```http://host:port/check_xxxx?id=region:nrpeaddr&type=vm```
+```
+http://host:port/check_xxxx?id=region:nrpeaddr&type=vm
+```
 
 ## Changelog
 
