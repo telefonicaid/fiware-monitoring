@@ -84,6 +84,7 @@ suite('check_users', function() {
         var parser = this.factory.getParser(request);
         var requestData = parser.parseRequest();
         var contextData = parser.getContextAttrs(requestData.data, requestData.perfData);
+        assert(contextData.users);
         assert.equal(contextData.users, this.entityData.users);
     });
 

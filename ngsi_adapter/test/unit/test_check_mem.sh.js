@@ -84,6 +84,7 @@ suite('check_mem.sh', function() {
         var parser = this.factory.getParser(request);
         var requestData = parser.parseRequest();
         var contextData = parser.getContextAttrs(requestData.data, requestData.perfData);
+        assert(contextData.usedMemPct);
         assert.equal(contextData.usedMemPct, this.entityData.usedMemPct);
     });
 
