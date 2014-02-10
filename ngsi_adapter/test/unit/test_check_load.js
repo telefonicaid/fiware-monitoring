@@ -88,6 +88,7 @@ suite('check_load', function() {
         var parser = this.factory.getParser(request);
         var requestData = parser.parseRequest();
         var contextData = parser.getContextAttrs(requestData.data, requestData.perfData);
+        assert(contextData.cpuLoadPct);
         assert.equal(contextData.cpuLoadPct, this.entityData.cpuLoadPct);
         assert.equal(contextData.cpuLoadPct, this.probeData.load1);
     });

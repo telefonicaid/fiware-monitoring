@@ -39,7 +39,7 @@ var opts = require('optimist')
 
 
 // Do not allow extra options/arguments
-var extra = (opts.argv._.length > 0) || (Object.keys(opts.argv).length != 2 + 2 * (Object.keys(defaults).length + 1));
+var extra = (opts.argv._.length > 0) || (Object.keys(opts.argv).length !== 2 + 2 * (Object.keys(defaults).length + 1));
 if (opts.argv.help || extra) {
     opts.showHelp();
     process.exit(1);

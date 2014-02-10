@@ -52,7 +52,7 @@ suite('check_procs', function() {
     teardown(function() {
     });
 
-    test('get_update_request_fails_with_invalid_check_users_content', function() {
+    test('get_update_request_fails_with_invalid_check_procs_content', function() {
         var request = {
             url:  this.baseurl + '?id=' + this.entityId + '&type=' + this.entityType,
             body: 'XXX INVALID XXX'
@@ -65,7 +65,7 @@ suite('check_procs', function() {
         );
     });
 
-    test('get_update_request_ok_with_valid_check_users_content', function() {
+    test('get_update_request_ok_with_valid_check_procs_content', function() {
         var request = {
             url:  this.baseurl + '?id=' + this.entityId + '&type=' + this.entityType,
             body: util.format('%s|%s', this.probeBody.data, this.probeBody.perf)
@@ -86,7 +86,7 @@ suite('check_procs', function() {
         common.assertValidUpdateXML(update, this);
     });
 
-    test('parse_ok_number_of_users_logged_in', function() {
+    test('parse_ok_number_of_procs', function() {
         var request = {
             url:  this.baseurl + '?id=' + this.entityId + '&type=' + this.entityType,
             body: util.format('%s|%s', this.probeBody.data, this.probeBody.perf)
@@ -94,7 +94,8 @@ suite('check_procs', function() {
         var parser = this.factory.getParser(request);
         var requestData = parser.parseRequest();
         var contextData = parser.getContextAttrs(requestData.data, requestData.perfData);
-        assert.equal(contextData.users, this.entityData.users);
+        assert(contextData.procs);
+        assert.equal(contextData.procs, this.entityData.procs);
     });
 
 });
