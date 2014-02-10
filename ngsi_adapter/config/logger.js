@@ -26,7 +26,7 @@ var winston    = require('winston'),
 // Logging options
 var opts = {
     logLevel:       'info',
-    logFile:        process.cwd() + '/nsgi_adapter.log',
+    logFile:        process.cwd() + '/ngsi_adapter.log',
     logMaxSize:     5*1024*1024,    // 5 MB
     logMaxFiles:    10,
     logTimestamp:   function() { return dateformat(new Date(), 'yyyy-mm-dd H:MM:ss'); }
