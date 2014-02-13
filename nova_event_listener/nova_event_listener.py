@@ -261,12 +261,14 @@ def main():
                       choices=[level for level in logging._levelNames.keys() if isinstance(level, str)],
                       default=config.get('common', 'logLevel'), help='logging level [default=%default]')
     (opts, args) = parser.parse_args()  # @UnusedVariable
+    config.set('common', 'brokerUrl', opts.brokerUrl)
+    config.set('common', 'logLevel', opts.logLevel)
     logging.root.setLevel(opts.logLevel)
 
     # rpc connection
     connection = rpc.create_connection()
     try:
-        logging.info('Context Broker URL: %s', opts.brokerUrl)
+        logging.info('Context Broker URL: %s', config.get('common', 'brokerUrl'))
         listen(connection, config)
     finally:
         connection.close()
