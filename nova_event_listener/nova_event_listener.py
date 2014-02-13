@@ -29,7 +29,6 @@ from ConfigParser import SafeConfigParser
 from optparse import OptionParser
 from urllib2 import Request, URLError, urlopen
 import logging.config
-import logging
 import os.path
 import httplib
 import random
@@ -261,13 +260,15 @@ def main():
     parser.add_option('-l', '--logLevel', dest='logLevel', metavar='LEVEL',
                       choices=[level for level in logging._levelNames.keys() if isinstance(level, str)],
                       default=config.get('common', 'logLevel'), help='logging level [default=%default]')
-    (opts, args) = parser.parse_args()
+    (opts, args) = parser.parse_args()  # @UnusedVariable
+    config.set('common', 'brokerUrl', opts.brokerUrl)
+    config.set('common', 'logLevel', opts.logLevel)
     logging.root.setLevel(opts.logLevel)
 
     # rpc connection
     connection = rpc.create_connection()
     try:
-        logging.info('Context Broker URL: %s', opts.brokerUrl)
+        logging.info('Context Broker URL: %s', config.get('common', 'brokerUrl'))
         listen(connection, config)
     finally:
         connection.close()
