@@ -66,18 +66,22 @@
  */
 
 
+#define YAJL_PARSE_CONTINUE	1
+#define YAJL_PARSE_CANCEL	0
+
+
 /* keys for uuid and region */
-#define KEY_UUID	"uuid"
-#define KEY_REGION	"region"
+#define KEY_UUID		"uuid"
+#define KEY_REGION		"region"
 
 
 /* define internal variables */
-static host_metadata_t*	yajl_metadata = NULL;
-static char*		yajl_last_key = NULL;
-static char*		key_uuid_str;
-static size_t		key_uuid_len;
-static char*		key_region_str;
-static size_t		key_region_len;
+static host_metadata_t*		yajl_metadata = NULL;
+static char*			yajl_last_key = NULL;
+static char*			key_uuid_str;
+static size_t			key_uuid_len;
+static char*			key_region_str;
+static size_t			key_region_len;
 
 
 /* initialize metadata */
@@ -86,13 +90,13 @@ static void init_metadata(host_metadata_t* metadata)
 	assert(metadata != NULL);
 	yajl_metadata = metadata;
 
-	metadata->uuid			= NULL;
-	key_uuid_str			= KEY_UUID;
-	key_uuid_len			= strlen(key_uuid_str);
+	metadata->uuid		= NULL;
+	key_uuid_str		= KEY_UUID;
+	key_uuid_len		= strlen(key_uuid_str);
 
-	metadata->region		= NULL;
-	key_region_str			= KEY_REGION;
-	key_region_len			= strlen(key_region_str);
+	metadata->region	= NULL;
+	key_region_str		= KEY_REGION;
+	key_region_len		= strlen(key_region_str);
 }
 
 
@@ -106,7 +110,7 @@ static int callback_string(void* ctx, const unsigned char* val, unsigned int len
 		free(yajl_metadata->region);
 		yajl_metadata->region = strndup((const char*) val, len);
 	}
-	return 1;
+	return YAJL_PARSE_CONTINUE;
 }
 
 
@@ -114,7 +118,7 @@ static int callback_string(void* ctx, const unsigned char* val, unsigned int len
 static int callback_key(void* ctx, const unsigned char* val, unsigned int len)
 {
 	yajl_last_key = (char*) val;
-	return 1;
+	return YAJL_PARSE_CONTINUE;
 }
 
 
@@ -167,7 +171,9 @@ void free_metadata(host_metadata_t* metadata)
 {
 	assert(metatada != NULL);
 	free(metadata->uuid);
+	metadata->uuid = NULL;
 	free(metadata->region);
+	metadata->region = NULL;
 	yajl_metadata = NULL;
 	yajl_last_key = NULL;
 }

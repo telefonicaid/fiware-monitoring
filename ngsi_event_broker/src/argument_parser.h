@@ -20,6 +20,11 @@
 #define ARGUMENT_PARSER_H
 
 
+#ifndef NO_CHAR
+#define NO_CHAR -1
+#endif /*NO_CHAR*/
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif

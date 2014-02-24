@@ -23,6 +23,7 @@
 #include "nebstructs.h"
 #include "nebmodules.h"
 #include "nebcallbacks.h"
+#include "neberrors.h"
 #include "broker.h"
 #include "argument_parser.h"
 #include "ngsi_event_broker_common.h"
@@ -56,7 +57,7 @@ void*       module_handle		= NULL;
 /* initializes module handle and info (name and version) */
 int init_module_handle_info(void* handle)
 {
-	int result = 0;
+	int result = NEB_OK;
 
 	module_handle = handle;
 	logging("info", "%s - Starting up (version %s)...", module_name, module_version);
@@ -121,7 +122,10 @@ char* get_adapter_request(nebstruct_service_check_data* data)
 	}
 
 	free(opts);
+	opts = NULL;
 	free(args);
+	args = NULL;
 	free(plugin);
+	plugin = NULL;
 	return result;
 }
