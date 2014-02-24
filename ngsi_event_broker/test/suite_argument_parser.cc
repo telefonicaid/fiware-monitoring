@@ -111,10 +111,11 @@ void ArgumentParserTest::parse_args(const string& args, const string& optstr, li
 	buffer[args.copy(buffer, MAXBUFLEN-1)] = '\0';
 	option_list_t opts = ::parse_args(buffer, optstr.c_str());
 	if (opts) {
-		for (size_t i = 0; opts[i].opt != -1; i++) {
+		for (size_t i = 0; opts[i].opt != NO_CHAR; i++) {
 			optlist.push_back(OptionValue(opts[i]));
 		}
 		::free(opts);
+		opts = NULL;
 	}
 }
 

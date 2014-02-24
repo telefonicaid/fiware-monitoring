@@ -30,6 +30,7 @@
 #include "nebstructs.h"
 #include "nebmodules.h"
 #include "nebcallbacks.h"
+#include "neberrors.h"
 #include "macros.h"
 #include "broker.h"
 #include "curl/curl.h"
@@ -49,7 +50,7 @@ char* host_addr   = NULL;
 /* deinitialization */
 int nebmodule_deinit(int flags, int reason)
 {
-	int result = 0;
+	int result = NEB_OK;
 
 	curl_global_cleanup();
 	free_module_variables();
@@ -65,16 +66,16 @@ int nebmodule_deinit(int flags, int reason)
 /* initialization */
 int nebmodule_init(int flags, char* args, void* handle)
 {
-	int result = 0;
+	int result = NEB_OK;
 
 	init_module_handle_info(handle);
 	if (check_nagios_object_version()) {
-		result = -1;
+		result = NEB_ERROR;
 	} else if (init_module_variables(args)) {
-		result = -1;
+		result = NEB_ERROR;
 	} else if (curl_global_init(CURL_GLOBAL_ALL)) {
 		logging("error", "%s - Could not initialize libcurl", module_name);
-		result = -1;
+		result = NEB_ERROR;
 	} else {
 		result = neb_register_callback(NEBCALLBACK_SERVICE_CHECK_DATA,
 		                               module_handle, 0, callback_service_check);
@@ -95,12 +96,12 @@ int nebmodule_init(int flags, char* args, void* handle)
 /* checks to make sure Nagios object version matches what we know about */
 int check_nagios_object_version(void)
 {
-	int result = 0;
+	int result = NEB_OK;
 
 	if (__nagios_object_structure_version != CURRENT_OBJECT_STRUCTURE_VERSION) {
 		logging("error", "%s - Nagios object version mismatch: %d,%d", module_name,
 		        __nagios_object_structure_version, CURRENT_OBJECT_STRUCTURE_VERSION);
-		result = 1;
+		result = NEB_ERROR;
 	}
 
 	return result;
@@ -113,12 +114,12 @@ int init_module_variables(char* args)
 	char		name[HOST_NAME_MAX];
 	char		addr[INET_ADDRSTRLEN];
 	option_list_t	opts	= NULL;
-	int		result	= 0;
+	int		result	= NEB_OK;
 
 	/* process arguments passed to module in Nagios configuration file */
 	if ((opts = parse_args(args, ":u:r:")) != NULL) {
 		size_t	i;
-		for (i = 0; opts[i].opt != -1; i++) {
+		for (i = 0; opts[i].opt != NO_CHAR; i++) {
 			switch(opts[i].opt) {
 				case 'u': { /* adapter URL without trailing slash */
 					size_t len = strlen(adapter_url = strdup(opts[i].val));
@@ -146,13 +147,13 @@ int init_module_variables(char* args)
 	}
 	if (!adapter_url || !region_id) {
 		logging("error", "%s - Missing required broker module options", module_name);
-		result = -1;
+		result = NEB_ERROR;
 	} else if (gethostname(name, HOST_NAME_MAX)) {
 		logging("error", "%s - Cannot get localhost name", module_name);
-		result = -1;
+		result = NEB_ERROR;
 	} else if (resolve_address(name, addr, INET_ADDRSTRLEN)) {
 		logging("error", "%s - Cannot get localhost address", module_name);
-		result = -1;
+		result = NEB_ERROR;
 	} else {
 		host_addr = strdup(addr);
 		logging("info", "%s - Adapter URL = %s", module_name, adapter_url);
@@ -161,6 +162,7 @@ int init_module_variables(char* args)
 	}
 
 	free(opts);
+	opts = NULL;
 	return result;
 }
 
@@ -169,9 +171,12 @@ int init_module_variables(char* args)
 int free_module_variables(void)
 {
 	free(adapter_url);
+	adapter_url = NULL;
 	free(region_id);
+	region_id = NULL;
 	free(host_addr);
-	return 0;
+	host_addr = NULL;
+	return NEB_OK;
 }
 
 
@@ -193,11 +198,11 @@ void logging(const char* level, const char* format, ...)
 /* resolves the IP address of a hostname */
 int resolve_address(const char* hostname, char* addr, size_t addrmaxlen)
 {
-	int result = EXIT_SUCCESS;
+	int result = NEB_OK;
 
 	struct hostent* hostent = gethostbyname(hostname);
 	if (!hostent || (inet_ntop(AF_INET, hostent->h_addr_list[0], addr, addrmaxlen) == NULL)) {
-		result = EXIT_FAILURE;
+		result = NEB_ERROR;
 	}
 
 	return result;
@@ -239,6 +244,7 @@ char* find_plugin_name(nebstruct_service_check_data* data, char** args)
 			my_free(cmd);
 		}
 		free(service_check_command);
+		service_check_command = NULL;
 	}
 
 	return check_plugin;
@@ -248,7 +254,7 @@ char* find_plugin_name(nebstruct_service_check_data* data, char** args)
 /* Nagios service check callback */
 int callback_service_check(int callback_type, void* data)
 {
-	int result = 0;
+	int result = NEB_OK;
 
 	nebstruct_service_check_data*	check_data	= NULL;
 	char*				request_url	= NULL;
@@ -292,8 +298,10 @@ int callback_service_check(int callback_type, void* data)
 		}
 		curl_slist_free_all(curl_headers);
 		curl_easy_cleanup(curl_handle);
+		curl_handle = NULL;
 	}
 
 	free(request_url);
+	request_url = NULL;
 	return result;
 }

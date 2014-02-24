@@ -126,6 +126,7 @@ bool SNMPBrokerTest::get_adapter_request(nebstruct_service_check_data* data, str
 	bool  error = (result == NULL);
 	request.assign((error) ? "" : result);
 	::free(result);
+	result = NULL;
 	return error;
 }
 

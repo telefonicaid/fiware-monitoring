@@ -60,7 +60,7 @@ option_list_t parse_args(char* args, const char* optstr)
 		const int fail = (strchr("?:", opt) != NULL);
 		const struct option_value optval = {
 			.opt = opt,
-			.err = (fail) ? optopt : -1,
+			.err = (fail) ? optopt : NO_CHAR,
 			.val = (fail) ? NULL   : optarg
 		};
 		optlist[optsize++] = optval;
@@ -68,7 +68,7 @@ option_list_t parse_args(char* args, const char* optstr)
 	}
 
 	/* end of list */
-	optlist[optsize].opt = -1;
+	optlist[optsize].opt = NO_CHAR;
 
 	return optlist;
 }
