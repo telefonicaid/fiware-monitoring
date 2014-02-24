@@ -26,8 +26,9 @@ extern "C" {
 
 
 typedef struct option_value {
-	int		opt;
-	const char*	val;
+	int		opt;	/* option ('?' unknown, ':' missing value)    */
+	int		err;	/* option that caused error (unknown/missing) */
+	const char*	val;	/* option value, or NULL if an error is found */
 } *option_list_t;
 
 

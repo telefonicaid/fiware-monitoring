@@ -21,6 +21,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <unistd.h>
+#include <limits.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -110,7 +112,6 @@ int init_module_variables(char* args)
 {
 	char		name[HOST_NAME_MAX];
 	char		addr[INET_ADDRSTRLEN];
-	struct hostent* host	= NULL;
 	option_list_t	opts	= NULL;
 	int		result	= 0;
 
@@ -128,8 +129,17 @@ int init_module_variables(char* args)
 					region_id = strdup(opts[i].val);
 					break;
 				}
+				case ':': {
+					logging("warning", "%s - Missing value for option -%c",
+					        module_name, (char) opts[i].err);
+				}
+				case '?': {
+					logging("warning", "%s - Unrecognized option -%c",
+					        module_name, (char) opts[i].err);
+				}
 				default: {
-					logging("warning", "%s - Unrecognized option %c", module_name, opts[i].opt);
+					logging("warning", "%s - Unhandled option -%c",
+					        module_name, (char) opts[i].opt);
 				}
 			}
 		}
@@ -220,7 +230,7 @@ char* find_plugin_name(nebstruct_service_check_data* data, char** args)
 				char* ptr;
 				char* last;
 				process_macros_r(&mac, raw, &cmd, 0);
-				strtok_r(cmd, " ", &last);
+				strtok_r(cmd, " \t", &last);
 				ptr = strrchr(cmd, '/');
 				check_plugin = strdup((ptr) ? ++ptr : cmd);
 				if (args) *args = strdup(last);

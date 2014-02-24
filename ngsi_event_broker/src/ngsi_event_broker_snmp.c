@@ -96,7 +96,7 @@ char* get_adapter_request(nebstruct_service_check_data* data)
 		for (i = 0; opts[i].opt != -1; i++) {
 			switch(opts[i].opt) {
 				case 'H': {
-					host = opts[i].val;
+					host = (char*) opts[i].val;
 					break;
 				}
 				case 'o': {

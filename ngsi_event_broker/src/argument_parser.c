@@ -22,6 +22,12 @@
 #include "argument_parser.h"
 
 
+/* POSIX compliance */
+#ifndef POSIXLY_CORRECT
+#define POSIXLY_CORRECT
+#endif /*POSIXLY_CORRECT*/
+
+
 /* maximum number of args */
 #define MAX_ARGS	255
 
@@ -30,6 +36,7 @@
 option_list_t parse_args(char* args, const char* optstr)
 {
 	extern int	optind;
+	extern int	optopt;
 	extern char*	optarg;
 	option_list_t	optlist	= NULL;
 	size_t		optsize	= 0;
@@ -42,7 +49,7 @@ option_list_t parse_args(char* args, const char* optstr)
 	char* last;
 	char* next = args;
 	while (next && (argc < MAX_ARGS-1)) {
-		argv[++argc] = next = strtok_r(args, " ", &last);
+		argv[++argc] = next = strtok_r(args, " \t", &last);
 		args = NULL;
 	}
 
@@ -50,13 +57,14 @@ option_list_t parse_args(char* args, const char* optstr)
 	optind  = 1;
 	optlist = (option_list_t) malloc(argc * sizeof(struct option_value));
 	while ((opt = getopt(argc, argv, optstr)) != -1) {
+		const int fail = (strchr("?:", opt) != NULL);
 		const struct option_value optval = {
 			.opt = opt,
-			.val = optarg
+			.err = (fail) ? optopt : -1,
+			.val = (fail) ? NULL   : optarg
 		};
-		if (opt != '?') {
-			optlist[optsize++] = optval;
-		}
+		optlist[optsize++] = optval;
+		if (fail) break;
 	}
 
 	/* end of list */

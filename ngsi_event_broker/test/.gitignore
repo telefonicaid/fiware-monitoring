@@ -1,1 +1,7 @@
 suite_metadata_parser
+suite_argument_parser
+suite_broker_common
+suite_broker_host
+suite_broker_snmp
+nagios_main.c
+*mock.c
