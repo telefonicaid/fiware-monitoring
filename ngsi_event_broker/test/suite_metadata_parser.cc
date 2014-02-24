@@ -70,6 +70,7 @@ int main(void)
 	runner.eventManager().addListener(&progress);
 	runner.addTest(MetadataParserTest::suite());
 	MetadataParserTest::suiteSetUp();
+	cout << endl << endl;
 	bool success = runner.run("", false, true, false);
 	MetadataParserTest::suiteTearDown();
 	return (success) ? EXIT_SUCCESS : EXIT_FAILURE;

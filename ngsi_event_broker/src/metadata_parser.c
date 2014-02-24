@@ -66,6 +66,11 @@
  */
 
 
+/* keys for uuid and region */
+#define KEY_UUID	"uuid"
+#define KEY_REGION	"region"
+
+
 /* define internal variables */
 static host_metadata_t*	yajl_metadata = NULL;
 static char*		yajl_last_key = NULL;
@@ -82,11 +87,11 @@ static void init_metadata(host_metadata_t* metadata)
 	yajl_metadata = metadata;
 
 	metadata->uuid			= NULL;
-	key_uuid_str			= "uuid";
+	key_uuid_str			= KEY_UUID;
 	key_uuid_len			= strlen(key_uuid_str);
 
 	metadata->region		= NULL;
-	key_region_str			= "region";
+	key_region_str			= KEY_REGION;
 	key_region_len			= strlen(key_region_str);
 }
 

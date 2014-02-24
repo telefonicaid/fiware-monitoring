@@ -1,5 +1,5 @@
 # Autoconf initialization.
-AC_INIT(ngsi_event_broker, 1.0.1)
+AC_INIT(ngsi_event_broker, 1.1.0)
 AC_LANG(C)
 if test -z "$CFLAGS"; then
    # prevent configure from assigning default flags
@@ -38,6 +38,7 @@ AC_ARG_WITH(nagios-srcdir,
    nagios_srcdir=$withval,
    nagios_srcdir=/usr/local/src/nagios)
 CPPFLAGS="$CPPFLAGS -I$nagios_srcdir/include"
+AC_SUBST([NAGIOS_SRCDIR],[$nagios_srcdir])
 
 # Library version spec (major:minor:revision).
 VERSION_SPEC=$(echo $VERSION | sed 's/\./:/g')
@@ -74,7 +75,7 @@ AC_CACHE_CHECK([for Nagios headers],
    [AC_LANG_SOURCE([[#include "nagios.h"]])],
    my_cv_nagios_headers=yes, my_cv_nagios_headers=no)])
 if test "$my_cv_nagios_headers" = "no"; then
-   AC_MSG_ERROR([cannot find headers (run make modules on $nagios_srcdir)])
+   AC_MSG_ERROR([cannot find headers (run make nagios on $nagios_srcdir)])
 fi
 
 # Checks for libraries.
