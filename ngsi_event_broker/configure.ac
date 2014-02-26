@@ -26,10 +26,12 @@ fi
 if test "$exec_prefix" = "NONE"; then
    exec_prefix=$prefix
 fi
-AC_CANONICAL_HOST
-AS_CASE([$host], [x86_64*],
-   [libdir=$exec_prefix/lib64/nagios],
-   [libdir=$exec_prefix/lib/nagios])
+if test "$libdir" = '${exec_prefix}/lib'; then
+   AC_CANONICAL_HOST
+   AS_CASE([$host], [x86_64*],
+      [libdir=$exec_prefix/lib64/nagios],
+      [libdir=$exec_prefix/lib/nagios])
+fi
 
 # Configuration arguments.
 AC_ARG_WITH(nagios-srcdir,
@@ -54,9 +56,12 @@ AC_PROG_CXX
 if test "$CXX" = "no" || test "$CXX:$GXX" = "g++:"; then
    AC_MSG_ERROR([no C++ compiler found])
 fi
-ifdef([AM_PATH_CPPUNIT],
-   [AM_PATH_CPPUNIT(1.11.0)],
-   [AC_MSG_ERROR([please install CppUnit for tests (requires autoreconf)])])
+ifdef([AM_PATH_CPPUNIT], [AM_PATH_CPPUNIT(1.11.0)])
+if test "$CPPUNIT_CONFIG" = "no"; then
+   AC_MSG_ERROR([please install CppUnit for tests])
+elif test "$cppunit_version_proper" != "1"; then
+   AC_MSG_ERROR([please check CppUnit version])
+fi
 
 # Checks for packages and dependencies.
 AC_CACHE_CHECK([for Nagios sources],
