@@ -1,29 +1,31 @@
 #!/bin/sh
+
 ### BEGIN INIT INFO
 # Provides:          ngsi_adapter
-# Required-Start:    $remote_fs $syslog
-# Required-Stop:     $remote_fs $syslog
+# Required-Start:    $local_fs $remote_fs $network $syslog
+# Required-Stop:     $local_fs $remote_fs $network $syslog
 # Default-Start:     3 4 5
 # Default-Stop:      0 1 2 6
-# Short-Description: NGSI Adapter Service
-# Description:       This file controls execution of NGSI Adapter as a service
+# Short-Description: Init script for starting up NGSI Adapter service
+# Description:       NGSI Adapter is a generic component to transform monitoring
+#                    data from probes to NGSI context attributes, and forward
+#                    them through a NGSI Context Broker.
 ### END INIT INFO
-
-# Author: Pablo Rodriguez <pra@tid.es>
 
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="NGSI Adapter Service"
 NAME=ngsi_adapter
-DAEMON=/home/fiware/NGSI_Adapter
+DAEMON=/home/fiware/NGSI/adapter
 DAEMON_ARGS=""
 DAEMON_USER=fiware
 PIDFILE=/var/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
 
-# Exit if the package is not installed
+# Exit if the component is not installed
 [ -x "$DAEMON" ] || exit 0
 
-# Read configuration variable file if it is present
+# Read configuration variable files, if present
+[ -r /etc/profile ]	  && . /etc/profile
 [ -r /etc/default/$NAME ] && . /etc/default/$NAME
 
 # Load the VERBOSE setting and other rcS variables
@@ -34,15 +36,27 @@ SCRIPTNAME=/etc/init.d/$NAME
 # and status_of_proc is working.
 . /lib/lsb/init-functions
 
-#
+# Function that checks configuration
+do_checkup()
+{
+	local euid=$(id -u)
+	local user=${DAEMON_USER:-none}
+	# check privileges
+	[ $euid -eq 0 ] || { log_failure_msg "Must be superuser to do that action"; return 1; }
+	# check DAEMON_USER
+	id $user >/dev/null 2>&1 || { log_failure_msg "User $DAEMON_USER not found"; return 1; }
+	# check Node.js V8 engine
+	[ -n "$(node -v 2>/dev/null)" ] || { log_failure_msg "Node engine not found"; return 1; }
+}
+
 # Function that starts the daemon/service
-#
 do_start()
 {
 	# Return
 	#   0 if daemon has been started
 	#   1 if daemon was already running
 	#   2 if daemon could not be started
+	do_checkup || return 2
 	start-stop-daemon --start --quiet --pidfile $PIDFILE \
 		--startas $DAEMON --test > /dev/null \
 		|| return 1
@@ -50,14 +64,9 @@ do_start()
 		--background --chuid $DAEMON_USER \
 		--startas $DAEMON -- $DAEMON_ARGS \
 		|| return 2
-	# Add code here, if necessary, that waits for the process to be ready
-	# to handle requests from services started subsequently which depend
-	# on this one.  As a last resort, sleep for some time.
 }
 
-#
 # Function that stops the daemon/service
-#
 do_stop()
 {
 	# Return
@@ -65,6 +74,7 @@ do_stop()
 	#   1 if daemon was already stopped
 	#   2 if daemon could not be stopped
 	#   other if a failure occurred
+	do_checkup || return 2
 	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILE
 	RETVAL="$?"
 	[ "$RETVAL" = 2 ] && return 2
@@ -81,75 +91,30 @@ do_stop()
 	return "$RETVAL"
 }
 
-#
-# Function that sends a SIGHUP to the daemon/service
-#
-do_reload() {
-	#
-	# If the daemon can reload its configuration without
-	# restarting (for example, when it is sent a SIGHUP),
-	# then implement that here.
-	#
-	start-stop-daemon --stop --signal 1 --quiet --pidfile $PIDFILE --name $NAME
-	return 0
-}
-
 case "$1" in
-  start)
-	[ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
-	do_start
-	case "$?" in
-		0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
-		2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
-	esac
-	;;
-  stop)
-	[ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
-	do_stop
-	case "$?" in
-		0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
-		2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
-	esac
-	;;
-  status)
-       status_of_proc -p"$PIDFILE" "$DAEMON" "$NAME" && exit 0 || exit $?
-       ;;
-  #reload|force-reload)
-	#
-	# If do_reload() is not implemented then leave this commented out
-	# and leave 'force-reload' as an alias for 'restart'.
-	#
-	#log_daemon_msg "Reloading $DESC" "$NAME"
-	#do_reload
-	#log_end_msg $?
-	#;;
-  restart|force-reload)
-	#
-	# If the "reload" option is implemented then remove the
-	# 'force-reload' alias
-	#
-	log_daemon_msg "Restarting $DESC" "$NAME"
-	do_stop
-	case "$?" in
-	  0|1)
+	start)
+		[ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
 		do_start
 		case "$?" in
-			0) log_end_msg 0 ;;
-			1) log_end_msg 1 ;; # Old process is still running
-			*) log_end_msg 1 ;; # Failed to start
+			0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+			2)   [ "$VERBOSE" != no ] && log_end_msg 1 ;;
 		esac
 		;;
-	  *)
-	  	# Failed to stop
-		log_end_msg 1
+	stop)
+		[ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
+		do_stop
+		case "$?" in
+			0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+			2)   [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+		esac
 		;;
-	esac
-	;;
-  *)
-	#echo "Usage: $SCRIPTNAME {start|stop|restart|reload|force-reload}" >&2
-	echo "Usage: $SCRIPTNAME {start|stop|status|restart|force-reload}" >&2
-	exit 3
-	;;
+	status)
+		status_of_proc -p"$PIDFILE" "$DAEMON" "$NAME" && exit 0 || exit $?
+		;;
+	*)
+		echo "Usage: $SCRIPTNAME {start|stop|status}" >&2
+		exit 3
+		;;
 esac
 
 :
