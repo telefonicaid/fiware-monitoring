@@ -34,14 +34,28 @@
 NEB_API_VERSION(CURRENT_NEB_API_VERSION)
 
 
-/* default attributes for entity being monitored */
-#define ENTITY_TYPE_LOCAL		"host"
-#define ENTITY_TYPE_REMOTE		"vm"
-
-
 /* event broker module identification */
-#define MODULE_NAME			PACKAGE_NAME "_host"	/* from config.h */
+#define MODULE_NAME			PACKAGE_NAME "_xifi"	/* from config.h */
 #define MODULE_VERSION			PACKAGE_VERSION		/* from config.h */
+
+
+/* [host monitoring] default entity types */
+#define HOST_DEFAULT_ENTITY_TYPE_LOCAL	"host"
+#define HOST_DEFAULT_ENTITY_TYPE_REMOTE	"vm"
+
+
+/* [host monitoring] adapter request query string fields (id = region:hostaddr) */
+#define HOST_ADAPTER_REQUEST_FORMAT	ADAPTER_REQUEST_FORMAT
+
+
+/* [snmp monitoring] default entity type */
+#define SNMP_DEFAULT_ENTITY_TYPE	"interface"
+
+
+/* [snmp monitoring] adapter request query string fields (id = region:hostaddr/port) */
+#define SNMP_ADAPTER_REQUEST_FORMAT	"%s/%s" \
+					"?" ADAPTER_QUERY_FIELD_ID "=%s:%s/%d" \
+					"&" ADAPTER_QUERY_FIELD_TYPE "=%s"
 
 
 /* define module constants and variables */
@@ -67,24 +81,97 @@ int init_module_handle_info(void* handle)
 /* gets adapter request URL including query fields */
 char* get_adapter_request(nebstruct_service_check_data* data)
 {
-	char		buffer[MAXBUFLEN];
-	char*		result = NULL;
-	char*		plugin = NULL;
-	char*		args   = NULL;
-	option_list_t	opts   = NULL;
+	char* result = NULL;
+	char* plugin = NULL;
+	char* args   = NULL;
 
-	/* Get plugin name: if it is SNMP, then ignore; otherwise, take adapter query fields from
-	   plugin arguments, distinguishing between local and NRPE (remote) plugin executions */
+	/* Plugin-specific functions */
+	char* host_get_adapter_request(char* plugin, char* args);
+	char* snmp_get_adapter_request(char* plugin, char* args);
+
+	/* Build request according to plugin name */
 	if ((plugin = find_plugin_name(data, &args)) == NULL) {
 		logging("error", "%s - Cannot get plugin name", module_name);
 		result = ADAPTER_REQUEST_INVALID;
 	} else if (!strcmp(plugin, SNMP_PLUGIN)) {
-		result = strdup(ADAPTER_REQUEST_IGNORE);
-	} else if (strcmp(plugin, NRPE_PLUGIN)) {
-		snprintf(buffer, sizeof(buffer)-1, ADAPTER_REQUEST_FORMAT,
+		result = snmp_get_adapter_request(plugin, args);
+	} else {
+		result = host_get_adapter_request(plugin, args);
+	}
+
+	free(args);
+	args = NULL;
+	free(plugin);
+	plugin = NULL;
+	return result;
+}
+
+
+/* [snmp monitoring] gets adapter request URL */
+char* snmp_get_adapter_request(char* plugin, char* args)
+{
+	char*		result = NULL;
+	option_list_t	opts   = NULL;
+
+	/* Take adapter query fields from plugin arguments */
+	if ((opts = parse_args(args, ":H:C:o:m:")) == NULL) {
+		logging("error", "%s - Cannot get plugin options", module_name);
+		result = ADAPTER_REQUEST_INVALID;
+	} else {
+		char*	host = NULL;
+		int	port = -1;
+		size_t	i;
+
+		/* For interface 10.11.100.80/20, check_snmp plugin options should
+		   look like "-H 10.11.100.80 -o .1.3.6.1.2.1.2.2.1.8.21", where
+		   last number of -o option is port number + 1 */
+		for (i = 0; opts[i].opt != -1; i++) {
+			switch(opts[i].opt) {
+				case 'H': {
+					host = (char*) opts[i].val;
+					break;
+				}
+				case 'o': {
+					char* ptr = strrchr(opts[i].val, '.');
+					port = (ptr) ? (atoi(++ptr) - 1) : -1;
+					break;
+				}
+			}
+		}
+		if ((host == NULL) || (port == -1)) {
+			logging("error", "%s - Missing plugin options", module_name);
+			result = ADAPTER_REQUEST_INVALID;
+		} else {
+			char buffer[MAXBUFLEN];
+			snprintf(buffer, sizeof(buffer)-1, SNMP_ADAPTER_REQUEST_FORMAT,
+			         adapter_url, plugin,
+			         region_id, host, port,
+			         SNMP_DEFAULT_ENTITY_TYPE);
+			buffer[sizeof(buffer)-1] = '\0';
+			result = strdup(buffer);
+		}
+	}
+
+	free(opts);
+	opts = NULL;
+	return result;
+}
+
+
+/* [host monitoring] gets adapter request URL */
+char* host_get_adapter_request(char* plugin, char* args)
+{
+	char		buffer[MAXBUFLEN];
+	char*		result = NULL;
+	option_list_t	opts   = NULL;
+
+	/* Take adapter query fields from plugin arguments, distinguishing
+	   between local and NRPE (remote) plugin executions */
+	if (strcmp(plugin, NRPE_PLUGIN)) {
+		snprintf(buffer, sizeof(buffer)-1, HOST_ADAPTER_REQUEST_FORMAT,
 		         adapter_url, plugin,
 		         region_id, host_addr,
-		         ENTITY_TYPE_LOCAL);
+		         HOST_DEFAULT_ENTITY_TYPE_LOCAL);
 		buffer[sizeof(buffer)-1] = '\0';
 		result = strdup(buffer);
 	} else if ((opts = parse_args(args, ":H:c:t:")) == NULL) {
@@ -95,6 +182,7 @@ char* get_adapter_request(nebstruct_service_check_data* data)
 		const char* host = NULL;
 		const char* name = NULL;
 		size_t      i;
+
 		for (i = 0; opts[i].opt != -1; i++) {
 			switch(opts[i].opt) {
 				case 'H': {
@@ -107,17 +195,17 @@ char* get_adapter_request(nebstruct_service_check_data* data)
 				}
 			}
 		}
-		if (!host || !name) {
+		if ((host == NULL) || (name == NULL)) {
 			logging("error", "%s - Missing NRPE plugin options", module_name);
 			result = ADAPTER_REQUEST_INVALID;
 		} else if (resolve_address(host, addr, INET_ADDRSTRLEN)) {
 			logging("error", "%s - Cannot resolve remote address for %s", module_name, host);
 			result = ADAPTER_REQUEST_INVALID;
 		} else {
-			snprintf(buffer, sizeof(buffer)-1, ADAPTER_REQUEST_FORMAT,
+			snprintf(buffer, sizeof(buffer)-1, HOST_ADAPTER_REQUEST_FORMAT,
 			         adapter_url, name,
 			         region_id, addr,
-			         ENTITY_TYPE_REMOTE);
+			         HOST_DEFAULT_ENTITY_TYPE_REMOTE);
 			buffer[sizeof(buffer)-1] = '\0';
 			result = strdup(buffer);
 		}
@@ -125,9 +213,5 @@ char* get_adapter_request(nebstruct_service_check_data* data)
 
 	free(opts);
 	opts = NULL;
-	free(args);
-	args = NULL;
-	free(plugin);
-	plugin = NULL;
 	return result;
 }
