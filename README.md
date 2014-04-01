@@ -1,4 +1,15 @@
-# FIWARE Monitoring GEi components.
+# FIWARE Monitoring GE components.
+
+## Changelog
+
+Release 3.3.3
+
+* ngsi_event_broker version 1.3.0
+
+Release 3.3.2
+
+* ngsi_event_broker version 1.1.0
+* ngsi_adapter version 1.0.1
 
 ## License
 

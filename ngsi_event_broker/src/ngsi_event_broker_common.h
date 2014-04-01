@@ -33,8 +33,9 @@ extern "C" {
 #define MAXBUFLEN			512
 
 
-/* name of the SNMP plugin (ignored by some modules) */
+/* name of the SNMP plugin */
 #define SNMP_PLUGIN			"check_snmp"
+
 
 /* name of the NRPE plugin (remote plugin executions) */
 #define NRPE_PLUGIN			"check_nrpe"
@@ -51,11 +52,6 @@ extern "C" {
 #define ADAPTER_REQUEST_FORMAT		"%s/%s" \
 					"?" ADAPTER_QUERY_FIELD_ID "=%s:%s" \
 					"&" ADAPTER_QUERY_FIELD_TYPE "=%s"
-
-
-/* metadata service from OpenStack */
-#define OPENSTACK_METADATA_SERVICE_URL	"http://169.254.169.254/openstack/2012-08-10/meta_data.json"
-#define OPENSTACK_MIN_REQ_VERSION	"Folsom"
 
 
 /* Nagios internal symbols */
@@ -78,6 +74,7 @@ int    free_module_variables(void);
 int    check_nagios_object_version(void);
 int    callback_service_check(int callback_type, void* data);
 char*  find_plugin_name(nebstruct_service_check_data* data, char** args);
+char*  find_plugin_command_name(nebstruct_service_check_data* data, char** args, int* nrpe, const service** serv);
 char*  get_adapter_request(nebstruct_service_check_data* data);
 int    resolve_address(const char* hostname, char* addr, size_t addrmaxlen);
 void   logging(const char* level, const char* format, ...);

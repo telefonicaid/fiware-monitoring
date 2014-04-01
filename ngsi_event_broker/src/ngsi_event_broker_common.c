@@ -251,6 +251,61 @@ char* find_plugin_name(nebstruct_service_check_data* data, char** args)
 }
 
 
+/* gets the command name, arguments and other details of the executed plugin */
+char* find_plugin_command_name(nebstruct_service_check_data* data, char** args, int* nrpe, const service** serv)
+{
+	host*    check_host	= NULL;
+	service* check_service	= NULL;
+	command* check_command	= NULL;
+	char*    result		= NULL;
+	int      is_nrpe	= 0;
+
+	if (((check_host = find_host(data->host_name)) != NULL)
+	    && ((check_service = find_service(data->host_name, data->service_description)) != NULL)) {
+		char* ptr;
+		char* last;
+		char* command_name;
+		char* command_args;
+		char* service_check_command = strdup(check_service->service_check_command);
+		command_name = strtok_r(service_check_command, "!", &command_args);
+		if ((check_command = find_command(command_name)) != NULL) {
+			/* plugin service */
+			if (serv != NULL) *serv = check_service;
+			/* plugin arguments */
+			if (args != NULL) {
+				nagios_macros	mac;
+				char*		raw = NULL;
+				char*		cmd = NULL;
+				memset(&mac, 0, sizeof(mac));
+				grab_host_macros_r(&mac, check_host);
+				grab_service_macros_r(&mac, check_service);
+				get_raw_command_line_r(&mac, check_command,
+				                       check_service->service_check_command,
+				                       &raw, 0);
+				if (raw != NULL) {
+					char* exec;
+					process_macros_r(&mac, raw, &cmd, 0);
+					strtok_r(cmd, " \t", &last);
+					ptr = strrchr(cmd, '/');
+					exec = (ptr) ? ++ptr : cmd;
+					*args = strdup(last);
+					is_nrpe = !strcmp(exec, NRPE_PLUGIN);
+					if (nrpe != NULL) *nrpe = is_nrpe;
+				}
+				my_free(raw);
+				my_free(cmd);
+			}
+		}
+		/* command name (after resolving NRPE remote command) */
+		result = strdup((is_nrpe) ? command_args : command_name);
+		free(service_check_command);
+		service_check_command = NULL;
+	}
+
+	return result;
+}
+
+
 /* Nagios service check callback */
 int callback_service_check(int callback_type, void* data)
 {
