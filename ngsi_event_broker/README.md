@@ -49,6 +49,11 @@ query parameters:
 http://host:port/check_snmp?id=region:ifaddr/ifport&type=interface
 ```
 
+* Host service monitoring:
+```
+http://host:port/check_xxxx?id=region:hostname:servname&type=host_service
+```
+
 * Other plugins executed locally:
 ```
 http://host:port/check_xxxx?id=region:localaddr&type=host
@@ -60,6 +65,10 @@ http://host:port/check_xxxx?id=region:nrpeaddr&type=vm
 ```
 
 ## Changelog
+
+Version 1.3.0
+
+* Included "host_service" monitoring
 
 Version 1.2.0
 
