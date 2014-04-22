@@ -145,21 +145,21 @@ void ArgumentParserTest::parse_detects_missing_required_argument()
 	char	opt_valid  = 'a',
 		opt_no_arg = 'b';
 
-	ostringstream buffer(OPTSTR_PREFIX, ios_base::ate);
-	string optstr = ((ostringstream&)(buffer
+	// given
+	string optstr = ((ostringstream&)(ostringstream(OPTSTR_PREFIX, ios_base::ate).flush()
 		<< opt_valid  << ':'
 		<< opt_no_arg << ':'
-	)).str();
-
-	buffer.str("");
-	string argline = ((ostringstream&)(buffer
+		)).str();
+	string argline = ((ostringstream&)(ostringstream().flush()
 		<<        '-' << opt_valid  << "value"
 		<< ' ' << '-' << opt_no_arg << ""
-	)).str();
+		)).str();
 
+	// when
 	list<OptionValue> optlist;
 	parse_args(argline, optstr, optlist);
 
+	// then
 	bool found_opt_valid  = false;
 	bool found_opt_no_arg = false;
 	bool detected_missing = false;
@@ -168,7 +168,6 @@ void ArgumentParserTest::parse_detects_missing_required_argument()
 		found_opt_no_arg = found_opt_no_arg   || (iter->opt == opt_no_arg);
 		detected_missing = (iter->opt == ':') && (iter->err == opt_no_arg);
 	}
-
 	CPPUNIT_ASSERT_EQUAL(true, found_opt_valid && !found_opt_no_arg);
 	CPPUNIT_ASSERT_EQUAL(true, detected_missing);
 }
@@ -179,20 +178,20 @@ void ArgumentParserTest::parse_detects_unknown_option()
 	char	opt_valid   = 'a',
 		opt_unknown = 'b';
 
-	ostringstream buffer(OPTSTR_PREFIX, ios_base::ate);
-	string optstr = ((ostringstream&)(buffer
+	// given
+	string optstr = ((ostringstream&)(ostringstream(OPTSTR_PREFIX, ios_base::ate).flush()
 		<< opt_valid << ':'
-	)).str();
-
-	buffer.str("");
-	string argline = ((ostringstream&)(buffer
+		)).str();
+	string argline = ((ostringstream&)(ostringstream().flush()
 		<<        '-' << opt_valid   << "value"
 		<< ' ' << '-' << opt_unknown << "value"
-	)).str();
+		)).str();
 
+	// when
 	list<OptionValue> optlist;
 	parse_args(argline, optstr, optlist);
 
+	// then
 	bool found_opt_valid   = false;
 	bool found_opt_unknown = false;
 	bool detected_unknown  = false;
@@ -201,7 +200,6 @@ void ArgumentParserTest::parse_detects_unknown_option()
 		found_opt_unknown = found_opt_unknown  || (iter->opt == opt_unknown);
 		detected_unknown  = (iter->opt == '?') && (iter->err == opt_unknown);
 	}
-
 	CPPUNIT_ASSERT_EQUAL(true, found_opt_valid && !found_opt_unknown);
 	CPPUNIT_ASSERT_EQUAL(true, detected_unknown);
 }
@@ -230,27 +228,26 @@ void ArgumentParserTest::parse_ok_with_valid_argument_opts(const string& separat
 	char	opt_valid_1 = 'a',
 		opt_valid_2 = 'b';
 
-	ostringstream buffer(OPTSTR_PREFIX, ios_base::ate);
-	string optstr = ((ostringstream&)(buffer
+	// given
+	string optstr = ((ostringstream&)(ostringstream(OPTSTR_PREFIX, ios_base::ate).flush()
 		<< opt_valid_1 << ':'
 		<< opt_valid_2 << ':'
-	)).str();
-
-	buffer.str("");
-	string argline = ((ostringstream&)(buffer
+		)).str();
+	string argline = ((ostringstream&)(ostringstream().flush()
 		<<        '-' << opt_valid_1 << separator << "value"
 		<< ' ' << '-' << opt_valid_2 << separator << "value"
-	)).str();
+		)).str();
 
+	// when
 	list<OptionValue> optlist;
 	parse_args(argline, optstr, optlist);
 
+	// then
 	bool found_opt_valid_1 = false;
 	bool found_opt_valid_2 = false;
 	for (list<OptionValue>::iterator iter = optlist.begin(); iter != optlist.end(); iter++) {
 		found_opt_valid_1 = found_opt_valid_1 || (iter->opt == opt_valid_1);
 		found_opt_valid_2 = found_opt_valid_2 || (iter->opt == opt_valid_2);
 	}
-
 	CPPUNIT_ASSERT(found_opt_valid_1 && found_opt_valid_2 && (optlist.size()==2));
 }
