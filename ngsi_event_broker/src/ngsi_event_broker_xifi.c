@@ -28,6 +28,7 @@
 #include "broker.h"
 #include "argument_parser.h"
 #include "ngsi_event_broker_common.h"
+#include "ngsi_event_broker_xifi.h"
 
 
 /* specify event broker API version (required) */
@@ -39,22 +40,8 @@ NEB_API_VERSION(CURRENT_NEB_API_VERSION)
 #define MODULE_VERSION			PACKAGE_VERSION		/* from config.h  */
 
 
-/* custom variables in service definitions */
-#define CUSTOM_VAR_ENTITY_TYPE		"ENTITY_TYPE"		/* = _entity_type */
-
-
-/* [DEM monitoring] default entity type */
-#define DEM_ENTITY_TYPE_LOCAL		"host"
-#define DEM_ENTITY_TYPE_REMOTE		"vm"
-#define DEM_DEFAULT_ENTITY_TYPE		DEM_ENTITY_TYPE_REMOTE
-
-
 /* [DEM monitoring] adapter request query string fields (id = region:hostaddr) */
 #define DEM_ADAPTER_REQUEST_FORMAT	ADAPTER_REQUEST_FORMAT
-
-
-/* [NPM monitoring] default entity type */
-#define NPM_DEFAULT_ENTITY_TYPE		"interface"
 
 
 /* [NPM monitoring] adapter request query string fields (id = region:hostaddr/port) */
@@ -63,11 +50,7 @@ NEB_API_VERSION(CURRENT_NEB_API_VERSION)
 					"&" ADAPTER_QUERY_FIELD_TYPE "=%s"
 
 
-/* [host service monitoring] default entity type */
-#define SRV_DEFAULT_ENTITY_TYPE		"host_service"
-
-
-/* [host service monitoring] adapter request query string fields (id = region:hostname:servname) */
+/* [Host service monitoring] adapter request query string fields (id = region:hostname:servname) */
 #define SRV_ADAPTER_REQUEST_FORMAT	"%s/%s" \
 					"?" ADAPTER_QUERY_FIELD_ID "=%s:%s:%s" \
 					"&" ADAPTER_QUERY_FIELD_TYPE "=%s"
@@ -118,7 +101,12 @@ char* get_adapter_request(nebstruct_service_check_data* data)
 		const char*		type = NULL;
 		customvariablesmember*	vars = serv->custom_variables;
 
-		/* get entity type */
+		/* get entity type, either explicitly from custom variable or implicitly,
+		   assuming that:
+		 * - SNMP plugin implies NPM monitoring
+		 * - NRPE plugin implies DEM remote instance monitoring
+		 * - None of the above implies DEM local host monitoring
+		 */
 		if ((vars != NULL) && !strcmp(vars->variable_name, CUSTOM_VAR_ENTITY_TYPE)) {
 			type = vars->variable_value;
 		} else if (!strcmp(name, SNMP_PLUGIN)) {
@@ -248,7 +236,7 @@ char* dem_get_adapter_request(char* name, char* args, const char* type, int nrpe
 }
 
 
-/* [host service monitoring] gets adapter request URL */
+/* [Host service monitoring] gets adapter request URL */
 char* srv_get_adapter_request(char* name, char* args, const char* type, const service* serv)
 {
 	char* result = NULL;

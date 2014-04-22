@@ -35,7 +35,7 @@ using CppUnit::BriefTestProgressListener;
 using namespace std;
 
 
-// define module constants and variables
+// define constants and variables for the module
 extern "C" {
 	char* const module_name		= PACKAGE_NAME;
 	char* const module_version	= PACKAGE_VERSION;
@@ -43,7 +43,7 @@ extern "C" {
 }
 
 
-// define module (dummy) functions
+// define stub functions for the module
 extern "C" {
 	int init_module_handle_info(void* handle)
 	{
@@ -138,44 +138,50 @@ void BrokerCommonTest::tearDown()
 
 void BrokerCommonTest::init_fails_with_missing_adapter_url()
 {
-	string	region = "region";
-
-	ostringstream buffer;
-	string argline = ((ostringstream&)(buffer
+	// given
+	string	region	= "region";
+	string	argline	= ((ostringstream&)(ostringstream().flush()
 		<< "-r" << region
-	)).str();
+		)).str();
 
+	// when
 	bool init_error = init_module_variables(argline);
+
+	// then
 	CPPUNIT_ASSERT(init_error);
 }
 
 
 void BrokerCommonTest::init_fails_with_missing_region()
 {
-	string	url = "url";
-
-	ostringstream buffer;
-	string argline = ((ostringstream&)(buffer
+	// given
+	string	url	= "url";
+	string	argline	= ((ostringstream&)(ostringstream().flush()
 		<< "-u" << url
-	)).str();
+		)).str();
 
+	// when
 	bool init_error = init_module_variables(argline);
+
+	// then
 	CPPUNIT_ASSERT(init_error);
 }
 
 
 void BrokerCommonTest::init_ok_with_valid_args()
 {
-	string	url    = "url",
-		region = "region";
-
-	ostringstream buffer;
-	string argline = ((ostringstream&)(buffer
+	// given
+	string	url	= "url",
+		region	= "region",
+		argline	= ((ostringstream&)(ostringstream().flush()
 		<<        "-u" << url
 		<< ' ' << "-r" << region
-	)).str();
+		)).str();
 
+	// when
 	bool init_error = init_module_variables(argline);
+
+	// then
 	CPPUNIT_ASSERT(!init_error);
 	CPPUNIT_ASSERT(url == ::adapter_url);
 	CPPUNIT_ASSERT(region == ::region_id);
