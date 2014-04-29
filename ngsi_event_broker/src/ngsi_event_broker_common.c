@@ -6,13 +6,22 @@
  * not use this file except in compliance with the License. You may obtain
  * a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations
  * under the License.
+ */
+
+
+/**
+ * @file   ngsi_event_broker_common.c
+ * @brief  NGSI Event Broker common implementation
+ *
+ * This file defines some functions that are common to any specific implementation
+ * of this [Event Broker](@NagiosModule_ref) module.
  */
 
 
@@ -38,16 +47,26 @@
 #include "ngsi_event_broker_common.h"
 
 
-/* define common global variables */
+/* define common global variables (previously declared) */
 char* adapter_url = NULL;
 char* region_id   = NULL;
 char* host_addr   = NULL;
 
 
-/************************************************************************/
+/**
+ * @name Nagios NEB API entry points
+ * @{
+ */
 
 
-/* deinitialization */
+/**
+ * Deinitializes the module (entry point for [NEB API](@NagiosModule_ref))
+ *
+ * @param[in] flags	The deinitialization flags (ignored).
+ * @param[in] reason	The reason why this module is being deinitialized.
+ *
+ * @retval NEB_OK	Successfully initialized.
+ */
 int nebmodule_deinit(int flags, int reason)
 {
 	int result = NEB_OK;
@@ -63,7 +82,16 @@ int nebmodule_deinit(int flags, int reason)
 }
 
 
-/* initialization */
+/**
+ * Initializes the module (entry point for [NEB API](@NagiosModule_ref))
+ *
+ * @param[in] flags	The initialization flags (ignored).
+ * @param[in] args	The module arguments as a space-separated string.
+ * @param[in] handle	The module handle passed by Nagios Core server.
+ *
+ * @retval NEB_OK	Successfully initialized.
+ * @retval NEB_ERROR	Not successfully initialized.
+ */
 int nebmodule_init(int flags, char* args, void* handle)
 {
 	int result = NEB_OK;
@@ -90,7 +118,7 @@ int nebmodule_init(int flags, char* args, void* handle)
 }
 
 
-/************************************************************************/
+/**@}*/
 
 
 /* checks to make sure Nagios object version matches what we know about */

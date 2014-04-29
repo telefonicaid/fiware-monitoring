@@ -6,13 +6,22 @@
  * not use this file except in compliance with the License. You may obtain
  * a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations
  * under the License.
+ */
+
+
+/**
+ * @file   suite_broker_xifi_dem.cc
+ * @brief  Test suite to verify DEM features from XIFI-specific event broker
+ *
+ * This file defines unit tests to verify DEM features from the XIFI-specific
+ * event broker implementation (see ngsi_event_broker_xifi.c).
  */
 
 
@@ -42,31 +51,31 @@ using CppUnit::BriefTestProgressListener;
 using namespace std;
 
 
-// any nebstruct_service_check_data (ignored)
+/// Any `nebstruct_service_check_data` (ignored)
 #define CHECK_DATA			NULL
 
 
-// any custom entity type
+/// Any custom entity type
 #define SOME_ENTITY_TYPE		"some"
 
 
-// any remote address
+/// Any remote address
 #define REMOTEHOST_ADDR			"169.254.0.1"
 
 
-// any adapter URL
+/// Any adapter URL
 #define ADAPTER_URL			"http://localhost:5000"
 
 
-// any region id
+/// Any region id
 #define REGION_ID			"myregion"
 
 
-// any timeout
+/// Any timeout
 #define TIMEOUT				1000
 
 
-// test suite
+/// XIFI Broker (DEM features) test suite
 class BrokerXifiDemTest: public TestFixture
 {
 	static string			localhost_addr;
@@ -76,12 +85,12 @@ class BrokerXifiDemTest: public TestFixture
 	static service			plugin_serv;
 	static customvariablesmember	custom_vars;
 
-	// C external function wrappers
+	// C function wrappers
 	static bool init_module_variables(const string& args);
 	static bool free_module_variables();
 	static bool get_adapter_request(nebstruct_service_check_data* data, string& request);
 
-	// mock for find_plugin_command_name()
+	// mock for function ::find_plugin_command_name()
 	friend char* find_plugin_command_name(nebstruct_service_check_data* data, char** args, int* nrpe, const service** serv);
 
 	// tests
@@ -112,6 +121,7 @@ public:
 };
 
 
+/// Suite startup
 int main(void)
 {
 	TextTestRunner runner;
@@ -126,9 +136,6 @@ int main(void)
 }
 
 
-///////////////////////////////////////////////////////
-
-
 string			BrokerXifiDemTest::localhost_addr;
 string			BrokerXifiDemTest::plugin_name;
 string			BrokerXifiDemTest::plugin_args;
@@ -137,6 +144,10 @@ service			BrokerXifiDemTest::plugin_serv;
 customvariablesmember	BrokerXifiDemTest::custom_vars;
 
 
+///
+/// Mock for function ::find_plugin_command_name()
+/// @memberof BrokerXifiDemTest
+///
 char* find_plugin_command_name(nebstruct_service_check_data* data, char** args, int* nrpe, const service** serv)
 {
 	char* name = NULL;
@@ -150,6 +161,12 @@ char* find_plugin_command_name(nebstruct_service_check_data* data, char** args, 
 }
 
 
+///
+/// C++ wrapper for function ::init_module_variables()
+///
+/// @param[in] args	The module arguments as a space-separated string.
+/// @return		Successful initialization.
+///
 bool BrokerXifiDemTest::init_module_variables(const string& args)
 {
 	char buffer[MAXBUFLEN];
@@ -158,12 +175,24 @@ bool BrokerXifiDemTest::init_module_variables(const string& args)
 }
 
 
+///
+/// C++ wrapper for function ::free_module_variables()
+///
+/// @return		Successful resources release.
+///
 bool BrokerXifiDemTest::free_module_variables()
 {
 	return (bool) ::free_module_variables();
 }
 
 
+///
+/// C++ wrapper for function ::get_adapter_request()
+///
+/// @param[in]  data	The plugin data passed by Nagios to the registered callback_service_check().
+/// @param[out] request	The request URL to invoke NGSI Adapter (including query string).
+/// @return		Request successfully generated.
+///
 bool BrokerXifiDemTest::get_adapter_request(nebstruct_service_check_data* data, string& request)
 {
 	char* result = ::get_adapter_request(data);
@@ -175,6 +204,9 @@ bool BrokerXifiDemTest::get_adapter_request(nebstruct_service_check_data* data, 
 }
 
 
+///
+/// Suite setup
+///
 void BrokerXifiDemTest::suiteSetUp()
 {
 	char name[HOST_NAME_MAX];
@@ -198,20 +230,32 @@ void BrokerXifiDemTest::suiteSetUp()
 }
 
 
+///
+/// Suite teardown
+///
 void BrokerXifiDemTest::suiteTearDown()
 {
 	free_module_variables();
 }
 
 
+///
+/// Tests setup
+///
 void BrokerXifiDemTest::setUp()
 {
 }
 
 
+///
+/// Tests teardown
+///
 void BrokerXifiDemTest::tearDown()
 {
 }
+
+
+//////////////////////////////////
 
 
 void BrokerXifiDemTest::wrong_request_remote_physical_host_implicit_type()

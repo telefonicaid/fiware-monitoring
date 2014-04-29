@@ -6,13 +6,23 @@
  * not use this file except in compliance with the License. You may obtain
  * a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations
  * under the License.
+ */
+
+
+/**
+ * @file   ngsi_event_broker_xifi.c
+ * @brief  XIFI-specific Event Broker implementation
+ *
+ * This file consists of the implementation of [XIFI](@XIFI_ref)-specific
+ * [Event Broker](@NagiosModule_ref) (needed by XIFI modules [DEM](@DEM_ref)
+ * and [NPM](@NPM_ref)).
  */
 
 
@@ -35,28 +45,21 @@
 NEB_API_VERSION(CURRENT_NEB_API_VERSION)
 
 
-/* event broker module identification */
-#define MODULE_NAME			PACKAGE_NAME "_xifi"	/* from config.h  */
-#define MODULE_VERSION			PACKAGE_VERSION		/* from config.h  */
+/**
+ * @name Event Broker module identification
+ * @{
+ */
+
+/** Module name (from package details defined by `config.h`) */
+#define MODULE_NAME			PACKAGE_NAME "_xifi"
+
+/** Module version (from package details defined by `config.h`) */
+#define MODULE_VERSION			PACKAGE_VERSION
+
+/**@}*/
 
 
-/* [DEM monitoring] adapter request query string fields (id = region:hostaddr) */
-#define DEM_ADAPTER_REQUEST_FORMAT	ADAPTER_REQUEST_FORMAT
-
-
-/* [NPM monitoring] adapter request query string fields (id = region:hostaddr/port) */
-#define NPM_ADAPTER_REQUEST_FORMAT	"%s/%s" \
-					"?" ADAPTER_QUERY_FIELD_ID "=%s:%s/%d" \
-					"&" ADAPTER_QUERY_FIELD_TYPE "=%s"
-
-
-/* [Host service monitoring] adapter request query string fields (id = region:hostname:servname) */
-#define SRV_ADAPTER_REQUEST_FORMAT	"%s/%s" \
-					"?" ADAPTER_QUERY_FIELD_ID "=%s:%s:%s" \
-					"&" ADAPTER_QUERY_FIELD_TYPE "=%s"
-
-
-/* define module constants and variables */
+/* define global variables (previously declared) */
 char* const module_name			= MODULE_NAME;
 char* const module_version		= MODULE_VERSION;
 void*       module_handle		= NULL;
@@ -83,11 +86,6 @@ char* get_adapter_request(nebstruct_service_check_data* data)
 	char* name   = NULL;
 	char* args   = NULL;
 	int   nrpe   = 0;
-
-	/* XIMM module-specific functions */
-	char* srv_get_adapter_request(char* name, char* args, const char* type, const service* serv);
-	char* dem_get_adapter_request(char* name, char* args, const char* type, int nrpe);
-	char* npm_get_adapter_request(char* name, char* args, const char* type);
 
 	/* Build request according to plugin details */
 	const service* serv;

@@ -16,6 +16,16 @@
  */
 
 
+/**
+ * @file   suite_broker_xifi_srv.cc
+ * @brief  Test suite to verify host service monitoring features from XIFI-specific
+ *         event broker
+ *
+ * This file defines unit tests to verify host service monitoring features from
+ * the XIFI-specific event broker implementation (see ngsi_event_broker_xifi.c).
+ */
+
+
 #include <string>
 #include <sstream>
 #include <cstring>
@@ -42,36 +52,39 @@ using CppUnit::BriefTestProgressListener;
 using namespace std;
 
 
-// any nebstruct_service_check_data (ignored)
+/// Any nebstruct_service_check_data (ignored)
 #define CHECK_DATA			NULL
 
 
-// any custom entity type
+/// Any custom entity type
 #define SOME_ENTITY_TYPE		"some"
 
 
-// any service host_name and description
+/// Any service host_name
 #define SERVICE_HOST_NAME		"node1"
+
+
+/// Any service description
 #define SERVICE_DESCRIPTION		"nova-scheduler"
 
 
-// any remote address
+/// Any remote address
 #define REMOTE_ADDR			"169.254.0.1"
 
 
-// any adapter URL
+/// Any adapter URL
 #define ADAPTER_URL			"http://localhost:5000"
 
 
-// any region id
+/// Any region id
 #define REGION_ID			"myregion"
 
 
-// any timeout
+/// Any timeout
 #define TIMEOUT				1000
 
 
-// test suite
+/// XIFI Broker (host service monitoring features) test suite
 class BrokerXifiSrvTest: public TestFixture
 {
 	static string			plugin_name;
@@ -80,12 +93,12 @@ class BrokerXifiSrvTest: public TestFixture
 	static service			plugin_serv;
 	static customvariablesmember	custom_vars;
 
-	// C external function wrappers
+	// C function wrappers
 	static bool init_module_variables(const string& args);
 	static bool free_module_variables();
 	static bool get_adapter_request(nebstruct_service_check_data* data, string& request);
 
-	// mock for find_plugin_command_name()
+	// mock for function ::find_plugin_command_name()
 	friend char* find_plugin_command_name(nebstruct_service_check_data* data, char** args, int* nrpe, const service** serv);
 
 	// tests
@@ -108,6 +121,7 @@ public:
 };
 
 
+/// Suite startup
 int main(void)
 {
 	TextTestRunner runner;
@@ -122,9 +136,6 @@ int main(void)
 }
 
 
-///////////////////////////////////////////////////////
-
-
 string			BrokerXifiSrvTest::plugin_name;
 string			BrokerXifiSrvTest::plugin_args;
 bool			BrokerXifiSrvTest::plugin_nrpe;
@@ -132,6 +143,10 @@ service			BrokerXifiSrvTest::plugin_serv;
 customvariablesmember	BrokerXifiSrvTest::custom_vars;
 
 
+///
+/// Mock for function ::find_plugin_command_name()
+/// @memberof BrokerXifiSrvTest
+///
 char* find_plugin_command_name(nebstruct_service_check_data* data, char** args, int* nrpe, const service** serv)
 {
 	char* name = NULL;
@@ -145,6 +160,12 @@ char* find_plugin_command_name(nebstruct_service_check_data* data, char** args, 
 }
 
 
+///
+/// C++ wrapper for function ::init_module_variables()
+///
+/// @param[in] args	The module arguments as a space-separated string.
+/// @return		Successful initialization.
+///
 bool BrokerXifiSrvTest::init_module_variables(const string& args)
 {
 	char buffer[MAXBUFLEN];
@@ -153,12 +174,24 @@ bool BrokerXifiSrvTest::init_module_variables(const string& args)
 }
 
 
+///
+/// C++ wrapper for function ::free_module_variables()
+///
+/// @return		Successful resources release.
+///
 bool BrokerXifiSrvTest::free_module_variables()
 {
 	return (bool) ::free_module_variables();
 }
 
 
+///
+/// C++ wrapper for function ::get_adapter_request()
+///
+/// @param[in]  data	The plugin data passed by Nagios to the registered callback_service_check().
+/// @param[out] request	The request URL to invoke NGSI Adapter (including query string).
+/// @return		Request successfully generated.
+///
 bool BrokerXifiSrvTest::get_adapter_request(nebstruct_service_check_data* data, string& request)
 {
 	char* result = ::get_adapter_request(data);
@@ -170,6 +203,9 @@ bool BrokerXifiSrvTest::get_adapter_request(nebstruct_service_check_data* data, 
 }
 
 
+///
+/// Suite setup
+///
 void BrokerXifiSrvTest::suiteSetUp()
 {
 	string argline	= ((ostringstream&)(ostringstream().flush()
@@ -184,20 +220,32 @@ void BrokerXifiSrvTest::suiteSetUp()
 }
 
 
+///
+/// Suite teardown
+///
 void BrokerXifiSrvTest::suiteTearDown()
 {
 	free_module_variables();
 }
 
 
+///
+/// Tests setup
+///
 void BrokerXifiSrvTest::setUp()
 {
 }
 
 
+///
+/// Tests teardown
+///
 void BrokerXifiSrvTest::tearDown()
 {
 }
+
+
+//////////////////////////////////
 
 
 void BrokerXifiSrvTest::wrong_request_local_plugin_implicit_type()
