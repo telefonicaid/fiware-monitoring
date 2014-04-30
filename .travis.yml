@@ -1,8 +1,6 @@
-language: cpp
-
-#language: node_js
-#node_js:
-#  - "0.10"
+language: node_js
+node_js:
+  - "0.10"
 
 env:
   global:
@@ -10,30 +8,11 @@ env:
   # COVERALLS_REPO_TOKEN (encrypted)
   - secure: 2u6FvPQcKdVet4TGVQDZDp9NroU4ku5sDQmPYZfLJj8ECIDO0y3JQZtSBWbM8RwabYjIOJlJ0kRyiEaN3zAudFal6i/jJrqkq6wzsyXSOs99nJZ2B2I/YF03YVAqXn1gqKveJYaytiUcm1KuuS3XbXzHmI2W8aHIScVpQMwI7MU=
 
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install build-essential libcppunit-dev
-  - wget http://prdownloads.sourceforge.net/sourceforge/nagios/nagios-3.2.3.tar.gz
-  - tar xzf nagios-3.2.3.tar.gz
-  - cd nagios-3.2.3/
-  - ./configure
-  - make nagios
-
 install:
-  # NGSI Event Broker
-  - pushd ngsi_event_broker/
-  - mkdir m4
-  - autoreconf -i
-  - ./configure --with-nagios-srcdir=../nagios-3.2.3/
-  - make
-  - make check
-  - popd
-  # NGSI Adapter
-  - pushd ngsi_adapter/src/
+  - cd ngsi_adapter/src/
   - npm install
   - npm install -g grunt-cli
   - npm install coveralls --save 
-  - popd
 
 after_success:
   - grunt coverage-report && cat site/coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
