@@ -13,7 +13,7 @@ install:
   - npm install
   - npm install -g grunt-cli
   - npm install coveralls --save 
-  - npm install mocha-lcov-reporter --save 
 
 after_success:
+  - grunt coverage-report && ls -R site/
   - istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage
