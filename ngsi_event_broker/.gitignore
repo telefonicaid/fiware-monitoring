@@ -12,3 +12,4 @@ stamp-*
 Makefile
 Makefile.in
 *.src.tar.gz
+docs

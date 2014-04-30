@@ -6,13 +6,22 @@
  * not use this file except in compliance with the License. You may obtain
  * a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations
  * under the License.
+ */
+
+
+/**
+ * @file   suite_broker_xifi_npm.cc
+ * @brief  Test suite to verify NPM features from XIFI-specific event broker
+ *
+ * This file defines unit tests to verify NPM features from the XIFI-specific
+ * event broker implementation (see ngsi_event_broker_xifi.c).
  */
 
 
@@ -47,45 +56,51 @@ using namespace std;
 #define STR(s)				_STR(s)
 
 
-// any nebstruct_service_check_data (ignored)
+/// Any nebstruct_service_check_data (ignored)
 #define CHECK_DATA			NULL
 
 
-// any custom entity type
+/// Any custom entity type
 #define SOME_ENTITY_TYPE		"some"
 
 
-// any remote address and port
+/// Any remote address
 #define REMOTE_ADDR			"169.254.0.1"
+
+
+/// Any remote port
 #define PORT				((PORT_PLUS_1) - 1)
+
+
+/// Any remote port (+1)
 #define PORT_PLUS_1			21
 
 
-// any adapter URL
+/// Any adapter URL
 #define ADAPTER_URL			"http://localhost:5000"
 
 
-// any region id
+/// Any region id
 #define REGION_ID			"myregion"
 
 
-// any timeout
+/// Any timeout
 #define TIMEOUT				1000
 
 
-// any SNMP community
+/// Any SNMP community
 #define SNMP_COMMUNITY			"community"
 
 
-// any SNMP miblist
+/// Any SNMP miblist
 #define SNMP_MIBLIST			"miblist"
 
 
-// any SNMP OID
+/// Any SNMP OID
 #define SNMP_OID			".1.3.6.1.2.1.2.2.1.8." STR(PORT_PLUS_1)
 
 
-// test suite
+/// XIFI Broker (NPM features) test suite
 class BrokerXifiNpmTest: public TestFixture
 {
 	static string			plugin_name;
@@ -94,12 +109,12 @@ class BrokerXifiNpmTest: public TestFixture
 	static service			plugin_serv;
 	static customvariablesmember	custom_vars;
 
-	// C external function wrappers
+	// C function wrappers
 	static bool init_module_variables(const string& args);
 	static bool free_module_variables();
 	static bool get_adapter_request(nebstruct_service_check_data* data, string& request);
 
-	// mock for find_plugin_command_name()
+	// mock for function ::find_plugin_command_name()
 	friend char* find_plugin_command_name(nebstruct_service_check_data* data, char** args, int* nrpe, const service** serv);
 
 	// tests
@@ -124,6 +139,7 @@ public:
 };
 
 
+/// Suite startup
 int main(void)
 {
 	TextTestRunner runner;
@@ -138,9 +154,6 @@ int main(void)
 }
 
 
-///////////////////////////////////////////////////////
-
-
 string			BrokerXifiNpmTest::plugin_name;
 string			BrokerXifiNpmTest::plugin_args;
 bool			BrokerXifiNpmTest::plugin_nrpe;
@@ -148,6 +161,10 @@ service			BrokerXifiNpmTest::plugin_serv;
 customvariablesmember	BrokerXifiNpmTest::custom_vars;
 
 
+///
+/// Mock for function ::find_plugin_command_name()
+/// @memberof BrokerXifiNpmTest
+///
 char* find_plugin_command_name(nebstruct_service_check_data* data, char** args, int* nrpe, const service** serv)
 {
 	char* name = NULL;
@@ -161,6 +178,12 @@ char* find_plugin_command_name(nebstruct_service_check_data* data, char** args, 
 }
 
 
+///
+/// C++ wrapper for function ::init_module_variables()
+///
+/// @param[in] args	The module arguments as a space-separated string.
+/// @return		Successful initialization.
+///
 bool BrokerXifiNpmTest::init_module_variables(const string& args)
 {
 	char buffer[MAXBUFLEN];
@@ -169,12 +192,24 @@ bool BrokerXifiNpmTest::init_module_variables(const string& args)
 }
 
 
+///
+/// C++ wrapper for function ::free_module_variables()
+///
+/// @return		Successful resources release.
+///
 bool BrokerXifiNpmTest::free_module_variables()
 {
 	return (bool) ::free_module_variables();
 }
 
 
+///
+/// C++ wrapper for function ::get_adapter_request()
+///
+/// @param[in]  data	The plugin data passed by Nagios to the registered callback_service_check().
+/// @param[out] request	The request URL to invoke NGSI Adapter (including query string).
+/// @return		Request successfully generated.
+///
 bool BrokerXifiNpmTest::get_adapter_request(nebstruct_service_check_data* data, string& request)
 {
 	char* result = ::get_adapter_request(data);
@@ -186,6 +221,9 @@ bool BrokerXifiNpmTest::get_adapter_request(nebstruct_service_check_data* data, 
 }
 
 
+///
+/// Suite setup
+///
 void BrokerXifiNpmTest::suiteSetUp()
 {
 	string argline	= ((ostringstream&)(ostringstream().flush()
@@ -200,20 +238,32 @@ void BrokerXifiNpmTest::suiteSetUp()
 }
 
 
+///
+/// Suite teardown
+///
 void BrokerXifiNpmTest::suiteTearDown()
 {
 	free_module_variables();
 }
 
 
+///
+/// Tests setup
+///
 void BrokerXifiNpmTest::setUp()
 {
 }
 
 
+///
+/// Tests teardown
+///
 void BrokerXifiNpmTest::tearDown()
 {
 }
+
+
+//////////////////////////////////
 
 
 void BrokerXifiNpmTest::get_request_ok_local_snmp_plugin_implicit_type()
