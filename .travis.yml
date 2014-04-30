@@ -14,8 +14,9 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install build-essential libcppunit-dev
   - wget http://prdownloads.sourceforge.net/sourceforge/nagios/nagios-3.2.3.tar.gz
-  - tar xvzf nagios-3.2.3.tar.gz
+  - tar xzf nagios-3.2.3.tar.gz
   - cd nagios-3.2.3/
+  - ./configure
   - make nagios
 
 install:
