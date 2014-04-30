@@ -1,4 +1,5 @@
 # FIWARE Monitoring GE components.
+[![Build Status](https://travis-ci.org/pratid/fiware-monitoring.svg)](https://travis-ci.org/pratid/fiware-monitoring)
 
 ## Changelog
 
