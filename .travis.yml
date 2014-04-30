@@ -1,4 +1,6 @@
-language: node_js
+language: cpp
+
+#language: node_js
 node_js:
   - "0.10"
 
@@ -8,18 +10,25 @@ env:
   # COVERALLS_REPO_TOKEN (encrypted)
   - secure: 2u6FvPQcKdVet4TGVQDZDp9NroU4ku5sDQmPYZfLJj8ECIDO0y3JQZtSBWbM8RwabYjIOJlJ0kRyiEaN3zAudFal6i/jJrqkq6wzsyXSOs99nJZ2B2I/YF03YVAqXn1gqKveJYaytiUcm1KuuS3XbXzHmI2W8aHIScVpQMwI7MU=
 
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install build-essential libcppunit-dev
+
 install:
+  # NGSI Event Broker
+  - pushd ngsi_event_broker/
+  - mkdir m4
+  - autoreconf -i
+  - ./configure
+  - make
+  - make check
+  - popd
   # NGSI Adapter
   - pushd ngsi_adapter/src/
   - npm install
   - npm install -g grunt-cli
   - npm install coveralls --save 
   - popd
-  # NGSI Event Broker
-  - pushd ngsi_event_broker
-  - mkdir m4
-  - autoreconf -i
-  - ./configure && make && make check
 
 after_success:
   - grunt coverage-report && cat site/coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
