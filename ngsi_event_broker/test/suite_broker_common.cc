@@ -6,13 +6,22 @@
  * not use this file except in compliance with the License. You may obtain
  * a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations
  * under the License.
+ */
+
+
+/**
+ * @file   suite_broker_common.cc
+ * @brief  Test suite to verify event broker common features
+ *
+ * This file defines unit tests to verify features that are common to all
+ * specific event broker implementations (see ngsi_event_broker_common.c).
  */
 
 
@@ -35,15 +44,23 @@ using CppUnit::BriefTestProgressListener;
 using namespace std;
 
 
-// define module constants and variables
+///
+/// @name Stubs for global module constants and variables
+/// @{
+///
 extern "C" {
 	char* const module_name		= PACKAGE_NAME;
 	char* const module_version	= PACKAGE_VERSION;
 	void*       module_handle	= NULL;
 }
 
+/// @}
 
-// define module (dummy) functions
+
+///
+/// @name Stubs for module functions
+/// @{
+///
 extern "C" {
 	int init_module_handle_info(void* handle)
 	{
@@ -55,11 +72,13 @@ extern "C" {
 	}
 }
 
+/// @}
 
-// test suite
+
+/// Broker common features test suite
 class BrokerCommonTest: public TestFixture
 {
-	// C external function wrappers
+	// C function wrappers
 	static bool init_module_variables(const string& args);
 	static bool free_module_variables();
 
@@ -81,6 +100,7 @@ public:
 };
 
 
+/// Suite startup
 int main(void)
 {
 	TextTestRunner runner;
@@ -95,9 +115,12 @@ int main(void)
 }
 
 
-///////////////////////////////////////////////////////
-
-
+///
+/// C++ wrapper for function ::init_module_variables()
+///
+/// @param[in] args	The module arguments as a space-separated string.
+/// @return		Successful initialization.
+///
 bool BrokerCommonTest::init_module_variables(const string& args)
 {
 	char buffer[MAXBUFLEN];
@@ -106,22 +129,36 @@ bool BrokerCommonTest::init_module_variables(const string& args)
 }
 
 
+///
+/// C++ wrapper for function ::free_module_variables()
+///
+/// @return		Successful resources release.
+///
 bool BrokerCommonTest::free_module_variables()
 {
 	return (bool) ::free_module_variables();
 }
 
 
+///
+/// Suite setup
+///
 void BrokerCommonTest::suiteSetUp()
 {
 }
 
 
+///
+/// Suite teardown
+///
 void BrokerCommonTest::suiteTearDown()
 {
 }
 
 
+///
+/// Tests setup
+///
 void BrokerCommonTest::setUp()
 {
 	::adapter_url = NULL;
@@ -130,52 +167,64 @@ void BrokerCommonTest::setUp()
 }
 
 
+///
+/// Tests teardown
+///
 void BrokerCommonTest::tearDown()
 {
 	free_module_variables();
 }
 
 
+/////////////////////////////////
+
+
 void BrokerCommonTest::init_fails_with_missing_adapter_url()
 {
-	string	region = "region";
-
-	ostringstream buffer;
-	string argline = ((ostringstream&)(buffer
+	// given
+	string	region	= "region";
+	string	argline	= ((ostringstream&)(ostringstream().flush()
 		<< "-r" << region
-	)).str();
+		)).str();
 
+	// when
 	bool init_error = init_module_variables(argline);
+
+	// then
 	CPPUNIT_ASSERT(init_error);
 }
 
 
 void BrokerCommonTest::init_fails_with_missing_region()
 {
-	string	url = "url";
-
-	ostringstream buffer;
-	string argline = ((ostringstream&)(buffer
+	// given
+	string	url	= "url";
+	string	argline	= ((ostringstream&)(ostringstream().flush()
 		<< "-u" << url
-	)).str();
+		)).str();
 
+	// when
 	bool init_error = init_module_variables(argline);
+
+	// then
 	CPPUNIT_ASSERT(init_error);
 }
 
 
 void BrokerCommonTest::init_ok_with_valid_args()
 {
-	string	url    = "url",
-		region = "region";
-
-	ostringstream buffer;
-	string argline = ((ostringstream&)(buffer
+	// given
+	string	url	= "url",
+		region	= "region",
+		argline	= ((ostringstream&)(ostringstream().flush()
 		<<        "-u" << url
 		<< ' ' << "-r" << region
-	)).str();
+		)).str();
 
+	// when
 	bool init_error = init_module_variables(argline);
+
+	// then
 	CPPUNIT_ASSERT(!init_error);
 	CPPUNIT_ASSERT(url == ::adapter_url);
 	CPPUNIT_ASSERT(region == ::region_id);

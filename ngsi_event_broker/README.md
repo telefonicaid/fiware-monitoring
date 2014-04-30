@@ -1,21 +1,18 @@
 # NGSI Event Broker
 
-Nagios event broker ([NEB][NEB_ref]) modules to forward plugin data to
-[NGSI Adapter][NGSI_Adapter_ref]. Two different event brokers are considered:
+Nagios event broker ([NEB][NEB_ref]) module to forward plugin data to
+[NGSI Adapter][NGSI_Adapter_ref]. Currently, the broker is particularized for
+[XIFI][XIFI_ref] monitoring:
 
-* *ngsi_event_broker_snmp* to intercept SNMP plugin executions
-* *ngsi_event_broker_host* to intercept the rest of plugin executions
-
-Depending on our needs, either only one of them or both will be installed as
-part of Nagios Core server.
+* *ngsi_event_broker_xifi* to process plugin executions for XIFI
 
 ## Installation
 
-As the modules are architecture-dependent compiled shared objects,
+As the module is an architecture-dependent compiled shared object,
 first we'll get sources either from this repository or downloading a
 [source code distribution][src_dist_ref].
 
-The first option requires autotools and libtool to be installed, in order
+The first option requires *autotools* and *libtool* to be installed, in order
 to generate configuration script
 
     $ mkdir m4
@@ -28,42 +25,50 @@ Once configuration script is generated/downloaded, follow these steps:
     $ make check
     $ sudo make install
 
-Last step will try to copy generated shared objects to the Nagios library
+Last step will try to copy generated shared object to the Nagios library
 directory, thus requiring sudoer privileges. Installation directory will
-usually be */usr/lib/nagios* or */usr/lib64/nagios*.
+usually be `/usr/lib/nagios` or `/usr/lib64/nagios`.
 
 ## Usage
 
-Stop Nagios service and edit configuration file at */etc/nagios/nagios.cfg*
-to add new broker module(s). The id of the [region][region_ref] that current
+Stop Nagios service and edit configuration file at `/etc/nagios/nagios.cfg`
+to add new broker module. The id of the [region][region_ref] that current
 infrastructure belongs to and the URL of NGSI Adapter must be supplied as
 arguments:
 
     event_broker_options=-1
-    broker_module=/path/ngsi_event_broker_snmp.so -r region -u http://host:port
-    broker_module=/path/ngsi_event_broker_host.so -r region -u http://host:port
+    broker_module=/path/ngsi_event_broker_xifi.so -r region -u http://host:port
 
 Finally, start Nagios service. Check log files for module initialization (may
 fail for missing arguments, for example). Also check that requests are sent to
 adapter server in response to plugin executions. Requests will include some
-query parameters:
+query string parameters:
 
 * SNMP monitoring:
-```
-http://host:port/check_snmp?id=region:ifaddr/ifport&type=interface
-```
+
+    `http://host:port/check_snmp?id=region:ifaddr/ifport&type=interface`
+
+* Host service monitoring:
+
+    `http://host:port/check_xxxx?id=region:hostname:servname&type=host_service`
 
 * Other plugins executed locally:
-```
-http://host:port/check_xxxx?id=region:localaddr&type=host
-```
+
+    `http://host:port/check_xxxx?id=region:localaddr&type=host`
 
 * Other plugins executed remotely via NRPE:
-```
-http://host:port/check_xxxx?id=region:nrpeaddr&type=vm
-```
+
+    `http://host:port/check_xxxx?id=region:nrpeaddr&type=vm`
 
 ## Changelog
+
+Version 1.3.0
+
+* Included "host_service" monitoring
+
+Version 1.2.0
+
+* Unification into a single _xifi broker
 
 Version 1.1.0
 
@@ -93,9 +98,13 @@ https://github.com/Fiware/fiware-monitoring/tree/master/ngsi_adapter
 "NGSI Adapter"
 
 [src_dist_ref]:
-https://forge.fi-ware.eu/frs/?group_id=23&release_id=343
+https://forge.fi-ware.org/frs/download.php/1101/ngsi_event_broker-1.3.0.src.tar.gz
 "NGSI Event Broker source distribution package"
 
 [region_ref]:
 http://docs.openstack.org/glossary/content/glossary.html#region
 "OpenStack Glossary: Region"
+
+[XIFI_ref]:
+https://www.fi-xifi.eu/home.html
+"XIFI Project"

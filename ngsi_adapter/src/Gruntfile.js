@@ -129,7 +129,7 @@ module.exports = function(grunt) {
                 title: 'NGSI Adapter Documentation'
             },
             files: {
-                src: ['<%= jshint.lib.src %>'],
+                src: ['<%= jshint.lib.src %>', '<%= jshint.test.src %>'],
                 dest: '<%= clean.siteDoc[0] %>'
             }
         },

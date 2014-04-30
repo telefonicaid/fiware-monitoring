@@ -6,13 +6,22 @@
  * not use this file except in compliance with the License. You may obtain
  * a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations
  * under the License.
+ */
+
+
+/**
+ * @file   ngsi_event_broker_common.c
+ * @brief  NGSI Event Broker common implementation
+ *
+ * This file defines some functions that are common to any specific implementation
+ * of this [Event Broker](@NagiosModule_ref) module.
  */
 
 
@@ -38,16 +47,26 @@
 #include "ngsi_event_broker_common.h"
 
 
-/* define common global variables */
+/* define common global variables (previously declared) */
 char* adapter_url = NULL;
 char* region_id   = NULL;
 char* host_addr   = NULL;
 
 
-/************************************************************************/
+/**
+ * @name Nagios NEB API entry points
+ * @{
+ */
 
 
-/* deinitialization */
+/**
+ * Deinitializes the module (entry point for [NEB API](@NagiosModule_ref))
+ *
+ * @param[in] flags	The deinitialization flags (ignored).
+ * @param[in] reason	The reason why this module is being deinitialized.
+ *
+ * @retval NEB_OK	Successfully initialized.
+ */
 int nebmodule_deinit(int flags, int reason)
 {
 	int result = NEB_OK;
@@ -63,7 +82,16 @@ int nebmodule_deinit(int flags, int reason)
 }
 
 
-/* initialization */
+/**
+ * Initializes the module (entry point for [NEB API](@NagiosModule_ref))
+ *
+ * @param[in] flags	The initialization flags (ignored).
+ * @param[in] args	The module arguments as a space-separated string.
+ * @param[in] handle	The module handle passed by Nagios Core server.
+ *
+ * @retval NEB_OK	Successfully initialized.
+ * @retval NEB_ERROR	Not successfully initialized.
+ */
 int nebmodule_init(int flags, char* args, void* handle)
 {
 	int result = NEB_OK;
@@ -90,7 +118,7 @@ int nebmodule_init(int flags, char* args, void* handle)
 }
 
 
-/************************************************************************/
+/**@}*/
 
 
 /* checks to make sure Nagios object version matches what we know about */
@@ -248,6 +276,61 @@ char* find_plugin_name(nebstruct_service_check_data* data, char** args)
 	}
 
 	return check_plugin;
+}
+
+
+/* gets the command name, arguments and other details of the executed plugin */
+char* find_plugin_command_name(nebstruct_service_check_data* data, char** args, int* nrpe, const service** serv)
+{
+	host*    check_host	= NULL;
+	service* check_service	= NULL;
+	command* check_command	= NULL;
+	char*    result		= NULL;
+	int      is_nrpe	= 0;
+
+	if (((check_host = find_host(data->host_name)) != NULL)
+	    && ((check_service = find_service(data->host_name, data->service_description)) != NULL)) {
+		char* ptr;
+		char* last;
+		char* command_name;
+		char* command_args;
+		char* service_check_command = strdup(check_service->service_check_command);
+		command_name = strtok_r(service_check_command, "!", &command_args);
+		if ((check_command = find_command(command_name)) != NULL) {
+			/* plugin service */
+			if (serv != NULL) *serv = check_service;
+			/* plugin arguments */
+			if (args != NULL) {
+				nagios_macros	mac;
+				char*		raw = NULL;
+				char*		cmd = NULL;
+				memset(&mac, 0, sizeof(mac));
+				grab_host_macros_r(&mac, check_host);
+				grab_service_macros_r(&mac, check_service);
+				get_raw_command_line_r(&mac, check_command,
+				                       check_service->service_check_command,
+				                       &raw, 0);
+				if (raw != NULL) {
+					char* exec;
+					process_macros_r(&mac, raw, &cmd, 0);
+					strtok_r(cmd, " \t", &last);
+					ptr = strrchr(cmd, '/');
+					exec = (ptr) ? ++ptr : cmd;
+					*args = strdup(last);
+					is_nrpe = !strcmp(exec, NRPE_PLUGIN);
+					if (nrpe != NULL) *nrpe = is_nrpe;
+				}
+				my_free(raw);
+				my_free(cmd);
+			}
+		}
+		/* command name (after resolving NRPE remote command) */
+		result = strdup((is_nrpe) ? command_args : command_name);
+		free(service_check_command);
+		service_check_command = NULL;
+	}
+
+	return result;
 }
 
 
