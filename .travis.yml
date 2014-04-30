@@ -1,0 +1,7 @@
+language: node_js
+node_js:
+ - "0.10"
+
+install:
+ - cd ngsi_adapter/src/
+ - npm install
