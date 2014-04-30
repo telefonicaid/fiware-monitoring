@@ -21,7 +21,7 @@ install:
   - pushd ngsi_event_broker/
   - mkdir m4
   - autoreconf -i
-  - ./configure --with-nagios-srcdir=../nagios/
+  - ./configure --with-nagios-srcdir=../nagios-3.2.3/
   - make
   - make check
   - popd
