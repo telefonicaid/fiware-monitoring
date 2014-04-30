@@ -15,5 +15,4 @@ install:
   - npm install coveralls --save 
 
 after_success:
-  - grunt coverage-report && ls -R site/
-  - istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage
+  - grunt coverage-report && cat site/coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
