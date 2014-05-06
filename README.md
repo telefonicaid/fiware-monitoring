@@ -1,6 +1,6 @@
 # FIWARE Monitoring GE components
-[![Build Status](https://travis-ci.org/Fiware/fiware-monitoring.svg)](https://travis-ci.org/Fiware/fiware-monitoring)
-[![Coverage Status](https://coveralls.io/repos/Fiware/fiware-monitoring/badge.png)](https://coveralls.io/r/Fiware/fiware-monitoring)
+[![Build Status](https://travis-ci.org/Fiware/fiware-monitoring.svg?branch=xifi)](https://travis-ci.org/Fiware/fiware-monitoring)
+[![Coverage Status](https://coveralls.io/repos/Fiware/fiware-monitoring/badge.png?branch=xifi)](https://coveralls.io/r/Fiware/fiware-monitoring)
 
 ## Changelog
 
