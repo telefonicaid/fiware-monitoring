@@ -153,6 +153,15 @@ exports.main = function() {
         logger.error(err.message);
         process.exit(1);
     });
+    process.on('exit', function() {
+        logger.info('Server stopped');
+    });
+    process.on('SIGINT', function() {
+        process.exit();
+    });
+    process.on('SIGTERM', function() {
+        process.exit();
+    });
     http.createServer(asyncRequestListener).listen(opts.listenPort, opts.listenHost, function() {
         logger.info('Server running at http://%s:%d/', this.address().address, this.address().port);
     });
