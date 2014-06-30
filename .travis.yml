@@ -7,7 +7,7 @@ env:
   - COVERALLS_SERVICE_NAME=travis-ci
   # COVERALLS_REPO_TOKEN (encrypted)
   - secure: d3nNtxhWasL/FYdawV3RurfVY/rq6lsNuvr19hpsEiCHG0K1TbFEie8bhRz8nrt3vT6JmjPUmBGDP+6+eTIFnz+6IQDFBVG97SQ/wgsZMSiwir5Uvovn7kk5Kgu6nJaa49w3/oSw62QFquuMaYO9OusVA4eldkm1VAklZeJGgD8=
- 
+
 install:
   - cd ngsi_adapter/src
   - npm install
