@@ -189,7 +189,7 @@ int init_module_variables(char* args)
 		logging("info", "%s - Host addr = %s", module_name, host_addr);
 	}
 
-	free(opts);
+	free_option_list(opts);
 	opts = NULL;
 	return result;
 }

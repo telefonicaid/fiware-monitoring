@@ -43,9 +43,9 @@ extern "C" {
 
 /** Option-value pair */
 typedef struct option_value {
-	int		opt;	/**< option ('?' unknown, ':' missing value)    */
-	int		err;	/**< option that caused error (unknown/missing) */
-	const char*	val;	/**< option value, or NULL if an error is found */
+	int	opt;		/**< option ('?' unknown, ':' missing value)    */
+	int	err;		/**< option that caused error (unknown/missing) */
+	char*	val;		/**< option value, or NULL if an error is found */
 } *option_list_t;		/**< Options list as result of argument parsing */
 
 
@@ -57,7 +57,15 @@ typedef struct option_value {
  *
  * @return			The module arguments as options list.
  */
-option_list_t parse_args(char* args, const char* optstr);
+option_list_t parse_args(const char* args, const char* optstr);
+
+
+/**
+ * Releases resources for given options list
+ *
+ * @param[in] optlist		The options list.
+ */
+void free_option_list(option_list_t optlist);
 
 
 #ifdef __cplusplus
