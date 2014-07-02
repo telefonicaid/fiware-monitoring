@@ -37,7 +37,7 @@ fi
 AC_ARG_WITH(nagios-srcdir,
    AC_HELP_STRING([--with-nagios-srcdir=DIR],
    [Sets path to Nagios sources @<:@default=/usr/local/src/nagios@:>@], 30),
-   nagios_srcdir=$withval,
+   nagios_srcdir=$(readlink -f $withval),
    nagios_srcdir=/usr/local/src/nagios)
 CPPFLAGS="$CPPFLAGS -I$nagios_srcdir/include"
 AC_SUBST([NAGIOS_SRCDIR],[$nagios_srcdir])
@@ -80,7 +80,7 @@ AC_CACHE_CHECK([for Nagios headers],
    [AC_LANG_SOURCE([[#include "nagios.h"]])],
    my_cv_nagios_headers=yes, my_cv_nagios_headers=no)])
 if test "$my_cv_nagios_headers" = "no"; then
-   AC_MSG_ERROR([cannot find headers (run make nagios on $nagios_srcdir)])
+   AC_MSG_ERROR([cannot find headers (run 'make nagios' on $nagios_srcdir)])
 fi
 
 # Checks for libraries.
@@ -94,5 +94,13 @@ if test "$my_cv_libcurl" = "no"; then
 fi
 
 # Checks for library functions.
+
+# Checks for host configuration.
+AC_CACHE_CHECK([/etc/hosts for localhost address],
+   [my_cv_localhost_address],
+   [my_cv_localhost_address=$(hostname -i 2>/dev/null)])
+if test "$my_cv_localhost_address" = ""; then
+   AC_MSG_ERROR([unknown IP address for host '$HOSTNAME'])
+fi
 
 AC_OUTPUT
