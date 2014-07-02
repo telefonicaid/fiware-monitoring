@@ -30,18 +30,12 @@
 #include "argument_parser.h"
 
 
-/* POSIX compliance */
-#ifndef POSIXLY_CORRECT
-#define POSIXLY_CORRECT
-#endif /*POSIXLY_CORRECT*/
-
-
 /* maximum number of args */
 #define MAX_ARGS	255
 
 
 /* parses an argument string using getopt() */
-option_list_t parse_args(char* args, const char* optstr)
+option_list_t parse_args(const char* args, const char* optstr)
 {
 	extern int	optind;
 	extern int	optopt;
@@ -53,11 +47,11 @@ option_list_t parse_args(char* args, const char* optstr)
 	int		argc = 0;
 	char*		argv[MAX_ARGS] = { "" };
 
-	/* split string into char* array */
+	/* split copy of args string into char* array */
 	char* last;
-	char* next = args;
-	while (next && (argc < MAX_ARGS-1)) {
-		argv[++argc] = next = strtok_r(args, " \t", &last);
+	char* copy = strdup(args);
+	for (args = copy; (argv[argc] != NULL) && (argc < MAX_ARGS-1);) {
+		argv[++argc] = strtok_r(args, " \t", &last);
 		args = NULL;
 	}
 
@@ -69,7 +63,7 @@ option_list_t parse_args(char* args, const char* optstr)
 		const struct option_value optval = {
 			.opt = opt,
 			.err = (fail) ? optopt : NO_CHAR,
-			.val = (fail) ? NULL   : optarg
+			.val = (fail) ? NULL   : strdup(optarg)
 		};
 		optlist[optsize++] = optval;
 		if (fail) break;
@@ -78,5 +72,21 @@ option_list_t parse_args(char* args, const char* optstr)
 	/* end of list */
 	optlist[optsize].opt = NO_CHAR;
 
+	free(copy);
+	copy = NULL;
 	return optlist;
+}
+
+
+/* releases resources for given options list */
+void free_option_list(option_list_t optlist)
+{
+	if (optlist != NULL) {
+		size_t	i;
+		for (i = 0; optlist[i].opt != NO_CHAR; i++) {
+			free(optlist[i].val);
+		}
+		free(optlist);
+		optlist = NULL;
+	}
 }

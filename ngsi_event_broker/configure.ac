@@ -1,5 +1,5 @@
 # Autoconf initialization.
-AC_INIT(ngsi_event_broker, 1.3.0)
+AC_INIT(ngsi_event_broker, 1.3.1)
 AC_LANG(C)
 if test -z "$CFLAGS"; then
    # prevent configure from assigning default flags

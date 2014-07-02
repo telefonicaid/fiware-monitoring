@@ -9,6 +9,7 @@ libtool
 configure
 config.*
 stamp-*
+test-driver
 Makefile
 Makefile.in
 *.src.tar.gz

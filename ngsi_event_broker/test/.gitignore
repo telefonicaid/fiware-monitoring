@@ -1,6 +1,9 @@
 suite_argument_parser
 suite_broker_common
-suite_broker_host
-suite_broker_snmp
+suite_broker_xifi_dem
+suite_broker_xifi_npm
+suite_broker_xifi_srv
 nagios_main.c
-*mock.c
+*stub.c
+*.trs
+*.log
