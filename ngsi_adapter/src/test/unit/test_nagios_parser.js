@@ -35,7 +35,7 @@ var util   = require('util'),
 suite('nagios_parser', function() {
 
     suiteSetup(function() {
-        this.request = { url: 'http://host:1234/path?query' };
+        this.request = { url: 'http://hostname:1234/path?query' };
     });
 
     suiteTeardown(function() {
@@ -54,8 +54,7 @@ suite('nagios_parser', function() {
         self.request.body = data;
         assert.throws(
             function() {
-                parser.setRequest(self.request);
-                parser.parseRequest();
+                parser.parseRequest(self.request);
             },
             /Invalid/
         );
@@ -74,8 +73,7 @@ suite('nagios_parser', function() {
         self.request.body = data;
         assert.throws(
             function() {
-                parser.setRequest(self.request);
-                parser.parseRequest();
+                parser.parseRequest(self.request);
             },
             /Invalid/
         );
@@ -94,8 +92,7 @@ suite('nagios_parser', function() {
         self.request.body = data;
         assert.throws(
             function() {
-                parser.setRequest(self.request);
-                parser.parseRequest();
+                parser.parseRequest(self.request);
             },
             /Invalid/
         );
@@ -105,8 +102,7 @@ suite('nagios_parser', function() {
         var self = this;
         var data = 'TEXT OUTPUT';
         self.request.body = data;
-        parser.setRequest(self.request);
-        var entityData = parser.parseRequest();
+        var entityData = parser.parseRequest(self.request);
         assert(!entityData.perfData);
         assert.equal(entityData.data, data);
     });
@@ -118,8 +114,7 @@ suite('nagios_parser', function() {
                     LONG TEXT LINE 2    \
                    ';
         self.request.body = data;
-        parser.setRequest(self.request);
-        var entityData = parser.parseRequest();
+        var entityData = parser.parseRequest(self.request);
         assert(!entityData.perfData);
         assert(entityData.data.split('\n').length > 1);
         assert.equal(entityData.data, data);
@@ -130,8 +125,7 @@ suite('nagios_parser', function() {
         var data = 'TEXT OUTPUT';
         var perf = 'OPTIONAL PERFDATA';
         self.request.body = util.format('%s|%s', data, perf);
-        parser.setRequest(self.request);
-        var entityData = parser.parseRequest();
+        var entityData = parser.parseRequest(self.request);
         assert.equal(entityData.perfData, perf);
         assert.equal(entityData.data, data);
     });
@@ -143,8 +137,7 @@ suite('nagios_parser', function() {
         self.request.body = util.format('%s|%s', data, perf);
         assert.throws(
             function() {
-                parser.setRequest(self.request);
-                parser.parseRequest();
+                parser.parseRequest(self.request);
             },
             /Invalid/
         );
@@ -155,8 +148,7 @@ suite('nagios_parser', function() {
         var data = ['TEXT OUTPUT','LONG TEXT LINE 1','LONG TEXT LINE 2'];
         var perf = 'OPTIONAL PERFDATA';
         self.request.body = util.format('%s|%s\n%s\n%s', data[0], perf, data[1], data[2]);
-        parser.setRequest(self.request);
-        var entityData = parser.parseRequest();
+        var entityData = parser.parseRequest(self.request);
         assert.equal(entityData.perfData, perf);
         assert.deepEqual(entityData.data.split('\n'), data);
     });
@@ -166,43 +158,9 @@ suite('nagios_parser', function() {
         var data = ['TEXT OUTPUT','LONG TEXT LINE 1','LONG TEXT LINE 2'];
         var perf = ['OPTIONAL PERFDATA','PERFDATA LINE 2','PERFDATA LINE 3'];
         self.request.body = util.format('%s|%s\n%s\n%s|%s\n%s', data[0], perf[0], data[1], data[2], perf[1], perf[2]);
-        parser.setRequest(self.request);
-        var entityData = parser.parseRequest();
+        var entityData = parser.parseRequest(self.request);
         assert.deepEqual(entityData.perfData.split('\n'), perf);
         assert.deepEqual(entityData.data.split('\n'), data);
-    });
-
-    test('get_update_request_fails_missing_entity_id', function() {
-        var request = { url: 'http://host:1234/path?type=type&another=another' };
-        assert.throws(
-            function() {
-                parser.setRequest(request);
-                return parser.updateContextRequest();
-            },
-            /entityId/
-        );
-    });
-
-    test('get_update_request_fails_missing_entity_type', function() {
-        var request = { url: 'http://host:1234/path?id=id&another=another' };
-        assert.throws(
-            function() {
-                parser.setRequest(request);
-                return parser.updateContextRequest();
-            },
-            /entityType/
-        );
-    });
-
-    test('get_update_request_fails_empty_request', function() {
-        var request = { url: 'http://host:1234/path?id=id&type=type&another=another' };
-        request.body = '';
-        assert.throws(
-            function() {
-                parser.setRequest(request);
-                return parser.updateContextRequest();
-            }
-        );
     });
 
 });

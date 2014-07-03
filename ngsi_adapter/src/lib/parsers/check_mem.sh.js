@@ -48,8 +48,8 @@ var nagios = require('./common/nagios');
 //     Buffers memory (bytes) --------------------------------------------------------------------------------------------------------------+
 //
 var parser = Object.create(nagios.parser);
-parser.getContextAttrs = function(multilineData, multilinePerfData) {
-    var data  = multilineData.split('\n')[0];   // only consider first line of data, discard perfData
+parser.getContextAttrs = function(probeEntityData) {
+    var data  = probeEntityData.data.split('\n')[0];    // only consider first line of probe data, discard perfData
     var attrs = { usedMemPct: NaN };
 
     var items = data.split('-');

@@ -55,11 +55,12 @@ var nagiosParser = Object.create(baseParser);
  *
  * @function paserRequest
  * @memberof nagiosParser
+ * @param {http.IncomingMessage} request    The HTTP request to this server.
  * @returns {EntityData} An object with `data` (and optional `perfData`) members.
  */
-nagiosParser.parseRequest = function() {
+nagiosParser.parseRequest = function(request) {
     var entityData = {};
-    var lines = this.request.body.split('\n');
+    var lines = request.body.split('\n');
     var isMultilinePerf = false;
     lines.forEach(function(item) {
         var isFirst = !entityData.data;

@@ -43,7 +43,6 @@ function getParser(request) {
     var probeName = url.parse(request.url).pathname.slice(1);
     try {
         var parser = require(util.format('../%s', probeName)).parser;
-        parser.setRequest(request);
         return parser;
     } catch (err) {
         logger.debug(err.message);
