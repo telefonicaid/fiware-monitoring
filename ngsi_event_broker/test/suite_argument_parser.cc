@@ -44,10 +44,6 @@ using CppUnit::BriefTestProgressListener;
 using namespace std;
 
 
-/// Multipurpose buffer length
-#define MAXBUFLEN	256
-
-
 /// Option string prefix to avoid errors when unknown options are found
 #define OPTSTR_PREFIX	":"
 
@@ -121,14 +117,12 @@ int main(void)
 ///
 void ArgumentParserTest::parse_args(const string& args, const string& optstr, list<OptionValue>& optlist)
 {
-	char buffer[MAXBUFLEN];
-	buffer[args.copy(buffer, MAXBUFLEN-1)] = '\0';
-	option_list_t opts = ::parse_args(buffer, optstr.c_str());
+	option_list_t opts = ::parse_args(args.c_str(), optstr.c_str());
 	if (opts) {
 		for (size_t i = 0; opts[i].opt != NO_CHAR; i++) {
 			optlist.push_back(OptionValue(opts[i]));
 		}
-		::free(opts);
+		::free_option_list(opts);
 		opts = NULL;
 	}
 }

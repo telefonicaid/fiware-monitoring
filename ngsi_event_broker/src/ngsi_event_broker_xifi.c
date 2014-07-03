@@ -176,7 +176,7 @@ char* npm_get_adapter_request(char* name, char* args, const char* type)
 		}
 	}
 
-	free(opts);
+	free_option_list(opts);
 	opts = NULL;
 	return result;
 }
@@ -228,7 +228,7 @@ char* dem_get_adapter_request(char* name, char* args, const char* type, int nrpe
 		}
 	}
 
-	free(opts);
+	free_option_list(opts);
 	opts = NULL;
 	return result;
 }
