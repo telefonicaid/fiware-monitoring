@@ -27,7 +27,8 @@
 
 
 var assert = require('assert'),
-    xml2js = require('xml2js');
+    xml2js = require('xml2js'),
+    timestamp = require('../../lib/parsers/common/base').parser.timestampAttrName;
 
 
 function assertIsNumber(value) {
@@ -40,6 +41,8 @@ function assertValidUpdateXML(updateXML, test) {
     assert.ok(updateXML);
     assert.ok(test.entityType);
     assert.ok(test.entityData);
+    // feature #4: automatically add request timestamp to entity attributes
+    assert.ok(test.entityData[timestamp]);
     assertIsNumber(test.entityId);
     var entityAttrList = Object.keys(test.entityData);
     xml2js.parseString(updateXML, function(err, result) {

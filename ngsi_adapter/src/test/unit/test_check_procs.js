@@ -35,13 +35,16 @@ var util   = require('util'),
 suite('check_procs', function() {
 
     suiteSetup(function() {
-        this.factory    = require('../../lib/parsers/common/factory');
-        this.baseurl    = 'http://host:1234/check_procs';
+        this.timestampName  = require('../../lib/parsers/common/base').parser.timestampAttrName;
+        this.factory        = require('../../lib/parsers/common/factory');
+
+        this.baseurl    = 'http://hostname:1234/check_procs';
         this.entityId   = '1';
-        this.entityType = 'server';
+        this.entityType = 'host';
         this.entityData = {
             procs: 136
         };
+
         this.probeData  = {
             procs: this.entityData.procs
         };
@@ -54,53 +57,48 @@ suite('check_procs', function() {
     });
 
     setup(function() {
+        this.request = {
+            url: this.baseurl + '?id=' + this.entityId + '&type=' + this.entityType,
+            timestamp: Date.now()
+        };
+        this.entityData[this.timestampName] = this.request.timestamp;
     });
 
     teardown(function() {
+        delete this.request;
+        delete this.entityData[this.timestampName];
     });
 
     test('get_update_request_fails_with_invalid_check_procs_content', function() {
-        var request = {
-            url:  this.baseurl + '?id=' + this.entityId + '&type=' + this.entityType,
-            body: 'XXX INVALID XXX'
-        };
-        var parser = this.factory.getParser(request);
+        this.request.body = 'XXX INVALID XXX';
+        var self = this;
+        var parser = this.factory.getParser(self.request);
         assert.throws(
             function() {
-                return parser.updateContextRequest();
+                return parser.updateContextRequest(self.request);
             }
         );
     });
 
     test('get_update_request_ok_with_valid_check_procs_content', function() {
-        var request = {
-            url:  this.baseurl + '?id=' + this.entityId + '&type=' + this.entityType,
-            body: util.format('%s|%s', this.probeBody.data, this.probeBody.perf)
-        };
-        var parser = this.factory.getParser(request);
-        var update = parser.updateContextRequest();
+        this.request.body = util.format('%s', this.probeBody.data);
+        var parser = this.factory.getParser(this.request);
+        var update = parser.updateContextRequest(this.request);
         common.assertValidUpdateXML(update, this);
     });
 
     test('get_update_request_ok_with_another_threshold_metric', function() {
-        var request = {
-            url:  this.baseurl + '?id=' + this.entityId + '&type=' + this.entityType,
-            body: util.format('%s|%s', this.probeBody.data, this.probeBody.perf).
-                  replace(/^PROCS/, 'VSZ')
-        };
-        var parser = this.factory.getParser(request);
-        var update = parser.updateContextRequest();
+        this.request.body = util.format('%s', this.probeBody.data).replace(/^PROCS/, 'VSZ');
+        var parser = this.factory.getParser(this.request);
+        var update = parser.updateContextRequest(this.request);
         common.assertValidUpdateXML(update, this);
     });
 
     test('parse_ok_number_of_procs', function() {
-        var request = {
-            url:  this.baseurl + '?id=' + this.entityId + '&type=' + this.entityType,
-            body: util.format('%s|%s', this.probeBody.data, this.probeBody.perf)
-        };
-        var parser = this.factory.getParser(request);
-        var requestData = parser.parseRequest();
-        var contextData = parser.getContextAttrs(requestData.data, requestData.perfData);
+        this.request.body = util.format('%s', this.probeBody.data);
+        var parser = this.factory.getParser(this.request);
+        var requestData = parser.parseRequest(this.request);
+        var contextData = parser.getContextAttrs(requestData);
         assert(contextData.procs);
         assert.equal(contextData.procs, this.entityData.procs);
     });

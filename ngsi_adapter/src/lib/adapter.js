@@ -45,12 +45,13 @@ var http   = require('http'),
 function doPost(request, callback) {
     try {
         logger.info('<< Body: %s', request.body);
-        var remoteUrlData = url.parse(opts.brokerUrl);
-        var updateReqType = request.parser.getRequestContentType();
-        var updateReqBody = request.parser.updateContextRequest();
+        var remoteUrl = url.parse(opts.brokerUrl);
+        var dataParser = request.parser;
+        var updateReqType = dataParser.getContentType();
+        var updateReqBody = dataParser.updateContextRequest(request);
         var updateReqOpts = {
-            hostname: remoteUrlData.hostname,
-            port:     remoteUrlData.port,
+            hostname: remoteUrl.hostname,
+            port:     remoteUrl.port,
             path:     '/NGSI10/updateContext',
             method:   'POST',
             headers: {
@@ -125,6 +126,7 @@ function asyncRequestListener(request, response) {
         try {
             status = 200;   // ok
             request.parser = parser.getParser(request);
+            request.timestamp = Date.now();
             request.body = '';
             request.on('data', function(chunk) {
                 request.body += chunk;

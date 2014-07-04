@@ -37,25 +37,22 @@ var baseParser = Object.create(null);
 
 
 /**
- * Sets the HTTP request the parser will process.
+ * Name of the timestamp attribute added automatically to the resulting entity context attributes.
  *
- * @function setRequest
+ * @constant {String}
  * @memberof baseParser
- * @param {http.IncomingMessage} request    The request to this server.
  */
-baseParser.setRequest = function(request) {
-    this.request = request;
-};
+baseParser.timestampAttrName = '_timestamp';
 
 
 /**
  * Gets the content type for Context Broker requests.
  *
- * @function getRequestContentType
+ * @function getContentType
  * @memberof baseParser
  * @returns {String} The content type (the format) for Context Broker requests.
  */
-baseParser.getRequestContentType = function() {
+baseParser.getContentType = function() {
     return 'application/xml';
 };
 
@@ -65,21 +62,26 @@ baseParser.getRequestContentType = function() {
  *
  * @function updateContextRequest
  * @memberof baseParser
+ * @param {http.IncomingMessage} request    The HTTP request to this server.
  * @returns {String} The request body, either in XML or JSON format.
  */
-baseParser.updateContextRequest = function() {
-    var query = url.parse(this.request.url, true).query;
+baseParser.updateContextRequest = function(request) {
+    var query = url.parse(request.url, true).query;
     var entityId = query.id;
     var entityType = query.type;
     if (!entityId || !entityType) {
         throw new Error('Missing entityId and/or entityType');
-    } else {
-        var entityData = this.parseRequest();
-        var entityAttrs = this.getContextAttrs(entityData.data, entityData.perfData);
-        return (this.getRequestContentType() === 'application/xml')
-            ? this.getUpdateContextXML(entityId, entityType, entityAttrs)
-            : this.getUpdateContextJSON(entityId, entityType, entityAttrs);
     }
+    var entityData = this.parseRequest(request);
+    var entityAttrs = this.getContextAttrs(entityData);
+    if (Object.keys(entityAttrs).length === 0) {
+        throw new Error('Missing entity context attributes');
+    }
+    // feature #4: automatically add request timestamp to entity attributes
+    entityAttrs[this.timestampAttrName] = request.timestamp;
+    return (this.getContentType() === 'application/xml')
+        ? this.getUpdateContextXML(entityId, entityType, entityAttrs)
+        : this.getUpdateContextJSON(entityId, entityType, entityAttrs);
 };
 
 
@@ -89,9 +91,10 @@ baseParser.updateContextRequest = function() {
  * @abstract
  * @function paserRequest
  * @memberof baseParser
- * @returns {EntityData} An object with `data` (and optional `perfData`) members.
+ * @param {http.IncomingMessage} request    The HTTP request to this server.
+ * @returns {EntityData} An object holding entity data taken from request body.
  */
-baseParser.parseRequest = function() {
+baseParser.parseRequest = function(request) {
     throw new Error('Must implement');
 };
 
@@ -102,11 +105,10 @@ baseParser.parseRequest = function() {
  * @abstract
  * @function getContextAttrs
  * @memberof baseParser
- * @param {Object}  data                    The probe data included in input request.
- * @param {Object} [optionalPerfData]       The perfomance/extra data in input request.
+ * @param {EntityData} data                 Object holding raw entity data.
  * @returns {Object} Context attributes.
  */
-baseParser.getContextAttrs = function(data, optionalPerfData) {
+baseParser.getContextAttrs = function(data) {
     throw new Error('Must implement');
 };
 

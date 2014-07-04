@@ -21,7 +21,7 @@
  *
  * Context attributes to be calculated:
  *
- * - freeSpacePct = percentage of free space at given group/single partition (NO MULTIPLE PARTITIONS SUPPORTED UNLESS GROUPED!)
+ * - freeSpacePct = percentage of free space at given group/single partition (NO MULTIPLE PARTITIONS SUPPORTED!)
  *
  * @module check_disk
  * @see https://www.nagios-plugins.org/doc/man/check_disk.html
@@ -86,8 +86,8 @@ var nagios = require('./common/nagios');
 //      Filesystem #n
 //
 var parser = Object.create(nagios.parser);
-parser.getContextAttrs = function(multilineData, multilinePerfData) {
-    var data  = multilineData.split('\n')[0];   // only consider first line of data, discard perfData
+parser.getContextAttrs = function(probeEntityData) {
+    var data  = probeEntityData.data.split('\n')[0];    // only consider first line of probe data, discard perfData
     var attrs = { freeSpacePct: NaN };
 
     var items = data.split(':');

@@ -35,13 +35,16 @@ var util   = require('util'),
 suite('check_mem.sh', function() {
 
     suiteSetup(function() {
-        this.factory    = require('../../lib/parsers/common/factory');
-        this.baseurl    = 'http://host:1234/check_mem.sh';
+        this.timestampName  = require('../../lib/parsers/common/base').parser.timestampAttrName;
+        this.factory        = require('../../lib/parsers/common/factory');
+
+        this.baseurl    = 'http://hostname:1234/check_mem.sh';
         this.entityId   = '1';
-        this.entityType = 'server';
+        this.entityType = 'host';
         this.entityData = {
             usedMemPct: 19
         };
+
         this.probeData  = {
             usedMemPct: this.entityData.usedMemPct
         };
@@ -55,42 +58,41 @@ suite('check_mem.sh', function() {
     });
 
     setup(function() {
+        this.request = {
+            url: this.baseurl + '?id=' + this.entityId + '&type=' + this.entityType,
+            timestamp: Date.now()
+        };
+        this.entityData[this.timestampName] = this.request.timestamp;
     });
 
     teardown(function() {
+        delete this.request;
+        delete this.entityData[this.timestampName];
     });
 
     test('get_update_request_fails_with_invalid_check_mem.sh_content', function() {
-        var request = {
-            url:  this.baseurl + '?id=' + this.entityId + '&type=' + this.entityType,
-            body: 'XXX INVALID XXX'
-        };
-        var parser = this.factory.getParser(request);
+        this.request.body = 'XXX INVALID XXX';
+        var self = this;
+        var parser = this.factory.getParser(self.request);
         assert.throws(
             function() {
-                return parser.updateContextRequest();
+                return parser.updateContextRequest(self.request);
             }
         );
     });
 
     test('get_update_request_ok_with_valid_check_mem.sh_content', function() {
-        var request = {
-            url:  this.baseurl + '?id=' + this.entityId + '&type=' + this.entityType,
-            body: util.format('%s|%s', this.probeBody.data, this.probeBody.perf)
-        };
-        var parser = this.factory.getParser(request);
-        var update = parser.updateContextRequest();
+        this.request.body = util.format('%s|%s', this.probeBody.data, this.probeBody.perf);
+        var parser = this.factory.getParser(this.request);
+        var update = parser.updateContextRequest(this.request);
         common.assertValidUpdateXML(update, this);
     });
 
     test('parse_ok_used_mem_percentage', function() {
-        var request = {
-            url:  this.baseurl + '?id=' + this.entityId + '&type=' + this.entityType,
-            body: util.format('%s|%s', this.probeBody.data, this.probeBody.perf)
-        };
-        var parser = this.factory.getParser(request);
-        var requestData = parser.parseRequest();
-        var contextData = parser.getContextAttrs(requestData.data, requestData.perfData);
+        this.request.body = util.format('%s|%s', this.probeBody.data, this.probeBody.perf);
+        var parser = this.factory.getParser(this.request);
+        var requestData = parser.parseRequest(this.request);
+        var contextData = parser.getContextAttrs(requestData);
         assert(contextData.usedMemPct);
         assert.equal(contextData.usedMemPct, this.entityData.usedMemPct);
     });
