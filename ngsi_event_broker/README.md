@@ -169,7 +169,7 @@ https://github.com/telefonicaid/fiware-monitoring/tree/master/ngsi_adapter
 "NGSI Adapter"
 
 [src_dist_ref]:
-https://forge.fi-ware.org/frs/download.php/1101/ngsi_event_broker-1.3.1.src.tar.gz
+https://forge.fi-ware.org/frs/download.php/1428/ngsi_event_broker-1.3.1.src.tar.gz
 "NGSI Event Broker source distribution package"
 
 [nagios_service_ref]:
