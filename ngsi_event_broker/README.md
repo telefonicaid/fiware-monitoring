@@ -12,7 +12,7 @@ The module is an architecture-dependent compiled shared object distributed as
 a single library bundled in a Debian (.deb) or RedHat (.rpm) package. Assuming
 FI-WARE package repositories are configured, just use the proper tool (such as
 `apt-get` or `rpm`) to install `fiware-monitoring-ngsi-event-broker` package.
-Currently, packages for these are distributions are released:
+Currently, packages for these distributions are released:
 
 * Ubuntu 12.04 LTS
 
