@@ -1,0 +1,39 @@
+fiware-monitoring-ngsi-event-broker (1.3.1) precise; urgency=low
+
+  * Included Debian package generation
+  * Fixed error in argument parser
+
+ -- Telefónica I+D <opensource@tid.es>  Mon, 14 Jul 2014 10:00:00 +0200
+
+fiware-monitoring-ngsi-event-broker (1.3.0) precise; urgency=low
+
+  * Included "host_service" monitoring
+
+ -- Telefónica I+D <opensource@tid.es>  Tue, 01 Apr 2014 13:25:37 +0200
+
+fiware-monitoring-ngsi-event-broker (1.2.0) precise; urgency=low
+
+  * Unification into a single _xifi broker
+
+ -- Telefónica I+D <opensource@tid.es>  Wed, 12 Mar 2014 15:48:40 +0200
+
+fiware-monitoring-ngsi-event-broker (1.1.0) precise; urgency=low
+
+  * Broker splitted into _snmp and _host
+  * IP address as unique identifier (within region) for hosts and vms
+  * Added region as argument
+  * Added NRPE support
+
+ -- Telefónica I+D <opensource@tid.es>  Wed, 05 Feb 2014 19:41:35 +0200
+
+fiware-monitoring-ngsi-event-broker (1.0.1) precise; urgency=low
+
+  * Added regions support (value retrieved from a metadata key named "region")
+
+ -- Telefónica I+D <opensource@tid.es>  Tue, 14 Jan 2014 12:21:39 +0200
+
+fiware-monitoring-ngsi-event-broker (1.0.0) precise; urgency=low
+
+  * Initial release of the module
+
+ -- Telefónica I+D <opensource@tid.es>  Mon, 25 Nov 2013 12:00:48 +0200

@@ -13,4 +13,6 @@ test-driver
 Makefile
 Makefile.in
 *.src.tar.gz
+*.changes
+*.deb
 docs
