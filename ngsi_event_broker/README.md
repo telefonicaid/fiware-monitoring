@@ -8,59 +8,130 @@ Nagios event broker ([NEB][NEB_ref]) module to forward plugin data to
 
 ## Installation
 
-As the module is an architecture-dependent compiled shared object,
-first we'll get sources either from this repository or downloading a
-[source code distribution][src_dist_ref].
+The module is an architecture-dependent compiled shared object distributed as
+a single library bundled in a Debian (.deb) or RedHat (.rpm) package. Assuming
+FI-WARE package repositories are configured, just use the proper tool (such as
+`apt-get` or `rpm`) to install `fiware-monitoring-ngsi-event-broker` package.
+Currently, packages for these distributions are released:
 
-The first option requires *autotools* and *libtool* to be installed, in order
-to generate configuration script
+* Ubuntu 12.04 LTS
+
+As an alternative, module can be compiled from sources, either downloaded from
+SCM repository or as [source code tarball][src_dist_ref]. First option requires
+*autotools* and *libtool* to be installed, in order to generate configuration
+script
 
     $ mkdir m4
     $ autoreconf --install
 
-Once configuration script is generated/downloaded, follow these steps:
+Once `configure` script is generated (or downloaded as part of source tarball),
+follow these steps:
 
     $ ./configure
     $ make
     $ make check
     $ sudo make install
 
-Last step will try to copy generated shared object to the Nagios library
-directory, thus requiring sudoer privileges. Installation directory will
-usually be `/usr/lib/nagios` or `/usr/lib64/nagios`.
+Default target directory for this manual installation is Nagios libdir (usually
+`/usr/lib/nagios` or `/usr/lib64/nagios`) and requires sudoer privileges. This
+can be changed by running `./configure --libdir=target_libdir`.
 
 ## Usage
 
-Stop Nagios service and edit configuration file at `/etc/nagios/nagios.cfg`
-to add new broker module. The id of the [region][region_ref] that current
-infrastructure belongs to and the URL of NGSI Adapter must be supplied as
-arguments:
+Nagios should be instructed to load this module on startup. First, stop Nagios
+service and then edit configuration file at `/etc/nagios/nagios.cfg` to add the
+new broker module with its arguments: the id of the [region][region_ref] that
+current infrastructure belongs to, and the endpoint of NGSI Adapter component to
+request:
 
     event_broker_options=-1
     broker_module=/path/ngsi_event_broker_xifi.so -r region -u http://host:port
 
-Finally, start Nagios service. Check log files for module initialization (may
-fail for missing arguments, for example). Also check that requests are sent to
-adapter server in response to plugin executions. Requests will include some
-query string parameters:
+The module will use such information given as arguments together with data taken
+from the [Nagios service definition][nagios_service_ref] to issue a request to
+NGSI Adapter. In many cases, service definitions need no modifications and the
+broker just works transparently once Nagios is restarted. But there are some
+scenarios requiring slight changes in those service definitions (see below).
 
-* SNMP monitoring:
+Once main configuration file and service definitions have been reviewed, then
+start Nagios service. Check log files for module initialization (may fail for
+missing arguments, for example). Also check that requests are sent to Adapter
+server in response to plugin executions.
 
-    `http://host:port/check_snmp?id=region:ifaddr/ifport&type=interface`
+#### Service definitions
 
-* Host service monitoring:
+Assuming this Nagios host definition:
 
-    `http://host:port/check_xxxx?id=region:hostname:servname&type=host_service`
+    define host{
+        use                     linux-server
+        host_name               myhostname
+        alias                   linux_server
+        address                 192.168.0.2
+        }
 
-* Other plugins executed locally:
+then a typical Nagios service definition would look like this:
 
-    `http://host:port/check_xxxx?id=region:localaddr&type=host`
+    define service{
+        use                     generic-service
+        host_name               myhostname
+        service_description     my service description
+        check_command           check_name!arguments
+        ...
+        }
 
-* Other plugins executed remotely via NRPE:
+Depending on the entities being monitored (thus depending on the kind of plugins
+used), some of these data items are taken and some additional may be required.
+Requests to NGSI Adapter issued by this broker will all follow the pattern
+`http://{host}:{port}/{check_name}?id={region}:{uniqueid}&type={type}`, where:
 
-    `http://host:port/check_xxxx?id=region:nrpeaddr&type=vm`
+* `http://{host}:{port}` is the endpoint taken from broker arguments
+* `{check_name}` is taken from Nagios command specified at service definition
+* `{region}` is taken from broker arguments
+* `{uniqueid}` is taken from service definition, depending on the command plugin
+* `{type}` is also taken from service definition, also depending on the command
+
+For *SNMP monitoring* a Nagios command named `check_snmp` should be used. Entity
+type `interface` is assumed by default and `{uniqueid}` consist of the address
+and port number given as command arguments (see `check_snmp` manpage). Entity id
+in requests would be `{region}:{ifaddr}/{ifport}`
+
+For *host service monitoring* there are no restrictions on the command names and
+the plugins to be used. The `{uniqueid}` consist of the hostname and description
+of the service, resulting an entity id `{region}:{hostname}:{servicedesc}`.
+However, the exact entity type must be explicitly given with a custom variable
+`_entity_type` at service definition (or using templates, as follows):
+
+    define service{
+        use                     generic-service
+        name                    host-service
+        _entity_type            host_service
+        }
+
+    define service{
+        use                     host-service
+        host_name               myhostname
+        service_description     my service description
+        check_command           check_name!arguments
+        ...
+        }
+
+For *any other plugin executed locally* the entity id will include the local
+address and a `host` entity type will be assumed, resulting a request like
+`http://{host}:{port}/{check_name}?id={region}:{localaddr}&type=host`
+
+For *any other plugin executed remotely via NRPE* the entity id will include
+the remote address instead, a `vm` entity type will be assumed and the
+`{check_name}` will be taken from arguments of `check_nrpe` plugin
+
+Default entity types may be superseded in any case by including in the service
+definition the aforementioned custom variable `_entity_type`.
 
 ## Changelog
+
+Version 1.3.1
+
+* Included Debian package generation
+* Fixed error in argument parser
 
 Version 1.3.0
 
@@ -87,19 +158,23 @@ Version 1.0.0
 
 ## License
 
-(c) 2013 Telefónica I+D, Apache License 2.0
+(c) 2013-2014 Telefónica I+D, Apache License 2.0
 
 [NEB_ref]:
 http://nagios.sourceforge.net/download/contrib/documentation/misc/NEB%202x%20Module%20API.pdf
 "The Nagios Event Broker API"
 
 [NGSI_Adapter_ref]:
-https://github.com/Fiware/fiware-monitoring/tree/master/ngsi_adapter
+https://github.com/telefonicaid/fiware-monitoring/tree/master/ngsi_adapter
 "NGSI Adapter"
 
 [src_dist_ref]:
-https://forge.fi-ware.org/frs/download.php/1101/ngsi_event_broker-1.3.0.src.tar.gz
+https://forge.fi-ware.org/frs/download.php/1101/ngsi_event_broker-1.3.1.src.tar.gz
 "NGSI Event Broker source distribution package"
+
+[nagios_service_ref]:
+http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service
+"Nagios Service Definition"
 
 [region_ref]:
 http://docs.openstack.org/glossary/content/glossary.html#region

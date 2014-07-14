@@ -1,0 +1,49 @@
+#!/bin/sh
+# postinst script for fiware-monitoring-ngsi-event-broker
+
+set -e
+
+PACKAGE=fiware-monitoring-ngsi-event-broker
+FIWARE_USR=fiware
+FIWARE_GRP=fiware
+FIWARE_DIR=/opt/fiware
+BROKER_USR=$FIWARE_USR
+BROKER_GRP=$FIWARE_GRP
+BROKER_DIR=$FIWARE_DIR/ngsi_event_broker
+
+if [ "$1" = configure ]; then
+	VERSION=$2
+	# check FIWARE user
+	if ! getent passwd $FIWARE_USR >/dev/null; then
+		addgroup --quiet $FIWARE_GRP 2>/dev/null || true
+		adduser  --quiet --ingroup $FIWARE_GRP \
+		         --home /nonexistent --no-create-home \
+		         --disabled-password --shell /bin/false \
+		         --gecos "FI-WARE" $FIWARE_USR
+	fi
+	# check BROKER user
+	if ! getent passwd $BROKER_USR >/dev/null; then
+		addgroup --quiet $BROKER_GRP 2>/dev/null || true
+		adduser  --quiet --ingroup $BROKER_GRP \
+		         --home /nonexistent --no-create-home \
+		         --disabled-password --shell /bin/false \
+		         --gecos "FI-WARE NSGI Event Broker" $BROKER_USR
+	fi
+	# change directory ownership
+	chown -R $FIWARE_USR:$FIWARE_GRP $FIWARE_DIR
+	chown -R $BROKER_USR:$BROKER_GRP $BROKER_DIR
+	# change file permissions
+	chmod -R g+w $BROKER_DIR
+	find $BROKER_DIR -name "*.so" -exec chmod a+x {} \;
+	# postinstall message
+	fmt --width=${COLUMNS:-$(tput cols)} <<-EOF
+
+		NGSI Event Broker installed at $BROKER_DIR.
+
+		This library is intended to be used as a Nagios module, so
+		further configuration steps are required. Please read Usage
+		section at /usr/share/doc/$PACKAGE/README.md for more
+		details.
+
+	EOF
+fi
