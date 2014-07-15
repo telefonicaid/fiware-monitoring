@@ -3,10 +3,13 @@
 module.exports = function(grunt) {
 
     grunt.initConfig({
+
         pkgFile: 'package.json',
         pkg: grunt.file.readJSON('package.json'),
 
-        clean: {
+        dirs: {
+            lib: ['lib'],
+            test: ['test'],
             reportTest: ['report/test'],
             reportLint: ['report/lint'],
             reportCoverage: ['report/coverage'],
@@ -15,35 +18,50 @@ module.exports = function(grunt) {
             siteDoc: ['site/doc']
         },
 
+        clean: {
+            reportTest: ['<%= dirs.reportTest[0] %>'],
+            reportLint: ['<%= dirs.reportLint[0] %>'],
+            reportCoverage: ['<%= dirs.reportCoverage[0] %>'],
+            lcovCoverage: ['<%= dirs.siteCoverage[0] %>'],
+            siteCoverage: ['<%= dirs.siteCoverage[0] %>'],
+            siteReport: ['<%= dirs.siteReport[0] %>'],
+            siteDoc: ['<%= dirs.siteDoc[0] %>']
+        },
+
         mkdir: {
             reportTest: {
                 options: {
-                    create: ['<%= clean.reportTest[0] %>']
+                    create: ['<%= dirs.reportTest[0] %>']
                 }
             },
             reportLint: {
                 options: {
-                    create: ['<%= clean.reportLint[0] %>']
+                    create: ['<%= dirs.reportLint[0] %>']
                 }
             },
             reportCoverage: {
                 options: {
-                    create: ['<%= clean.reportCoverage[0] %>']
+                    create: ['<%= dirs.reportCoverage[0] %>']
+                }
+            },
+            lcovCoverage: {
+                options: {
+                    create: ['<%= dirs.siteCoverage[0] %>']
                 }
             },
             siteCoverage: {
                 options: {
-                    create: ['<%= clean.siteCoverage[0] %>']
+                    create: ['<%= dirs.siteCoverage[0] %>']
                 }
             },
             siteDoc: {
                 options: {
-                    create: ['<%= clean.siteDoc[0] %>']
+                    create: ['<%= dirs.siteDoc[0] %>']
                 }
             },
             siteReport: {
                 options: {
-                    create: ['<%= clean.siteReport[0] %>']
+                    create: ['<%= dirs.siteReport[0] %>']
                 }
             }
         },
@@ -56,30 +74,30 @@ module.exports = function(grunt) {
                 src: 'Gruntfile.js'
             },
             lib: {
-                src: ['lib/**/*.js']
+                src: ['<%= dirs.lib[0] %>/**/*.js']
             },
             test: {
-                src: ['test/**/*.js']
+                src: ['<%= dirs.test[0] %>/**/*.js']
             },
             reportGruntfile: {
                 src: 'Gruntfile.js',
                 options: {
                     reporter: 'checkstyle',
-                    reporterOutput: '<%= clean.reportLint[0] %>/jshint-gruntfile.xml'
+                    reporterOutput: '<%= dirs.reportLint[0] %>/jshint-gruntfile.xml'
                 }
             },
             reportLib: {
-                src: 'lib/**/*.js',
+                src: '<%= dirs.lib[0] %>/**/*.js',
                 options: {
                     reporter: 'checkstyle',
-                    reporterOutput: '<%= clean.reportLint[0] %>/jshint-lib.xml'
+                    reporterOutput: '<%= dirs.reportLint[0] %>/jshint-lib.xml'
                 }
             },
             reportTest: {
-                src: 'test/**/*.js',
+                src: '<%= dirs.test[0] %>/**/*.js',
                 options: {
                     reporter: 'checkstyle',
-                    reporterOutput: '<%= clean.reportLint[0] %>/jshint-test.xml'
+                    reporterOutput: '<%= dirs.reportLint[0] %>/jshint-test.xml'
                 }
             }
         },
@@ -99,6 +117,13 @@ module.exports = function(grunt) {
             }
         },
 
+        env: {
+            dev: {
+                NODE_ENV : 'development',
+                XUNIT_FILE: '<%= dirs.reportTest[0] %>/TEST-xunit.xml'
+            }
+        },
+
         mochaTest: {
             unit: {
                 options: {
@@ -114,9 +139,9 @@ module.exports = function(grunt) {
             unitReport: {
                 options: {
                     ui: 'tdd',
-                    reporter: 'tap',
-                    quiet: true,
-                    captureFile: '<%= clean.reportTest[0] %>/unit_tests.tap'
+                    reporter: 'xunit-file',
+                    quiet: true
+
                 },
                 src: [
                     '<%= jshint.test.src %>'
@@ -130,21 +155,22 @@ module.exports = function(grunt) {
             },
             files: {
                 src: ['<%= jshint.lib.src %>', '<%= jshint.test.src %>'],
-                dest: '<%= clean.siteDoc[0] %>'
+                dest: '<%= dirs.siteDoc[0] %>'
             }
         },
 
         exec: {
             istanbul: {
                 cmd:
-                    'bash -c "./node_modules/.bin/istanbul cover --root lib/ --dir <%= clean.siteCoverage[0] %> -- ' +
-                    '\\"`npm root -g`/grunt-cli/bin/grunt\\" test && ' +
-                    './node_modules/.bin/istanbul report --dir <%= clean.siteCoverage[0] %> text-summary"'
+                    './node_modules/.bin/istanbul cover --root <%= dirs.lib[0] %>/ ' +
+                    '--dir <%= dirs.reportCoverage[0] %> -- grunt test >/dev/null && ' +
+                    'mv <%= dirs.reportCoverage[0] %>/lcov-report <%= clean.lcovCoverage[0] %> && ' +
+                    './node_modules/.bin/istanbul report --dir <%= dirs.reportCoverage[0] %> text-summary'
             },
             istanbulCobertura: {
                 cmd:
-                    'bash -c "./node_modules/.bin/istanbul report --dir <%= clean.siteCoverage[0] %> cobertura && ' +
-                    'mv <%= clean.siteCoverage[0] %>/cobertura-coverage.xml <%= clean.reportCoverage[0] %>"'
+                    './node_modules/.bin/istanbul report --dir <%= dirs.reportCoverage[0] %> cobertura'
+
             }
         },
 
@@ -199,19 +225,21 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-mocha-test');
+    grunt.loadNpmTasks('grunt-env');
     grunt.loadNpmTasks('grunt-exec');
     grunt.loadNpmTasks('grunt-plato');
     grunt.loadNpmTasks('grunt-gjslint');
     grunt.loadNpmTasks('grunt-dox');
     grunt.loadNpmTasks('grunt-mkdir');
 
-    grunt.registerTask('test', 'Run tests', ['mochaTest:unit']);
+    grunt.registerTask('test', 'Run tests',
+        ['mochaTest:unit']);
 
     grunt.registerTask('test-report', 'Generate tests reports',
-        ['clean:reportTest', 'mkdir:reportTest', 'mochaTest:unitReport']);
+        ['env', 'clean:reportTest', 'mkdir:reportTest', 'mochaTest:unitReport']);
 
-    grunt.registerTask('coverage', 'Print coverage report',
-        ['clean:siteCoverage', 'exec:istanbul']);
+    grunt.registerTask('coverage', 'Print coverage summary',
+        ['clean:lcovCoverage', 'mkdir:lcovCoverage', 'exec:istanbul']);
 
     grunt.registerTask('coverage-report', 'Generate Cobertura report',
         ['clean:reportCoverage', 'mkdir:reportCoverage', 'coverage', 'exec:istanbulCobertura']);
