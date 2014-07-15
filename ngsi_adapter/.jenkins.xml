@@ -1,0 +1,192 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>&lt;a href=&quot;https://github.com/telefonicaid/fiware-monitoring/tree/develop/ngsi_adapter&quot;&gt;&#xd;
+FI-WARE Monitoring GE: NGSI Adapter&#xd;
+&lt;/a&gt;&#xd;
+&lt;br&gt;&lt;br&gt;&lt;img src=&quot;/../jenkins/job/fiware-monitoring-ngsi-adapter/badge/icon&quot;&gt;&#xd;
+&lt;a href=&quot;/../jenkins/job/metrics-queue-consumer&quot;&gt;Metrics&lt;/a&gt;&#xd;
+&lt;img src=&quot;/../jenkins/job/metrics-queue-consumer/lastBuild/buildStatus&quot; width=&quot;16&quot;&gt;&#xd;
+</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <hudson.plugins.sidebar__link.ProjectLinks plugin="sidebar-link@1.6">
+      <links>
+        <hudson.plugins.sidebar__link.LinkAction>
+          <url>/../sonar/dashboard/index/org.fiware:fiware-monitoring-ngsi-adapter</url>
+          <text>Sonar</text>
+          <icon>gear2.gif</icon>
+        </hudson.plugins.sidebar__link.LinkAction>
+      </links>
+    </hudson.plugins.sidebar__link.ProjectLinks>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
+      <diskUsageWithoutBuilds>0</diskUsageWithoutBuilds>
+      <slaveWorkspacesUsage class="concurrent-hash-map">
+        <entry>
+          <string></string>
+          <concurrent-hash-map>
+            <entry>
+              <string>/home/develenv/app/hudson/jobs/fiware-monitoring-ngsi-adapter/workspace</string>
+              <long>38076009</long>
+            </entry>
+          </concurrent-hash-map>
+        </entry>
+      </slaveWorkspacesUsage>
+    </hudson.plugins.disk__usage.DiskUsageProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.0">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/telefonicaid/fiware-monitoring.git</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>origin/develop</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <hudson.triggers.TimerTrigger>
+      <spec>@midnight</spec>
+    </hudson.triggers.TimerTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command># change to project directory
+cd $WORKSPACE/ngsi_adapter/src/
+
+# install dependencies
+npm install
+
+# generate reports
+grunt test-report coverage-report
+
+# extract current version
+VERSION=$(sed -n &apos;/&quot;version&quot;/ { s/.*:.*&quot;\(.*\)&quot;.*/\1/; p }&apos; package.json)
+
+# generate properties file for Sonar (awk to remove leading spaces)
+awk &apos;$1=$1&apos; &gt; sonar-project.properties &lt;&lt;-EOF
+    # required metadata
+    sonar.projectName=fiware-monitoring-ngsi-adapter
+    sonar.projectKey=org.fiware:fiware-monitoring-ngsi-adapter
+    sonar.projectVersion=$VERSION
+
+    # path to source directories (required)
+    sonar.language=js
+    sonar.sourceEncoding=UTF-8
+    sonar.sources=lib
+    sonar.tests=test
+
+    # exclusions (to be covered by integration tests instead of unit tests)
+    sonar.exclusions=adapter.js
+
+    # coverage
+    sonar.dynamicAnalysis=reuseReports
+    sonar.cobertura.reportPath=report/coverage/cobertura-coverage.xml
+    sonar.javascript.lcov.reportPath=report/coverage/lcov.info
+EOF
+
+# workaround to use relative paths in coverage info
+sed -i s:&quot;$(readlink -f $PWD)&quot;:&quot;.&quot;:g report/coverage/lcov.info
+
+# workaround to detect current pwd as metrics dir
+sed &apos;/function getMetricsDir/,/}/ { d; }&apos; $(which metrics_runner.sh) &gt; ./metrics_runner.sh
+chmod a+x ./metrics_runner.sh
+function getMetricsDir() {
+   local currDir=$(readlink -f &quot;$PWD&quot;)/
+   local workDir=$(readlink -f &quot;$WORKSPACE&quot;)/
+   local metricsDir=${currDir#$workDir}
+   echo $metricsDir
+}
+export -f getMetricsDir
+export DEBUG_METRICS=&quot;FALSE&quot;
+
+# generate metrics
+./metrics_runner.sh
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.plugins.cobertura.CoberturaPublisher plugin="cobertura@1.9.3">
+      <coberturaReportFile>**/report/coverage/cobertura-coverage.xml</coberturaReportFile>
+      <onlyStable>false</onlyStable>
+      <failUnhealthy>false</failUnhealthy>
+      <failUnstable>false</failUnstable>
+      <autoUpdateHealth>false</autoUpdateHealth>
+      <autoUpdateStability>false</autoUpdateStability>
+      <zoomCoverageChart>false</zoomCoverageChart>
+      <maxNumberOfBuilds>0</maxNumberOfBuilds>
+      <failNoReports>true</failNoReports>
+      <healthyTarget>
+        <targets class="enum-map" enum-type="hudson.plugins.cobertura.targets.CoverageMetric">
+          <entry>
+            <hudson.plugins.cobertura.targets.CoverageMetric>METHOD</hudson.plugins.cobertura.targets.CoverageMetric>
+            <int>8000000</int>
+          </entry>
+          <entry>
+            <hudson.plugins.cobertura.targets.CoverageMetric>LINE</hudson.plugins.cobertura.targets.CoverageMetric>
+            <int>8000000</int>
+          </entry>
+          <entry>
+            <hudson.plugins.cobertura.targets.CoverageMetric>CONDITIONAL</hudson.plugins.cobertura.targets.CoverageMetric>
+            <int>7000000</int>
+          </entry>
+        </targets>
+      </healthyTarget>
+      <unhealthyTarget>
+        <targets class="enum-map" enum-type="hudson.plugins.cobertura.targets.CoverageMetric">
+          <entry>
+            <hudson.plugins.cobertura.targets.CoverageMetric>METHOD</hudson.plugins.cobertura.targets.CoverageMetric>
+            <int>0</int>
+          </entry>
+          <entry>
+            <hudson.plugins.cobertura.targets.CoverageMetric>LINE</hudson.plugins.cobertura.targets.CoverageMetric>
+            <int>0</int>
+          </entry>
+          <entry>
+            <hudson.plugins.cobertura.targets.CoverageMetric>CONDITIONAL</hudson.plugins.cobertura.targets.CoverageMetric>
+            <int>0</int>
+          </entry>
+        </targets>
+      </unhealthyTarget>
+      <failingTarget>
+        <targets class="enum-map" enum-type="hudson.plugins.cobertura.targets.CoverageMetric">
+          <entry>
+            <hudson.plugins.cobertura.targets.CoverageMetric>METHOD</hudson.plugins.cobertura.targets.CoverageMetric>
+            <int>0</int>
+          </entry>
+          <entry>
+            <hudson.plugins.cobertura.targets.CoverageMetric>LINE</hudson.plugins.cobertura.targets.CoverageMetric>
+            <int>0</int>
+          </entry>
+          <entry>
+            <hudson.plugins.cobertura.targets.CoverageMetric>CONDITIONAL</hudson.plugins.cobertura.targets.CoverageMetric>
+            <int>0</int>
+          </entry>
+        </targets>
+      </failingTarget>
+      <sourceEncoding>ASCII</sourceEncoding>
+    </hudson.plugins.cobertura.CoberturaPublisher>
+    <hudson.tasks.junit.JUnitResultArchiver>
+      <testResults>**/report/test/TEST-xunit.xml</testResults>
+      <keepLongStdio>false</keepLongStdio>
+      <testDataPublishers/>
+    </hudson.tasks.junit.JUnitResultArchiver>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.3.1">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
+</project>

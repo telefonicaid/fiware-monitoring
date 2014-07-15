@@ -49,6 +49,10 @@ two components: probe data and optional performance data.
 
 ## Changelog
 
+Version 1.1.0
+
+* Add timestamp to entity attributes (issue #4)
+
 Version 1.0.1
 
 * NGSI9 and NGSI10 decoupled in update requests by using append action
@@ -60,4 +64,4 @@ Version 1.0.0
 
 ## License
 
-(c) 2013 Telefónica I+D, Apache License 2.0
+(c) 2013-2014 Telefónica I+D, Apache License 2.0
