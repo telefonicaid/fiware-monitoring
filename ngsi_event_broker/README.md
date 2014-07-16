@@ -17,9 +17,9 @@ Currently, packages for these distributions are released:
 * Ubuntu 12.04 LTS
 
 As an alternative, module can be compiled from sources, either downloaded from
-SCM repository or as [source code tarball][src_dist_ref]. First option requires
-*autotools* and *libtool* to be installed, in order to generate configuration
-script
+sources repository or as [source code tarball][fiware_monitoring_releases_ref].
+First option requires *autotools* and *libtool* to be installed, in order to
+generate configuration script
 
     $ mkdir m4
     $ autoreconf --install
@@ -168,9 +168,9 @@ http://nagios.sourceforge.net/download/contrib/documentation/misc/NEB%202x%20Mod
 https://github.com/telefonicaid/fiware-monitoring/tree/master/ngsi_adapter
 "NGSI Adapter"
 
-[src_dist_ref]:
-https://forge.fi-ware.org/frs/download.php/1428/ngsi_event_broker-1.3.1.src.tar.gz
-"NGSI Event Broker source distribution package"
+[fiware_monitoring_releases_ref]:
+/README.md#releases
+"FI-WARE Monitoring GE Releases"
 
 [nagios_service_ref]:
 http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service
