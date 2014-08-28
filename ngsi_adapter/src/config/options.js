@@ -35,7 +35,7 @@
  * @property {Number} defaults.retries      Default maximum number of invocation retries.
  */
 var defaults = {
-    brokerUrl:  'http://127.0.0.1:1338/',
+    brokerUrl:  'http://127.0.0.1:1026/',
     listenHost: '127.0.0.1',
     listenPort: 1337,
     retries:    2
