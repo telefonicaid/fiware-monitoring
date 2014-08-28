@@ -66,7 +66,7 @@ FI-WARE Monitoring GE: NGSI Adapter&#xd;
       <command># change to project directory
 cd $WORKSPACE/ngsi_adapter/src/
 
-# install dependencies
+# install development dependencies
 npm install
 
 # generate reports
@@ -114,10 +114,18 @@ export DEBUG_METRICS=&quot;FALSE&quot;
 
 # generate metrics
 ./metrics_runner.sh
+
+# generate Debian package
+$WORKSPACE/ngsi_adapter/script/build/release.sh
 </command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>**/*.deb</artifacts>
+      <latestOnly>false</latestOnly>
+      <allowEmptyArchive>false</allowEmptyArchive>
+    </hudson.tasks.ArtifactArchiver>
     <hudson.plugins.cobertura.CoberturaPublisher plugin="cobertura@1.9.3">
       <coberturaReportFile>**/report/coverage/cobertura-coverage.xml</coberturaReportFile>
       <onlyStable>false</onlyStable>
