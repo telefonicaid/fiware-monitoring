@@ -59,6 +59,18 @@ shift $(expr $OPTIND - 1)
 	exit 1
 }
 
+# Function to create a Debian package
+create_debian_package() {
+	local package dpkg_files dpkg_dir=$BASEDIR/..
+	cd $BASEDIR && cp -r $PROGDIR/files/debian .
+	dpkg-buildpackage -b -rfakeroot -D -us -uc \
+	&& dpkg_files=$(ls -t ../*.deb ../*.changes 2>/dev/null | head -2) \
+	&& package=$(expr "$dpkg_files" : ".*/\(.*\.deb\)") \
+	&& mv -f $dpkg_files $BASEDIR \
+	&& printf "\n%s successfully created.\n\n" $(readlink -f $package)
+	[ -d ./debian ] && rm -rf ./debian
+}
+
 # Function to obtain GNU/Linux distro (set variable $1; OS_DISTRO if not given)
 get_linux_distro() {
 	local retvar=${1:-OS_DISTRO}
@@ -77,31 +89,15 @@ get_linux_distro() {
 	eval $retvar=\"$distro\"
 }
 
-# Function to create a .deb package
-create_deb_package() {
-	local nagios_srcdir
-	local dpkg_files dpkg_dir=$BASEDIR/..
-	cd $BASEDIR && cp -r $PROGDIR/files/debian .
-	nagios_srcdir=$(awk -F\" '/NAGIOS_SRCDIR/ {print $4}' ./config.status)
-	sed -i "s:NAGIOS_SRCDIR=:&$nagios_srcdir:" ./debian/rules
-	dpkg-buildpackage -b -rfakeroot -D -us -uc
-	dpkg_files=$(ls ../*.deb ../*.changes)
-	mv --update $dpkg_files .
-	[ -d ./debian ] && rm -rf ./debian
-}
-
 # Main
-PROGDIR=$(dirname $0)
+PROGDIR=$(readlink -f $(dirname $0))
 BASEDIR=$(readlink -f $PROGDIR/../..)
-if [ ! -r $BASEDIR/config.status ]; then
-	echo "Please run \`./configure' first" 1>&2
-	exit 2
-elif ! get_linux_distro OS_DISTRO; then
+if ! get_linux_distro OS_DISTRO; then
 	echo "Could not get GNU/Linux distribution" 1>&2
-	exit 3
+	exit 2
 elif [ $(expr "$OS_DISTRO" : 'Ubuntu.*\|Debian.*') -ne 0 ]; then
-	create_deb_package
+	create_debian_package
 else
 	echo "Unsupported GNU/Linux distribution" 1>&2
-	exit 4
+	exit 3
 fi

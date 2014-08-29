@@ -1,5 +1,6 @@
-m4
-autom4te.cache
+m4/
+docs/
+autom4te.cache/
 aclocal.m4
 depcomp
 missing
@@ -15,4 +16,3 @@ Makefile.in
 *.src.tar.gz
 *.changes
 *.deb
-docs

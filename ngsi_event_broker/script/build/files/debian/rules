@@ -6,15 +6,37 @@
 #	$ dh_make -c apache -n -s -p fiware-monitoring-ngsi-event-broker_<x.y.z>
 
 # Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
+# export DH_VERBOSE=1
 
-# Override this variable with an actual value
-NAGIOS_SRCDIR=
+# Package installation custom variables
+DH_FIWARE_USR:=fiware
+DH_FIWARE_GRP:=fiware
+DH_FIWARE_DIR:=/opt/fiware
+DH_BROKER_USR:=$(DH_FIWARE_USR)
+DH_BROKER_GRP:=$(DH_FIWARE_GRP)
+DH_BROKER_DIR:=$(DH_FIWARE_DIR)/ngsi_event_broker
+
+# Function to substitute variable $(1) in file $(2)
+dh_var_subst = $(shell sed -i 's:=\#$(1)\#:=$(value $(1)):' $(2))
 
 %:
 	dh $@
 
+override_dh_auto_clean:
+	@if [ ! -x ./configure -o ! -r ./config.status ]; then \
+		printf "\nERROR: Please run \`./configure' first\n\n" 1>&2; \
+		exit 1; \
+	fi
+
+override_dh_auto_configure: SRCDIR=$(shell awk -F\" '/NAGIOS_SRCDIR/ {print $$4}' ./config.status)
 override_dh_auto_configure:
 	dh_auto_configure -- \
-	--with-nagios-srcdir=$(NAGIOS_SRCDIR) \
-	--libdir=/opt/fiware/ngsi_event_broker/lib
+	--with-nagios-srcdir=$(SRCDIR) --libdir=$(DH_BROKER_DIR)/lib
+
+override_dh_install: DH_VARS=$(filter DH_%,$(.VARIABLES))
+override_dh_install:
+	dh_install -Xtest -Xdebian
+	$(foreach var,$(DH_VARS),$(call dh_var_subst,$(var),debian/postinst))
+
+override_dh_compress:
+	dh_compress -XREADME.md
