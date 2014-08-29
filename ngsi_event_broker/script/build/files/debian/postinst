@@ -3,16 +3,15 @@
 
 set -e
 
-PACKAGE=fiware-monitoring-ngsi-event-broker
-FIWARE_USR=fiware
-FIWARE_GRP=fiware
-FIWARE_DIR=/opt/fiware
-BROKER_USR=$FIWARE_USR
-BROKER_GRP=$FIWARE_GRP
-BROKER_DIR=$FIWARE_DIR/ngsi_event_broker
+# actual values of these variables will be replaced after dh_install (see rules)
+FIWARE_USR=#DH_FIWARE_USR#
+FIWARE_GRP=#DH_FIWARE_GRP#
+FIWARE_DIR=#DH_FIWARE_DIR#
+BROKER_USR=#DH_BROKER_USR#
+BROKER_GRP=#DH_BROKER_GRP#
+BROKER_DIR=#DH_BROKER_DIR#
 
 if [ "$1" = configure ]; then
-	VERSION=$2
 	# check FIWARE user
 	if ! getent passwd $FIWARE_USR >/dev/null; then
 		addgroup --quiet $FIWARE_GRP 2>/dev/null || true
@@ -27,7 +26,7 @@ if [ "$1" = configure ]; then
 		adduser  --quiet --ingroup $BROKER_GRP \
 		         --home /nonexistent --no-create-home \
 		         --disabled-password --shell /bin/false \
-		         --gecos "FI-WARE NSGI Event Broker" $BROKER_USR
+		         --gecos "FI-WARE NGSI Event Broker" $BROKER_USR
 	fi
 	# change directory ownership
 	chown -R $FIWARE_USR:$FIWARE_GRP $FIWARE_DIR
@@ -42,8 +41,8 @@ if [ "$1" = configure ]; then
 
 		This library is intended to be used as a Nagios module, so
 		further configuration steps are required. Please read Usage
-		section at /usr/share/doc/$PACKAGE/README.md for more
-		details.
+		section at /usr/share/doc/$DPKG_MAINTSCRIPT_PACKAGE/README.md
+		for more details.
 
 	EOF
 fi
