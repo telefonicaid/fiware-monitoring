@@ -34,7 +34,7 @@ if [ "$1" = configure ]; then
 		adduser --quiet --ingroup $ADAPTER_GRP \
 		        --home /nonexistent --no-create-home \
 		        --disabled-password --shell /bin/false \
-		        --gecos "FI-WARE NSGI Adapter" $ADAPTER_USR
+		        --gecos "FI-WARE NGSI Adapter" $ADAPTER_USR
 	fi
 	# change directory ownership
 	chown -R $FIWARE_USR:$FIWARE_GRP $FIWARE_DIR

@@ -63,12 +63,12 @@ shift $(expr $OPTIND - 1)
 create_debian_package() {
 	local package dpkg_files dpkg_dir=$BASEDIR/..
 	cd $BASEDIR && cp -r $PROGDIR/files/debian .
-	dpkg-buildpackage -b -rfakeroot -D -us -uc | grep -v "export.*FLAGS"
-	dpkg_files=$(ls -1t ../*.deb ../*.changes | head -2)
-	package=$(expr "$dpkg_files" : ".*/\(.*\.deb\)")
-	mv -f $dpkg_files .
+	dpkg-buildpackage -b -rfakeroot -D -us -uc \
+	&& dpkg_files=$(ls -t ../*.deb ../*.changes 2>/dev/null | head -2) \
+	&& package=$(expr "$dpkg_files" : ".*/\(.*\.deb\)") \
+	&& mv -f $dpkg_files $BASEDIR \
+	&& printf "\n%s successfully created.\n\n" $(readlink -f $package)
 	[ -d ./debian ] && rm -rf ./debian
-	printf "\n%s successfully created.\n\n" $(readlink -f $package)
 }
 
 # Function to obtain GNU/Linux distro (set variable $1; OS_DISTRO if not given)
