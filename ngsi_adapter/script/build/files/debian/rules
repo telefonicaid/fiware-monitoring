@@ -29,7 +29,7 @@ override_dh_auto_build:
 
 override_dh_install: DH_VARS=$(filter DH_%,$(.VARIABLES))
 override_dh_install:
-	dh_install -Xtest -Xdebian
+	dh_install -Xtest -Xdebian -X.git -X.svn
 	$(foreach var,$(DH_VARS),$(call dh_var_subst,$(var),debian/preinst))
 	$(foreach var,$(DH_VARS),$(call dh_var_subst,$(var),debian/postinst))
 	$(foreach var,$(DH_VARS),$(call dh_var_subst,$(var),debian/postrm))
