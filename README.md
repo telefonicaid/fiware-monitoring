@@ -19,6 +19,11 @@ For more information, please refer to the description of Monitoring GE in
 
 ## Releases
 
+[FI-WARE 3.5.2][release_3_5_2_ref]
+
+* ngsi_event_broker version 1.3.1
+* ngsi_adapter version 1.1.1
+
 [FI-WARE 3.5.1][release_3_5_1_ref]
 
 * ngsi_event_broker version 1.3.1
@@ -40,6 +45,10 @@ For more information, please refer to the description of Monitoring GE in
 [fiware_catalogue_monitoring_ref]:
 http://catalogue.fi-ware.org/enablers/monitoring-ge-tid-implementation
 "Monitoring GE - TID Implementation"
+
+[release_3_5_2_ref]:
+https://forge.fi-ware.org/frs/?group_id=7&release_id=529#cloud-monitoring-3-5-2-title-content
+"Monitoring GE - FI-WARE Release 3.5.2"
 
 [release_3_5_1_ref]:
 https://forge.fi-ware.org/frs/?group_id=7&release_id=506#cloud-monitoring-3-5-1-title-content
