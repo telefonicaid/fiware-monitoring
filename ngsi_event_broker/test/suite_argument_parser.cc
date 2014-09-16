@@ -28,11 +28,13 @@
 #include <list>
 #include <string>
 #include <sstream>
+#include <fstream>
 #include <cstdlib>
 #include "argument_parser.h"
 #include "cppunit/TestResult.h"
 #include "cppunit/TestFixture.h"
 #include "cppunit/TextTestRunner.h"
+#include "cppunit/XmlOutputter.h"
 #include "cppunit/BriefTestProgressListener.h"
 #include "cppunit/extensions/HelperMacros.h"
 
@@ -40,6 +42,7 @@
 using CppUnit::TestResult;
 using CppUnit::TestFixture;
 using CppUnit::TextTestRunner;
+using CppUnit::XmlOutputter;
 using CppUnit::BriefTestProgressListener;
 using namespace std;
 
@@ -94,7 +97,7 @@ public:
 
 
 /// Suite startup
-int main(void)
+int main(int argc, char* argv[])
 {
 	TextTestRunner runner;
 	BriefTestProgressListener progress;
@@ -104,6 +107,9 @@ int main(void)
 	cout << endl << endl;
 	bool success = runner.run("", false, true, false);
 	ArgumentParserTest::suiteTearDown();
+	ofstream xmlFileOut((string(argv[0]) + "-cppunit-results.xml").c_str());
+	XmlOutputter xmlOut(&runner.result(), xmlFileOut);
+	xmlOut.write();
 	return (success) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
