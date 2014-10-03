@@ -39,4 +39,4 @@ override_dh_install:
 	$(foreach var,$(DH_VARS),$(call dh_var_subst,$(var),debian/postinst))
 
 override_dh_compress:
-	dh_compress -XREADME.md
+	dh_compress -XREADME.rst
