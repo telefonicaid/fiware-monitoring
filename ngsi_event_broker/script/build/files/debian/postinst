@@ -41,7 +41,7 @@ if [ "$1" = configure ]; then
 
 		This library is intended to be used as a Nagios module, so
 		further configuration steps are required. Please read Usage
-		section at /usr/share/doc/$DPKG_MAINTSCRIPT_PACKAGE/README.md
+		section at /usr/share/doc/$DPKG_MAINTSCRIPT_PACKAGE/README.rst
 		for more details.
 
 	EOF
