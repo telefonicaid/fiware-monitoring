@@ -24,7 +24,7 @@ XSLTPROC_FLAGS  = $(PROJECT_DIR)/script/build/files/cppunit2xunit.xsl
 relpath = $(subst $(CURDIR)/,,$(1))
 
 # function to call cppcheck with args $1 and filter output to file/descriptor $2
-cppcheck = cppcheck $(CPPCHECK_FLAGS) $(1) 2> >(fgrep -v 'Unmatched suppression' 1>$(2))
+cppcheck = { cppcheck $(CPPCHECK_FLAGS) $(1) 2>&1 1>&3 | fgrep -v 'Unmatched suppression' 1>$(2); } 3>&1
 
 # remove generated reports
 clean-local:
