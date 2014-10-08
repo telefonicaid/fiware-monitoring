@@ -59,3 +59,7 @@ $(UNITTESTS_NAGIOS_MAIN): @NAGIOS_SRCDIR@/base/nagios.c
 
 $(UNITTESTS_BROKER_COMMON_STUB): $(top_builddir)/src/ngsi_event_broker_common.c
 	$(SED) '/char\*[ \t]*find_plugin_command_name/,/^}/ { d; }' $< > $@
+
+# remove gcov and cppunit files
+clean-local:
+	rm -f *.gcda *.gcno *-cppunit-results.xml

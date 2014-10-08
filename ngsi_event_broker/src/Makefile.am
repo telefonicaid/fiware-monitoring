@@ -9,5 +9,13 @@ ngsi_event_broker_xifi_la_CFLAGS	= -Wall
 ngsi_event_broker_xifi_la_LDFLAGS	= -module -avoid-version
 ngsi_event_broker_xifi_la_LIBADD	= -lcurl
 
+# remove unnecessary files
 install-exec-hook:
 	@rm -f $(DESTDIR)$(libdir)/ngsi_event_broker_*.la
+
+
+# reset all execution counts to zero prior coverage check
+if GCOV_ENABLED
+check-local:
+	lcov -d .libs --zerocounters
+endif
