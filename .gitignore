@@ -1,8 +1,9 @@
-.metadata
-.settings
+.metadata/
+.settings/
+report/
+site/
+sonar*
 .project
-.deps
-.libs
 *.o
 *.lo
 *.la

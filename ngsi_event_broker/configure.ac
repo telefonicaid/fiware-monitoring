@@ -33,6 +33,21 @@ if test "$libdir" = '${exec_prefix}/lib'; then
       [libdir=$exec_prefix/lib/nagios])
 fi
 
+# Optional features.
+AC_ARG_ENABLE(gcov,
+   AC_HELP_STRING([--enable-gcov],
+   [Turn on gcov coverage testing (GCC only).]),
+   [if test "$enableval" = "yes"; then
+       if test "$GCC" = "yes"; then
+          AC_MSG_NOTICE([enabled gcov coverage])
+          CFLAGS="$CFLAGS -fprofile-arcs -ftest-coverage -g -UNDEBUG"
+          LDFLAGS="$LDFLAGS -coverage"
+       else
+          AC_MSG_ERROR([--enable-gcov requires GCC.])
+       fi
+    fi])
+AM_CONDITIONAL([GCOV_ENABLED], [test "$enableval" = "yes"])
+
 # Configuration arguments.
 AC_ARG_WITH(nagios-srcdir,
    AC_HELP_STRING([--with-nagios-srcdir=DIR],
