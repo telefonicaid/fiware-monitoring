@@ -54,7 +54,7 @@ if [ "$1" = configure ]; then
 		WARNING: Check configuration file $ADAPTER_DIR/config/options.js
 		and logging parameters at $ADAPTER_DIR/config/logger.js before
 		starting \`$ADAPTER_SRV' service. Please read Usage section at
-		README.md for more details.
+		README.rst for more details.
 
 		EOF
 	else fmt --width=${COLUMNS:-$(tput cols)} 1>&2 <<-EOF
