@@ -90,6 +90,10 @@ an object *EntityData*.
 Changelog
 =========
 
+Version 1.2.0
+
+-  Add new log format (issue #25)
+
 Version 1.1.1
 
 -  Add .deb package generation (issue #16)

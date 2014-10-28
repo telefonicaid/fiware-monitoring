@@ -155,6 +155,10 @@ definition the aforementioned custom variable ``_entity_type``.
 Changelog
 =========
 
+Version 1.4.0
+
+-  Included new log format (issue #25)
+
 Version 1.3.1
 
 -  Included Debian package generation
