@@ -31,9 +31,11 @@
 var http   = require('http'),
     url    = require('url'),
     retry  = require('retry'),
-    logger = require('../config/logger'),
+    domain = require('domain'),
+    cuid   = require('cuid'),
     opts   = require('../config/options'),
-    parser = require('./parsers/common/factory');
+    parser = require('./parsers/common/factory'),
+    logger = require('./logger');
 
 
 /**
@@ -44,7 +46,8 @@ var http   = require('http'),
  */
 function doPost(request, callback) {
     try {
-        logger.info('<< Body: %s', request.body);
+        domain.active.context.op = 'Parse';
+        logger.debug('Probe data "%s"', request.body);
         var remoteUrl = url.parse(opts.brokerUrl);
         var dataParser = request.parser;
         var updateReqType = dataParser.getContentType();
@@ -57,14 +60,18 @@ function doPost(request, callback) {
             headers: {
                'Accept':            updateReqType,
                'Content-Type':      updateReqType,
-               'Content-Length':    updateReqBody.length
+               'Content-Length':    updateReqBody.length,
+               'txId':              domain.active.context.trans
             }
         };
         /* jshint unused: false */
         var operation = retry.operation({ retries: opts.retries });
         operation.attempt(function(currentAttempt) {
-            logger.info('%s %s...', updateReqOpts.method, opts.brokerUrl);
-            logger.debug('%s', updateReqBody);
+            domain.active.context.op = 'UpdateContext';
+            logger.info('Request to ContextBroker at %s...', opts.brokerUrl);
+            logger.debug('%s', { toString: function() {
+                return updateReqBody.split('\n').map(function(line) {return line.trim();}).join('');
+            }});
             var updateReq = http.request(updateReqOpts, function(response) {
                 var responseBody = '';
                 response.setEncoding('utf8');
@@ -100,9 +107,12 @@ function doPost(request, callback) {
  */
 function callback(err, responseStatus, responseBody) {
     if (err) {
-        logger.error('updateContext(): "%s"', err.message);
+        logger.error(err.message);
     } else {
-        logger.info('updateContext(): status=%d response=%s', responseStatus, responseBody);
+        logger.info('Response status %d %s', responseStatus, http.STATUS_CODES[responseStatus]);
+        logger.debug('%s', { toString: function() {
+            return responseBody.split('\n').map(function(line) {return line.trim();}).join('');
+        }});
     }
 }
 
@@ -114,36 +124,50 @@ function callback(err, responseStatus, responseBody) {
  *
  * - Request query string MUST include arguments `id` and `type`
  * - Request path will denote the name of the originating probe
+ * - Request headers may include a transaction identifier (`txId`)
  *
  * @param {http.IncomingMessage} request    The request to this server.
  * @param {http.ServerResponse}  response   The response from this server.
  */
 function asyncRequestListener(request, response) {
-    logger.info('<< HTTP %s', request.method);
-    var status  = 405;      // not allowed
-    var allowed = (request.method === 'POST');
-    if (allowed) {
-        try {
-            status = 200;   // ok
-            request.parser = parser.getParser(request);
-            request.timestamp = Date.now();
-            request.body = '';
-            request.on('data', function(chunk) {
-                request.body += chunk;
-            });
-            request.on('end', function() {
-                process.nextTick(function() {
-                    doPost(request, callback);
+    var reqd = domain.create();
+    reqd.add(request);
+    reqd.add(response);
+    reqd.context = {
+        trans: request.headers.txid || cuid(),
+        op: request.method
+    };
+    reqd.on('error', function(err) {
+        logger.error(err.message);
+        response.writeHead(500);  // server error
+        response.end();
+    });
+    reqd.run(function() {
+        logger.info('Request on resource %s', request.url);
+        var status = 405;  // not allowed
+        if (request.method === 'POST') {
+            try {
+                status = 200;  // ok
+                request.parser = parser.getParser(request);
+                request.timestamp = Date.now();
+                request.body = '';
+                request.on('data', function(chunk) {
+                    request.body += chunk;
                 });
-            });
-        } catch (err) {
-            status = 404;   // not found
-            logger.error(err.message);
+                request.on('end', function() {
+                    process.nextTick(function() {
+                        doPost(request, callback);
+                    });
+                });
+            } catch (err) {
+                status = 404;  // not found
+                logger.error(err.message);
+            }
         }
-    }
-    response.writeHead(status);
-    response.end();
-    logger.info('>> %d %s', response.statusCode, http.STATUS_CODES[response.statusCode]);
+        logger.info('Response status %d %s', response.statusCode, http.STATUS_CODES[response.statusCode]);
+        response.writeHead(status);
+        response.end();
+    });
 }
 
 
@@ -156,7 +180,7 @@ exports.main = function() {
         process.exit(1);
     });
     process.on('exit', function() {
-        logger.info('Server stopped');
+        logger.info({op: 'Exit'}, 'Server stopped');
     });
     process.on('SIGINT', function() {
         process.exit();
@@ -165,7 +189,7 @@ exports.main = function() {
         process.exit();
     });
     http.createServer(asyncRequestListener).listen(opts.listenPort, opts.listenHost, function() {
-        logger.info('Server running at http://%s:%d/', this.address().address, this.address().port);
+        logger.info({op: 'Init'}, 'Server listening at http://%s:%d/', this.address().address, this.address().port);
     });
 };
 

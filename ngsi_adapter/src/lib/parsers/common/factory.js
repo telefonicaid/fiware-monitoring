@@ -26,9 +26,9 @@
 'use strict';
 
 
-var url    = require('url'),
-    util   = require('util'),
-    logger = require('../../../config/logger');
+var url  = require('url'),
+    util = require('util'),
+    path = require('path');
 
 
 /**
@@ -40,13 +40,14 @@ var url    = require('url'),
  * @returns {Object} The parser been loaded according to probe mentioned in request.
  */
 function getParser(request) {
-    var probeName = url.parse(request.url).pathname.slice(1);
+    var probeName = url.parse(request.url).pathname.slice(1),
+        moduleName = util.format('../%s', probeName);
     try {
-        var parser = require(util.format('../%s', probeName)).parser;
-        return parser;
+        return require(moduleName).parser;
     } catch (err) {
-        logger.debug(err.message);
-        throw new Error(util.format('Unknown probe "%s" (url path %s)', probeName, request.url));
+        var modulePath = path.normalize(__dirname + path.sep + moduleName + '.js');
+        throw new Error((!probeName) ? 'Missing resource in request' :
+            util.format('Unknown probe "%s" (no parser module "%s" loaded)', probeName, modulePath));
     }
 }
 
