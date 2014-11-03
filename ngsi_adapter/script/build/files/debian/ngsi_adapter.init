@@ -15,10 +15,11 @@
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="NGSI Adapter Service"
 NAME=ngsi_adapter
-DAEMON=/opt/fiware/$NAME/adapter
+DAEMON=#DH_FIWARE_DIR#/$NAME/adapter
 DAEMON_ARGS=""
 DAEMON_USER=fiware
 PIDFILE=/var/run/$NAME.pid
+LOGFILE=#DH_LOGGING_DIR#/$NAME.log
 SCRIPTNAME=/etc/init.d/$NAME
 
 # Exit if the component is not installed
@@ -62,7 +63,7 @@ do_start()
 		|| return 1
 	start-stop-daemon --start --quiet --pidfile $PIDFILE --make-pidfile \
 		--background --chuid $DAEMON_USER \
-		--startas $DAEMON -- $DAEMON_ARGS \
+		--startas /bin/sh -- -c "exec $DAEMON $DAEMON_ARGS >> $LOGFILE" \
 		|| return 2
 }
 

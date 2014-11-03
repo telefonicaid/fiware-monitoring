@@ -194,7 +194,8 @@ bool BrokerXifiNpmTest::init_module_variables(const string& args)
 {
 	char buffer[MAXBUFLEN];
 	buffer[args.copy(buffer, MAXBUFLEN-1)] = '\0';
-	return (bool) ::init_module_variables(buffer);
+	context_t* context = NULL;
+	return (bool) ::init_module_variables(buffer, context);
 }
 
 
@@ -218,7 +219,8 @@ bool BrokerXifiNpmTest::free_module_variables()
 ///
 bool BrokerXifiNpmTest::get_adapter_request(nebstruct_service_check_data* data, string& request)
 {
-	char* result = ::get_adapter_request(data);
+	context_t* context = NULL;
+	char* result = ::get_adapter_request(data, context);
 	bool  error = (result == NULL);
 	request.assign((error) ? "" : result);
 	::free(result);

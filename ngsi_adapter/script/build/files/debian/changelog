@@ -1,3 +1,9 @@
+fiware-monitoring-ngsi-adapter (1.2.0) precise; urgency=low
+
+  * Included new log format (issue #25)
+
+ -- Telefónica I+D <opensource@tid.es>  Tue, 28 Oct 2014 11:45:00 +0200
+
 fiware-monitoring-ngsi-adapter (1.1.1) precise; urgency=low
 
   * Included Debian package generation (issue #16)

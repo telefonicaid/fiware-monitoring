@@ -38,6 +38,11 @@ Components
 Releases
 ========
 
+`FIWARE 4.1.1`_
+
+-  NGSI Event Broker version 1.4.0
+-  NGSI Adapter version 1.2.0
+
 `FIWARE 3.5.2`_
 
 -  NGSI Event Broker version 1.3.1
@@ -76,6 +81,7 @@ License
 .. REFERENCES
 
 .. _FIWARE Catalogue - Monitoring GE: http://catalogue.fi-ware.org/enablers/monitoring-ge-tid-implementation
+.. _FIWARE 4.1.1: https://forge.fi-ware.org/frs/?group_id=7&release_id=544#cloud-monitoring-4-1-1-title-content
 .. _FIWARE 3.5.2: https://forge.fi-ware.org/frs/?group_id=7&release_id=529#cloud-monitoring-3-5-2-title-content
 .. _FIWARE 3.5.1: https://forge.fi-ware.org/frs/?group_id=7&release_id=506#cloud-monitoring-3-5-1-title-content
 .. _FIWARE 3.3.3: https://forge.fi-ware.org/frs/?group_id=7&release_id=419#cloud-monitoring-3-3-3-title-content

@@ -66,12 +66,12 @@ void*       module_handle		= NULL;
 
 
 /* initializes module handle and info (name and version) */
-int init_module_handle_info(void* handle)
+int init_module_handle_info(void* handle, context_t* context)
 {
 	int result = NEB_OK;
 
 	module_handle = handle;
-	logging("info", "%s - Starting up (version %s)...", module_name, module_version);
+	logging(LOG_INFO, context, "Starting up (version %s)...", module_version);
 	neb_set_module_info(module_handle, NEBMODULE_MODINFO_TITLE,   module_name);
 	neb_set_module_info(module_handle, NEBMODULE_MODINFO_VERSION, module_version);
 
@@ -80,7 +80,7 @@ int init_module_handle_info(void* handle)
 
 
 /* gets adapter request URL including query fields */
-char* get_adapter_request(nebstruct_service_check_data* data)
+char* get_adapter_request(nebstruct_service_check_data* data, context_t* context)
 {
 	char* result = NULL;
 	char* name   = NULL;
@@ -90,10 +90,10 @@ char* get_adapter_request(nebstruct_service_check_data* data)
 	/* Build request according to plugin details */
 	const service* serv;
 	if ((name = find_plugin_command_name(data, &args, &nrpe, &serv)) == NULL) {
-		logging("error", "%s - Cannot get plugin command name", module_name);
+		logging(LOG_ERROR, context, "Cannot get plugin command name");
 		result = ADAPTER_REQUEST_INVALID;
 	} else if (serv == NULL) {
-		logging("error", "%s - Cannot get plugin service details", module_name);
+		logging(LOG_ERROR, context, "Cannot get plugin service details");
 		result = ADAPTER_REQUEST_INVALID;
 	} else {
 		const char*		type = NULL;
@@ -117,11 +117,11 @@ char* get_adapter_request(nebstruct_service_check_data* data)
 
 		/* get request URL */
 		if (!strcmp(type, SRV_DEFAULT_ENTITY_TYPE)) {
-			result = srv_get_adapter_request(name, args, type, serv);
+			result = srv_get_adapter_request(context, name, args, type, serv);
 		} else if (!strcmp(type, NPM_DEFAULT_ENTITY_TYPE)) {
-			result = npm_get_adapter_request(name, args, type);
+			result = npm_get_adapter_request(context, name, args, type);
 		} else {
-			result = dem_get_adapter_request(name, args, type, nrpe);
+			result = dem_get_adapter_request(context, name, args, type, nrpe);
 		}
 	}
 
@@ -134,14 +134,14 @@ char* get_adapter_request(nebstruct_service_check_data* data)
 
 
 /* [NPM monitoring] gets adapter request URL */
-char* npm_get_adapter_request(char* name, char* args, const char* type)
+char* npm_get_adapter_request(context_t* context, char* name, char* args, const char* type)
 {
 	char*		result = NULL;
 	option_list_t	opts   = NULL;
 
 	/* Take adapter query fields from plugin arguments */
 	if ((opts = parse_args(args, ":H:C:o:m:")) == NULL) {
-		logging("error", "%s - Cannot get plugin options", module_name);
+		logging(LOG_ERROR, context, "Cannot get plugin options");
 		result = ADAPTER_REQUEST_INVALID;
 	} else {
 		char*	host = NULL;
@@ -165,7 +165,7 @@ char* npm_get_adapter_request(char* name, char* args, const char* type)
 			}
 		}
 		if ((host == NULL) || (port == -1)) {
-			logging("error", "%s - Missing plugin options", module_name);
+			logging(LOG_ERROR, context, "Missing plugin options");
 			result = ADAPTER_REQUEST_INVALID;
 		} else {
 			char buffer[MAXBUFLEN];
@@ -183,7 +183,7 @@ char* npm_get_adapter_request(char* name, char* args, const char* type)
 
 
 /* [DEM monitoring] gets adapter request URL */
-char* dem_get_adapter_request(char* name, char* args, const char* type, int nrpe)
+char* dem_get_adapter_request(context_t* context, char* name, char* args, const char* type, int nrpe)
 {
 	char		buffer[MAXBUFLEN];
 	char*		result = NULL;
@@ -199,7 +199,7 @@ char* dem_get_adapter_request(char* name, char* args, const char* type, int nrpe
 		buffer[sizeof(buffer)-1] = '\0';
 		result = strdup(buffer);
 	} else if ((opts = parse_args(args, ":H:c:t:")) == NULL) {
-		logging("error", "%s - Cannot get NRPE plugin options", module_name);
+		logging(LOG_ERROR, context, "Cannot get NRPE plugin options");
 		result = ADAPTER_REQUEST_INVALID;
 	} else {
 		char        addr[INET_ADDRSTRLEN];
@@ -215,10 +215,10 @@ char* dem_get_adapter_request(char* name, char* args, const char* type, int nrpe
 			}
 		}
 		if (host == NULL) {
-			logging("error", "%s - Missing NRPE plugin options", module_name);
+			logging(LOG_ERROR, context, "Missing NRPE plugin options");
 			result = ADAPTER_REQUEST_INVALID;
 		} else if (resolve_address(host, addr, INET_ADDRSTRLEN)) {
-			logging("error", "%s - Cannot resolve remote address for %s", module_name, host);
+			logging(LOG_ERROR, context, "Cannot resolve remote address for %s", host);
 			result = ADAPTER_REQUEST_INVALID;
 		} else {
 			snprintf(buffer, sizeof(buffer)-1, DEM_ADAPTER_REQUEST_FORMAT,
@@ -235,7 +235,7 @@ char* dem_get_adapter_request(char* name, char* args, const char* type, int nrpe
 
 
 /* [Host service monitoring] gets adapter request URL */
-char* srv_get_adapter_request(char* name, char* args, const char* type, const service* serv)
+char* srv_get_adapter_request(context_t* context, char* name, char* args, const char* type, const service* serv)
 {
 	char* result = NULL;
 	char  buffer[MAXBUFLEN];
