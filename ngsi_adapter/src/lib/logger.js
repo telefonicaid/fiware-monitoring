@@ -17,7 +17,7 @@
 
 
 /**
- * Module that configures logging.
+ * Module for logging.
  *
  * @module logger
  */
@@ -36,7 +36,7 @@ logger.setLevel(opts.logLevel);
 
 
 /**
- * Gets the context for a trace messsage.
+ * Get the context for a trace.
  *
  * @return {Object} The context object.
  */
@@ -53,7 +53,7 @@ logger.getContext = function() {
  * @param {String} message  The main message to be added to the trace.
  * @param {Array}  args     More arguments provided to the log function.
  *
- * @return {String} The trace formatted.
+ * @return {String} The formatted trace.
  */
 logger.format = (process.env.NODE_ENV === 'development') ?
     logger.format :

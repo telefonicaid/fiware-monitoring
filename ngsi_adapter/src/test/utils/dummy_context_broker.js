@@ -30,7 +30,8 @@ var domain = require('domain'),
     logger = require('logops'),
     http   = require('http'),
     util   = require('util'),
-    cuid   = require('cuid');
+    cuid   = require('cuid'),
+    common = require('../../lib/common');
 
 
 var defaults = {
@@ -70,7 +71,7 @@ function doError(request, response, status) {
 
 
 function syncRequestListener(request, response) {
-    var requestTxId = request.headers['txid'],
+    var requestTxId = request.headers[common.txIdHttpHeader.toLowerCase()],
         contentType = request.headers['content-type'],
         contentLen  = request.headers['content-length'],
         reqd = domain.create();
@@ -85,10 +86,11 @@ function syncRequestListener(request, response) {
         doError(request, response, 500);  // server error
     });
     reqd.run(function() {
-        logger.info('Request %s, Content-Type=%s Content-Length=%s txId=%s',
+        logger.info('Request %s, Content-Type=%s Content-Length=%s %s=%s',
             request.url,
             contentType || 'n/a',
             contentLen  || 'n/a',
+            common.txIdHttpHeader,
             requestTxId || 'n/a');
         if (request.method !== 'POST') {
             doError(request, response, 405);  // not allowed
@@ -130,11 +132,11 @@ exports.main = function() {
 
     // Create HTTP server
     process.on('uncaughtException', function(err) {
-        logger.error(err.message);
+        logger.error({op: 'Exit'}, err.message);
         process.exit(1);
     });
     process.on('exit', function() {
-        logger.info('Context Broker stopped');
+        logger.info({op: 'Exit'}, 'Context Broker stopped');
     });
     process.on('SIGINT', function() {
         process.exit();
@@ -143,7 +145,7 @@ exports.main = function() {
         process.exit();
     });
     http.createServer(syncRequestListener).listen(opts.listenPort, opts.listenHost, function() {
-        logger.info('Context Broker listening at http://%s:%d/', this.address().address,this.address().port);
+        logger.info({op: 'Init'}, 'Context Broker listening at http://%s:%d/', this.address().address,this.address().port);
     });
 };
 

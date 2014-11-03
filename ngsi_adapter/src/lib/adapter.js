@@ -33,9 +33,10 @@ var http   = require('http'),
     retry  = require('retry'),
     domain = require('domain'),
     cuid   = require('cuid'),
-    opts   = require('../config/options'),
+    logger = require('./logger'),
+    common = require('./common'),
     parser = require('./parsers/common/factory'),
-    logger = require('./logger');
+    opts   = require('../config/options');
 
 
 /**
@@ -60,10 +61,10 @@ function doPost(request, callback) {
             headers: {
                'Accept':            updateReqType,
                'Content-Type':      updateReqType,
-               'Content-Length':    updateReqBody.length,
-               'txId':              domain.active.context.trans
+               'Content-Length':    updateReqBody.length
             }
         };
+        updateReqOpts.headers[common.txIdHttpHeader] = domain.active.context.trans;
         /* jshint unused: false */
         var operation = retry.operation({ retries: opts.retries });
         operation.attempt(function(currentAttempt) {
@@ -124,7 +125,7 @@ function callback(err, responseStatus, responseBody) {
  *
  * - Request query string MUST include arguments `id` and `type`
  * - Request path will denote the name of the originating probe
- * - Request headers may include a transaction identifier (`txId`)
+ * - Request headers may include a transaction identifier ({@link common#txIdHttpHeader})
  *
  * @param {http.IncomingMessage} request    The request to this server.
  * @param {http.ServerResponse}  response   The response from this server.
@@ -134,7 +135,7 @@ function asyncRequestListener(request, response) {
     reqd.add(request);
     reqd.add(response);
     reqd.context = {
-        trans: request.headers.txid || cuid(),
+        trans: request.headers[common.txIdHttpHeader.toLowerCase()] || cuid(),
         op: request.method
     };
     reqd.on('error', function(err) {
@@ -143,7 +144,7 @@ function asyncRequestListener(request, response) {
         response.end();
     });
     reqd.run(function() {
-        logger.info('Request on resource %s', request.url);
+        logger.info('Request on resource %s', request.url.split('?').join(' with params '));
         var status = 405;  // not allowed
         if (request.method === 'POST') {
             try {
@@ -176,7 +177,7 @@ function asyncRequestListener(request, response) {
  */
 exports.main = function() {
     process.on('uncaughtException', function(err) {
-        logger.error(err.message);
+        logger.error({op: 'Exit'}, err.message);
         process.exit(1);
     });
     process.on('exit', function() {
