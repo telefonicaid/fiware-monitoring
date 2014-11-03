@@ -44,7 +44,55 @@ extern "C" {
  */
 
 /** Multipurpose buffer length */
+#ifndef MAXBUFLEN
 #define MAXBUFLEN			512
+#endif /*MAXBUFLEN*/
+
+/**@}*/
+
+
+/**
+ * @name Logging definitions
+ * @{
+ */
+
+/** Logging levels */
+#define FOREACH_LEVEL(LEVEL) \
+	LEVEL(LOG_ERROR) \
+	LEVEL(LOG_WARN) \
+	LEVEL(LOG_INFO) \
+	LEVEL(LOG_DEBUG)
+
+#define GENERATE_ENUM(ENUM)		ENUM,
+#define GENERATE_STRING(STRING)		#STRING + 4,	/* skip "LOG_" */
+
+typedef enum {
+	FOREACH_LEVEL(GENERATE_ENUM)
+} loglevel_t;
+
+/** Logging level names, indexed by value */
+static const char* loglevel_names[] = {
+	FOREACH_LEVEL(GENERATE_STRING)
+	NULL
+};
+
+/**@}*/
+
+
+/**
+ * @name Operations & Support
+ * @{
+ */
+
+/** Operations context */
+typedef struct {
+	const char* trans;		/**< The transaction id */
+	const char* op;			/**< The operation name */
+} context_t;
+
+/** HTTP header for transaction id */
+#define TXID_HTTP_HEADER		"txId"
+#define TXID_HTTP_HEADER_LEN		4
 
 /**@}*/
 
@@ -131,6 +179,9 @@ extern char*				region_id;
 /** Address of the local host (used as part of identifiers in local entities) */
 extern char*				host_addr;
 
+/** Logging level */
+extern loglevel_t			log_level;
+
 /**@}*/
 
 
@@ -144,21 +195,23 @@ extern char*				host_addr;
  * Initializes global module handle and info (name and version)
  *
  * @param[in] handle		The module handle passed by Nagios to nebmodule_init().
+ * @param[in] context		The operations context (may be null).
  *
  * @retval NEB_OK		Successfully initialized.
  * @retval NEB_ERROR		Not successfully initialized.
  */
-int init_module_handle_info(void* handle);
+int init_module_handle_info(void* handle, context_t* context);
 
 
 /**
  * Composes the request to NGSI Adapter according to plugin data
  *
  * @param[in] data		The plugin data passed by Nagios to the registered callback_service_check().
+ * @param[in] context		The operations context (may be null).
  *
  * @return			The request URL to invoke NGSI Adapter (including query string).
  */
-char* get_adapter_request(nebstruct_service_check_data* data);
+char* get_adapter_request(nebstruct_service_check_data* data, context_t* context);
 
 
 /**@}*/
@@ -174,11 +227,12 @@ char* get_adapter_request(nebstruct_service_check_data* data);
  * Initializes module global variables, parsing module arguments in configuration file
  *
  * @param[in] args		The module arguments as a space-separated string.
+ * @param[in] context		The operations context (may be null).
  *
  * @retval NEB_OK		Successfully initialized.
  * @retval NEB_ERROR		Not successfully initialized.
  */
-int init_module_variables(char* args);
+int init_module_variables(char* args, context_t* context);
 
 
 /**
@@ -192,10 +246,12 @@ int free_module_variables(void);
 /**
  * Checks current Nagios object version
  *
+ * @param[in] context		The operations context (may be null).
+ *
  * @retval NEB_OK		Valid (compatible) version.
  * @retval NEB_ERROR		Invalid version.
  */
-int check_nagios_object_version(void);
+int check_nagios_object_version(context_t* context);
 
 
 /**
@@ -247,13 +303,14 @@ int resolve_address(const char* hostname, char* addr, size_t addrmaxlen);
 
 
 /**
- * Writes a formatted message to logfiles
+ * Writes a formatted message to Nagios log
  *
- * @param[in] level		The logging level (`"INFO"`, `"ERROR"`, etc).
+ * @param[in] level		The logging level.
+ * @param[in] context		The operations context (may be null).
  * @param[in] format		The printf()-like format spec of the message.
  * @param[in] ...		The variable list of arguments to format.
  */
-void logging(const char* level, const char* format, ...);
+void logging(loglevel_t level, context_t* context, const char* format, ...);
 
 
 /**@}*/

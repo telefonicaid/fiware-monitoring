@@ -32,6 +32,7 @@
 #include <assert.h>
 #include <unistd.h>
 #include <limits.h>
+#include <time.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -47,17 +48,23 @@
 #include "ngsi_event_broker_common.h"
 
 
-/* define common global variables (previously declared) */
-char* adapter_url = NULL;
-char* region_id   = NULL;
-char* host_addr   = NULL;
+/**
+ * @name Global variables definition
+ * @{
+ */
+
+char*			adapter_url = NULL;
+char*			region_id   = NULL;
+char*			host_addr   = NULL;
+loglevel_t		log_level   = LOG_INFO;
+
+/**@}*/
 
 
 /**
  * @name Nagios NEB API entry points
  * @{
  */
-
 
 /**
  * Deinitializes the module (entry point for [NEB API](@NagiosModule_ref))
@@ -69,13 +76,14 @@ char* host_addr   = NULL;
  */
 int nebmodule_deinit(int flags, int reason)
 {
-	int result = NEB_OK;
+	int		result = NEB_OK;
+	context_t	context = { .op = "Exit" };
 
 	curl_global_cleanup();
 	free_module_variables();
 
 	if (reason != NEBMODULE_ERROR_BAD_INIT) {
-		logging("info", "%s - Finished", module_name);
+		logging(LOG_INFO, &context, "Finishing...");
 	}
 
 	return result;
@@ -94,15 +102,16 @@ int nebmodule_deinit(int flags, int reason)
  */
 int nebmodule_init(int flags, char* args, void* handle)
 {
-	int result = NEB_OK;
+	int		result  = NEB_OK;
+	context_t	context = { .op = "Init" };
 
-	init_module_handle_info(handle);
-	if (check_nagios_object_version()) {
+	init_module_handle_info(handle, &context);
+	if (check_nagios_object_version(&context)) {
 		result = NEB_ERROR;
-	} else if (init_module_variables(args)) {
+	} else if (init_module_variables(args, &context)) {
 		result = NEB_ERROR;
 	} else if (curl_global_init(CURL_GLOBAL_ALL)) {
-		logging("error", "%s - Could not initialize libcurl", module_name);
+		logging(LOG_ERROR, &context, "Could not initialize libcurl");
 		result = NEB_ERROR;
 	} else {
 		result = neb_register_callback(NEBCALLBACK_SERVICE_CHECK_DATA,
@@ -117,17 +126,16 @@ int nebmodule_init(int flags, char* args, void* handle)
 	return result;
 }
 
-
 /**@}*/
 
 
 /* checks to make sure Nagios object version matches what we know about */
-int check_nagios_object_version(void)
+int check_nagios_object_version(context_t* context)
 {
 	int result = NEB_OK;
 
 	if (__nagios_object_structure_version != CURRENT_OBJECT_STRUCTURE_VERSION) {
-		logging("error", "%s - Nagios object version mismatch: %d,%d", module_name,
+		logging(LOG_ERROR, context, "Nagios object version mismatch: %d,%d",
 		        __nagios_object_structure_version, CURRENT_OBJECT_STRUCTURE_VERSION);
 		result = NEB_ERROR;
 	}
@@ -137,7 +145,7 @@ int check_nagios_object_version(void)
 
 
 /* initializes module variables */
-int init_module_variables(char* args)
+int init_module_variables(char* args, context_t* context)
 {
 	char		name[HOST_NAME_MAX];
 	char		addr[INET_ADDRSTRLEN];
@@ -159,38 +167,46 @@ int init_module_variables(char* args)
 					break;
 				}
 				case ':': {
-					logging("warning", "%s - Missing value for option -%c",
-					        module_name, (char) opts[i].err);
+					logging(LOG_WARN, context, "Missing value for option -%c", (char) opts[i].err);
+					break;
 				}
 				case '?': {
-					logging("warning", "%s - Unrecognized option -%c",
-					        module_name, (char) opts[i].err);
+					logging(LOG_WARN, context, "Unrecognized option -%c", (char) opts[i].err);
+					break;
 				}
 				default: {
-					logging("warning", "%s - Unhandled option -%c",
-					        module_name, (char) opts[i].opt);
+					logging(LOG_WARN, context, "Unhandled option -%c", (char) opts[i].opt);
 				}
 			}
 		}
 	}
 	if (!adapter_url || !region_id) {
-		logging("error", "%s - Missing required broker module options", module_name);
+		logging(LOG_ERROR, context, "Missing required broker module options");
 		result = NEB_ERROR;
 	} else if (gethostname(name, HOST_NAME_MAX)) {
-		logging("error", "%s - Cannot get localhost name", module_name);
+		logging(LOG_ERROR, context, "Cannot get localhost name");
 		result = NEB_ERROR;
 	} else if (resolve_address(name, addr, INET_ADDRSTRLEN)) {
-		logging("error", "%s - Cannot get localhost address", module_name);
+		logging(LOG_ERROR, context, "Cannot get localhost address");
 		result = NEB_ERROR;
 	} else {
-		host_addr = strdup(addr);
-		logging("info", "%s - Adapter URL = %s", module_name, adapter_url);
-		logging("info", "%s - Region Id = %s", module_name, region_id);
-		logging("info", "%s - Host addr = %s", module_name, host_addr);
+		host_addr = strdup(addr); /* keep a global copy of addr string */
 	}
 
 	free_option_list(opts);
 	opts = NULL;
+
+	if (result == NEB_ERROR) {
+		logging(LOG_ERROR, context, "Deinitializing broker module...");
+	} else {
+		logging(LOG_INFO, context, "{"
+			" \"adapter_url\": \"%s\","
+			" \"region_id\": \"%s\","
+			" \"host_addr\": \"%s\""
+			" }",
+			adapter_url, region_id, host_addr);
+	}
+
 	return result;
 }
 
@@ -208,18 +224,26 @@ int free_module_variables(void)
 }
 
 
-/* writes a formatted string to Nagios logs */
-void logging(const char* level, const char* format, ...)
+/* writes a formatted string to Nagios log */
+void logging(loglevel_t level, context_t* context, const char* format, ...)
 {
-	char	buffer[MAXBUFLEN];
-	va_list	ap;
+	if (level <= log_level) {
+		char	buffer[MAXBUFLEN];
+		size_t	len;
+		va_list	ap;
 
-	va_start(ap, format);
-	vsnprintf(buffer, sizeof(buffer)-1, format, ap);
-	buffer[sizeof(buffer)-1] = '\0';
-	va_end(ap);
+		len = snprintf(buffer, sizeof(buffer)-1, "lvl=%s | trans=%s | comp=%s | op=%s | msg=",
+			loglevel_names[level],
+			(context && context->trans) ? context->trans : "n/a",
+			module_name,
+			(context && context->op) ? context->op : "n/a");
+		va_start(ap, format);
+		len += vsnprintf(buffer+len, sizeof(buffer)-len-1, format, ap);
+		buffer[len] = '\0';
+		va_end(ap);
 
-	write_to_all_logs(buffer, NSLOG_INFO_MESSAGE);
+		write_to_log(buffer, NSLOG_INFO_MESSAGE, NULL);
+	}
 }
 
 
@@ -337,13 +361,26 @@ char* find_plugin_command_name(nebstruct_service_check_data* data, char** args, 
 /* Nagios service check callback */
 int callback_service_check(int callback_type, void* data)
 {
-	int result = NEB_OK;
-
+	int				result		= NEB_OK;
 	nebstruct_service_check_data*	check_data	= NULL;
 	char*				request_url	= NULL;
 	struct curl_slist*		curl_headers	= NULL;
 	CURL*				curl_handle	= NULL;
-	CURLcode			curl_result;
+	CURLcode			curl_result	= CURLE_OK;
+
+	#define HDRLEN			MAXBUFLEN
+	#define HDRSTRING		TXID_HTTP_HEADER ": " "n/a"
+	#define HDRTXOFFSET		TXID_HTTP_HEADER_LEN + 2	/* includes length of ": " separator */
+	#define TXID_PREFIX		"......"			/* six chars for the l64a prefix     */
+	#define TXID_PATTERN		"XXXXXX"			/* six chars for the mktemp pattern  */
+
+	char				txHdr[HDRLEN]	= HDRSTRING;
+	char*				txPrefix	= NULL;
+	char*				txId		= txHdr + HDRTXOFFSET;
+	const char*			opId		= "NGSIAdapter";
+	context_t			context		= { .trans = txId, .op = opId };
+
+	assert(strlen(TXID_HTTP_HEADER) == TXID_HTTP_HEADER_LEN);
 
 	assert(callback_type == NEBCALLBACK_SERVICE_CHECK_DATA);
 	check_data = (nebstruct_service_check_data*) data;
@@ -353,13 +390,20 @@ int callback_service_check(int callback_type, void* data)
 		return result;
 	}
 
+	/* Generate transation id */
+	strncpy(txId, TXID_PREFIX "" TXID_PATTERN, HDRLEN - HDRTXOFFSET - 1);
+	txPrefix = l64a((long) time(NULL));
+	mktemp(txId);
+	memcpy(txId, txPrefix, strlen(txPrefix));
+	txHdr[HDRLEN - 1] = '\0';
+
 	/* Async POST request to NGSI Adapter */
-	if ((request_url = get_adapter_request(check_data)) == ADAPTER_REQUEST_INVALID) {
-		logging("error", "%s - Cannot set adapter request URL", module_name);
+	if ((request_url = get_adapter_request(check_data, &context)) == ADAPTER_REQUEST_INVALID) {
+		logging(LOG_ERROR, &context, "Cannot set adapter request URL");
 	} else if (!strcmp(request_url, ADAPTER_REQUEST_IGNORE)) {
 		/* nothing to do: plugin is ignored */
 	} else if ((curl_handle = curl_easy_init()) == NULL) {
-		logging("error", "%s - Cannot open HTTP session", module_name);
+		logging(LOG_ERROR, &context, "Cannot open HTTP session");
 	} else {
 		char request_txt[MAXBUFLEN];
 		snprintf(request_txt, sizeof(request_txt)-1, "%s|%s",
@@ -367,16 +411,17 @@ int callback_service_check(int callback_type, void* data)
 		request_txt[sizeof(request_txt)-1] = '\0';
 
 		curl_headers = curl_slist_append(curl_headers, "Content-Type: text/plain");
+		curl_headers = curl_slist_append(curl_headers, txHdr);
 		curl_easy_setopt(curl_handle, CURLOPT_URL, request_url);
 		curl_easy_setopt(curl_handle, CURLOPT_POST, 1);
 		curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, request_txt);
 		curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDSIZE, strlen(request_txt));
 		curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, curl_headers);
 		if ((curl_result = curl_easy_perform(curl_handle)) == CURLE_OK) {
-			logging("info", "%s - Request sent to %s", module_name,
+			logging(LOG_INFO, &context, "Request sent to %s",
 			        request_url);
 		} else {
-			logging("error", "%s - Request to %s failed: %s", module_name,
+			logging(LOG_ERROR, &context, "Request to %s failed: %s",
 			        request_url, curl_easy_strerror(curl_result));
 		}
 		curl_slist_free_all(curl_headers);

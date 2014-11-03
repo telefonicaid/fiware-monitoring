@@ -1,5 +1,5 @@
 # Autoconf initialization.
-AC_INIT(ngsi_event_broker, 1.4.0)
+AC_INIT(fiware-monitoring-ngsi-event-broker, 1.4.0)
 AC_LANG(C)
 if test -z "$CFLAGS"; then
    # prevent configure from assigning default flags
@@ -21,7 +21,7 @@ AC_CONFIG_COMMANDS([cppunit],
 
 # Installation directory (same as Nagios libraries).
 if test "$prefix" = "NONE"; then
-   prefix="/usr"
+   prefix="/opt/fiware"
 fi
 if test "$exec_prefix" = "NONE"; then
    exec_prefix=$prefix
@@ -29,8 +29,8 @@ fi
 if test "$libdir" = '${exec_prefix}/lib'; then
    AC_CANONICAL_HOST
    AS_CASE([$host], [x86_64*],
-      [libdir=$exec_prefix/lib64/nagios],
-      [libdir=$exec_prefix/lib/nagios])
+      [libdir=$exec_prefix/ngsi_event_broker/lib],
+      [libdir=$exec_prefix/ngsi_event_broker/lib])
 fi
 
 # Optional features.

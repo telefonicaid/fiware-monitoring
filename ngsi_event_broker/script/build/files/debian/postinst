@@ -18,7 +18,7 @@ if [ "$1" = configure ]; then
 		adduser  --quiet --ingroup $FIWARE_GRP \
 		         --home /nonexistent --no-create-home \
 		         --disabled-password --shell /bin/false \
-		         --gecos "FI-WARE" $FIWARE_USR
+		         --gecos "FIWARE" $FIWARE_USR
 	fi
 	# check BROKER user
 	if ! getent passwd $BROKER_USR >/dev/null; then
@@ -26,7 +26,7 @@ if [ "$1" = configure ]; then
 		adduser  --quiet --ingroup $BROKER_GRP \
 		         --home /nonexistent --no-create-home \
 		         --disabled-password --shell /bin/false \
-		         --gecos "FI-WARE NGSI Event Broker" $BROKER_USR
+		         --gecos "FIWARE NGSI Event Broker" $BROKER_USR
 	fi
 	# change directory ownership
 	chown -R $FIWARE_USR:$FIWARE_GRP $FIWARE_DIR

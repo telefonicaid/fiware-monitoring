@@ -40,9 +40,9 @@ tarball), follow these steps:
    $ make check
    $ sudo make install
 
-Default target directory for this manual installation is Nagios libdir (usually
-``/usr/lib/nagios`` or ``/usr/lib64/nagios``) and requires sudoer privileges.
-This can be changed by running ``./configure --libdir=target_libdir``.
+Default installation directory is ``/opt/fiware/ngsi-event-broker/lib``. In
+case of manual installation, target directory can be changed by running
+``./configure --libdir=target_libdir`` (may require sudoer privileges).
 
 
 Usage

@@ -47,11 +47,11 @@ option_list_t parse_args(const char* args, const char* optstr)
 	int		argc = 0;
 	char*		argv[MAX_ARGS] = { "" };
 
-	/* split copy of args string into char* array */
+	/* split a non-null copy of args string into char* array */
 	char* last;
-	char* copy = strdup(args);
+	char* copy = strdup((args) ? args : "");
 	for (args = copy; (argv[argc] != NULL) && (argc < MAX_ARGS-1);) {
-		argv[++argc] = strtok_r(args, " \t", &last);
+		argv[++argc] = strtok_r((char*) args, " \t", &last);
 		args = NULL;
 	}
 
