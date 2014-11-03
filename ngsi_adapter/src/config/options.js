@@ -38,7 +38,7 @@
 var defaults = {
     logLevel:   'INFO',
     brokerUrl:  'http://127.0.0.1:1026/',
-    listenHost: '127.0.0.1',
+    listenHost: '0.0.0.0',
     listenPort: 1337,
     retries:    2
 };
