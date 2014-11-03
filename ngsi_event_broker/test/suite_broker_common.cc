@@ -65,11 +65,11 @@ extern "C" {
 /// @{
 ///
 extern "C" {
-	int init_module_handle_info(void* handle)
+	int init_module_handle_info(void* handle, context_t* context)
 	{
 		return 0;
 	}
-	char* get_adapter_request(nebstruct_service_check_data* data)
+	char* get_adapter_request(nebstruct_service_check_data* data, context_t* context)
 	{
 		return NULL;
 	}
@@ -131,7 +131,8 @@ bool BrokerCommonTest::init_module_variables(const string& args)
 {
 	char buffer[MAXBUFLEN];
 	buffer[args.copy(buffer, MAXBUFLEN-1)] = '\0';
-	return (bool) ::init_module_variables(buffer);
+	context_t* context = NULL;
+	return (bool) ::init_module_variables(buffer, context);
 }
 
 

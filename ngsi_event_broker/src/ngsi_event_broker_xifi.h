@@ -117,6 +117,7 @@ extern "C" {
 /**
  * Composes the request to NGSI Adapter according to DEM-specific plugin data
  *
+ * @param[in] context	The operations context (may be null).
  * @param[in] name	The name of the command for the plugin (result of find_plugin_command_name()).
  * @param[in] args	The command line arguments for the plugin (result of find_plugin_command_name()).
  * @param[in] type	The entity type associated to the resource being monitored.
@@ -124,24 +125,26 @@ extern "C" {
  *
  * @return		The request URL to invoke NGSI Adapter (including query string).
  */
-char* dem_get_adapter_request(char* name, char* args, const char* type, int nrpe);
+char* dem_get_adapter_request(context_t* context, char* name, char* args, const char* type, int nrpe);
 
 
 /**
  * Composes the request to NGSI Adapter according to NPM-specific plugin data
  *
+ * @param[in] context	The operations context (may be null).
  * @param[in] name	The name of the command for the plugin (result of find_plugin_command_name()).
  * @param[in] args	The command line arguments for the plugin (result of find_plugin_command_name()).
  * @param[in] type	The entity type associated to the resource being monitored.
  *
  * @return		The request URL to invoke NGSI Adapter (including query string).
  */
-char* npm_get_adapter_request(char* name, char* args, const char* type);
+char* npm_get_adapter_request(context_t* context, char* name, char* args, const char* type);
 
 
 /**
  * Composes the request to NGSI Adapter according to Host service-specific plugin data
  *
+ * @param[in] context	The operations context (may be null).
  * @param[in] name	The name of the command for the plugin (result of find_plugin_command_name()).
  * @param[in] args	The command line arguments for the plugin (result of find_plugin_command_name()).
  * @param[in] type	The entity type associated to the resource being monitored.
@@ -149,7 +152,7 @@ char* npm_get_adapter_request(char* name, char* args, const char* type);
  *
  * @return		The request URL to invoke NGSI Adapter (including query string).
  */
-char* srv_get_adapter_request(char* name, char* args, const char* type, const service* serv);
+char* srv_get_adapter_request(context_t* context, char* name, char* args, const char* type, const service* serv);
 
 
 /**@}*/

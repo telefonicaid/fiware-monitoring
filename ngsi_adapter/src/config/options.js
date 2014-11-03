@@ -29,14 +29,16 @@
 /**
  * @namespace
  * @property {Object} defaults              Default values for configuration options.
+ * @property {String} defaults.logLevel     Default logging level.
  * @property {String} defaults.brokerUrl    Default Context Broker URL.
  * @property {String} defaults.listenHost   Default adapter listen host.
  * @property {Number} defaults.listenPort   Default adapter listen port.
  * @property {Number} defaults.retries      Default maximum number of invocation retries.
  */
 var defaults = {
+    logLevel:   'INFO',
     brokerUrl:  'http://127.0.0.1:1026/',
-    listenHost: '127.0.0.1',
+    listenHost: '0.0.0.0',
     listenPort: 1337,
     retries:    2
 };
@@ -45,12 +47,14 @@ var defaults = {
 /**
  * @namespace
  * @property {Object} opts                  Command line options.
+ * @property {String} opts.logLevel         Logging level.
  * @property {String} opts.brokerUrl        Context Broker URL.
  * @property {String} opts.listenHost       Adapter listen host.
  * @property {Number} opts.listenPort       Adapter listen port.
  * @property {Number} opts.retries          Maximum number of invocation retries.
  */
 var opts = require('optimist')
+    .options('l', { alias: 'logLevel',   'default': defaults.logLevel,   describe: 'Logging level'       })
     .options('b', { alias: 'brokerUrl',  'default': defaults.brokerUrl,  describe: 'Context Broker URL'  })
     .options('H', { alias: 'listenHost', 'default': defaults.listenHost, describe: 'Adapter listen host' })
     .options('p', { alias: 'listenPort', 'default': defaults.listenPort, describe: 'Adapter listen port' })

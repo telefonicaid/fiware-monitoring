@@ -40,9 +40,9 @@ We can also start the adapter manually from the command line:
    $ adapter
 
 
-Context Broker URL, adapter listen port and other parameters may be supplied
-as command line arguments, overriding the default values defined in
-*config/options.js*:
+Context Broker URL, adapter listen port, logging level and other parameters may
+be supplied as command line arguments, overriding the default values defined
+in *config/options.js*:
 
 .. code::
 
@@ -56,9 +56,6 @@ run:
 
    $ adapter --help
 
-
-Logging options (such as level, console, rolling files, etc.) may be configured
-editing *config/logger.js* file.
 
 To modify the parameters to run the adapter as a service, please set variable
 ``DAEMON_ARGS`` in */etc/init.d/ngsi\_adapter* script.
@@ -89,6 +86,10 @@ an object *EntityData*.
 
 Changelog
 =========
+
+Version 1.2.0
+
+-  Add new log format (issue #25)
 
 Version 1.1.1
 
