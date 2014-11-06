@@ -73,8 +73,8 @@ Software Requirements
 
 NGSI Adapter is a standalone Node.js process, so ``node`` and its package
 manager ``npm`` should be installed previously. These requirements are
-automatically checked when installing the ``ngsi_adapter`` package. However,
-for manual installation please check
+automatically checked when installing the ``fiware-monitoring-ngsi-adapter``
+package. However, for manual installation please check
 \ https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager\ :
 
 -  Installation in Ubuntu
@@ -105,12 +105,15 @@ for manual installation please check
 Downloads
 ~~~~~~~~~
 
-Package for Ubuntu 12.04 LTS is available for download at part of
-`FIWARE 3.5.2 release`_.
+Package for Ubuntu 12.04 LTS is available for download. Please refer to the
+`download`__ section of FIWARE Catalogue. You can use tools such as ``gdebi``
+to install the package:
+
+__ `Catalogue - Monitoring download`_
 
 .. code::
 
-   $ sudo apt-get install fiware-monitoring-ngsi-adapter
+   $ sudo gdebi fiware-monitoring-ngsi-adapter_X.Y.Z_all.deb
 
 For the latest version, please download zip from
 \ https://github.com/telefonicaid/fiware-monitoring/archive/master.zip\ .
@@ -227,6 +230,8 @@ DAEMON\_ARGS
    Command line arguments
 DAEMON\_USER
    Linux user to run service
+LOGFILE
+   Logging file
 
 
 Once the service has been configured, the following commands are available to
@@ -247,6 +252,8 @@ line, but prepending ``--`` prefix) or as part of the default configuration
 (see ``defaults`` at the configuration file
 ``ngsi_adapter/src/config/options.js``):
 
+logLevel
+   Verbosity of log messages
 listenHost
    The hostname or address at which NGSI Adapter listens
 listenPort
@@ -255,19 +262,6 @@ brokerUrl
    The URL of the Context Broker instance to publish data to
 retries
    Number of times a request to Context Broker is retried, in case of error
-
-
-Besides, logging options are controlled by ``opts`` at the configuration file
-``ngsi_adapter/src/config/logger.js``:
-
-logLevel
-   Verbosity of log messages
-logFile
-   Full path of log file
-logMaxSize
-   Maximum size (in bytes) of log file
-logMaxFiles
-   Maximum number of rotating log files
 
 
 Sanity check procedures
@@ -291,10 +285,9 @@ End to End testing
 .. code::
 
    $ cat ngsi_adapter.log
-   ... << HTTP POST
-   ... >> 200 OK
-   ... << Body ...raw monitoring data...
-   ... POST http://contextbroker:1026/
+   time=... | lvl=INFO | trans=ci2627bx00000b42g8m2pxw3z | op=POST | msg=Request on resource /check_xxx with params id=xxx&type=xxx
+   time=... | lvl=INFO | trans=ci2627bx00000b42g8m2pxw3z | op=POST | msg=Response status 200 OK
+   time=... | lvl=INFO | trans=ci2627bx00000b42g8m2pxw3z | op=UpdateContext | msg=Request to ContextBroker at http://cbhost:1026/...
 
 
 -  Finally, query Context Broker for new data (see details `here`__)
@@ -310,7 +303,7 @@ A ``node`` process running the "adapter" server should be up and running, e.g.:
 .. code::
 
    $ ps -C node -f | grep adapter
-   fiware   21930     1  0 Mar28 ?        00:06:06 node /usr/local/monitoring/ngsi_adapter/src/adapter
+   fiware   21930     1  0 Mar28 ?        00:06:06 node /opt/fiware/ngsi_adapter/src/adapter
 
 
 Alternatively, we can check if service is running, e.g.:
@@ -396,7 +389,7 @@ the different monitoring components:
 
 .. REFERENCES
 
-.. _FIWARE 3.5.2 release: https://forge.fi-ware.org/frs/?group_id=7&release_id=529#cloud-monitoring-3-5-2-title-content
+.. _Catalogue - Monitoring download: http://catalogue.fi-ware.org/enablers/downloads-57
 .. _Resource consumption - Orion: https://forge.fi-ware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_Installation_and_Administration_Guide#Resource_consumption
 .. _Resource consumption - Cosmos: https://forge.fi-ware.org/plugins/mediawiki/wiki/fiware/index.php/BigData_Analysis_-_Installation_and_Administration_Guide#Resource_consumption
 .. _Orion - queryContext: https://forge.fi-ware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Query_Context_operation
