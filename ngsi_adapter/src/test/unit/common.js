@@ -31,20 +31,32 @@ var assert = require('assert'),
     timestamp = require('../../lib/parsers/common/base').parser.timestampAttrName;
 
 
+/**
+ * Asserts given argument is a valid number.
+ *
+ * @function assertIsNumber
+ * @param {Object} value        Any object.
+ */
 function assertIsNumber(value) {
     assert(!isNaN(value) && !isNaN(parseFloat(value)));
 }
-exports.assertIsNumber = assertIsNumber;
 
 
-function assertValidUpdateXML(updateXML, test) {
+/**
+ * Asserts given XML is well formed according to test suite data.
+ *
+ * @function assertValidUpdateXML
+ * @param {String} updateXML    The XML payload of an updateContext request.
+ * @param {Object} testSuite    The test suite whose data produced the XML.
+ */
+function assertValidUpdateXML(updateXML, testSuite) {
     assert.ok(updateXML);
-    assert.ok(test.entityType);
-    assert.ok(test.entityData);
+    assert.ok(testSuite.entityType);
+    assert.ok(testSuite.entityData);
     // feature #4: automatically add request timestamp to entity attributes
-    assert.ok(test.entityData[timestamp]);
-    assertIsNumber(test.entityId);
-    var entityAttrList = Object.keys(test.entityData);
+    assert.ok(testSuite.entityData[timestamp]);
+    assertIsNumber(testSuite.entityId);
+    var entityAttrList = Object.keys(testSuite.entityData);
     xml2js.parseString(updateXML, function(err, result) {
         // check <updateContextRequest> element
         assert.ok(result.updateContextRequest);
@@ -56,8 +68,8 @@ function assertValidUpdateXML(updateXML, test) {
         assert.ok(contextElement);
         // check <entityId> element and its attributes/subelements
         assert.ok(contextElement.entityId);
-        assert.equal(contextElement.entityId[0].$.type, test.entityType);
-        assert.equal(contextElement.entityId[0].id[0], test.entityId);
+        assert.equal(contextElement.entityId[0].$.type, testSuite.entityType);
+        assert.equal(contextElement.entityId[0].id[0], testSuite.entityId);
         // check <contextAttributeList> element
         assert(contextElement.contextAttributeList.length === 1);
         var contextAttrList = contextElement.contextAttributeList[0].contextAttribute;
@@ -72,4 +84,15 @@ function assertValidUpdateXML(updateXML, test) {
         contextAttrList.forEach(function(item) { assertIsNumber(item.contextValue[0]); });
     });
 }
+
+
+/**
+ * assertIsNumber.
+ */
+exports.assertIsNumber = assertIsNumber;
+
+
+/**
+ * assertValidUpdateXML.
+ */
 exports.assertValidUpdateXML = assertValidUpdateXML;

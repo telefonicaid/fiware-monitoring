@@ -26,7 +26,7 @@
 'use strict';
 
 
-var util   = require('util'),
+var util = require('util'),
     assert = require('assert'),
     common = require('./common');
 
@@ -35,20 +35,20 @@ var util   = require('util'),
 suite('check_users', function() {
 
     suiteSetup(function() {
-        this.timestampName  = require('../../lib/parsers/common/base').parser.timestampAttrName;
-        this.factory        = require('../../lib/parsers/common/factory');
+        this.timestampName = require('../../lib/parsers/common/base').parser.timestampAttrName;
+        this.factory = require('../../lib/parsers/common/factory');
 
-        this.baseurl    = 'http://hostname:1234/check_users';
-        this.entityId   = '1';
+        this.baseurl = 'http://hostname:1234/check_users';
+        this.entityId = '1';
         this.entityType = 'host';
         this.entityData = {
             users: 3
         };
 
-        this.probeData  = {
+        this.probeData = {
             users: this.entityData.users
         };
-        this.probeBody  = {
+        this.probeBody = {
             data: util.format('USERS OK - %d users currently logged in ', this.probeData.users),
             perf: util.format('users=%d;10;15;0', this.probeData.users)
         };

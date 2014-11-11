@@ -26,7 +26,7 @@
 'use strict';
 
 
-var util   = require('util'),
+var util = require('util'),
     assert = require('assert'),
     parser = require('../../lib/parsers/common/nagios').parser;
 
@@ -62,14 +62,13 @@ suite('nagios_parser', function() {
 
     test('parse_fails_extra_perf_data_another_line', function() {
         var self = this;
-        var data = 'TEXT OUTPUT | OPTIONAL PERFDATA                         \n\
-                    LONG TEXT LINE 1                                        \n\
-                    LONG TEXT LINE 2                                        \n\
-                    LONG TEXT LINE 3 | PERFDATA LINE 2 | ANOTHER PERFDATA   \n\
-                    LONG TEXT LINE 4                                        \n\
-                    LONG TEXT LINE 5 | PERFDATA LINE 3                      \n\
-                    LONG TEXT LINE 6                                        \
-                   ';
+        var data = 'TEXT OUTPUT | OPTIONAL PERFDATA                         \n' +
+                   'LONG TEXT LINE 1                                        \n' +
+                   'LONG TEXT LINE 2                                        \n' +
+                   'LONG TEXT LINE 3 | PERFDATA LINE 2 | ANOTHER PERFDATA   \n' +
+                   'LONG TEXT LINE 4                                        \n' +
+                   'LONG TEXT LINE 5 | PERFDATA LINE 3                      \n' +
+                   'LONG TEXT LINE 6                                        ';
         self.request.body = data;
         assert.throws(
             function() {
@@ -81,14 +80,13 @@ suite('nagios_parser', function() {
 
     test('parse_fails_third_perf_data_compound_line', function() {
         var self = this;
-        var data = 'TEXT OUTPUT | OPTIONAL PERFDATA                         \n\
-                    LONG TEXT LINE 1                                        \n\
-                    LONG TEXT LINE 2                                        \n\
-                    LONG TEXT LINE 3 | PERFDATA LINE 2                      \n\
-                    LONG TEXT LINE 4                                        \n\
-                    LONG TEXT LINE 5 | PERFDATA LINE 3                      \n\
-                    LONG TEXT LINE 6                                        \
-                   ';
+        var data = 'TEXT OUTPUT | OPTIONAL PERFDATA                         \n' +
+                   'LONG TEXT LINE 1                                        \n' +
+                   'LONG TEXT LINE 2                                        \n' +
+                   'LONG TEXT LINE 3 | PERFDATA LINE 2                      \n' +
+                   'LONG TEXT LINE 4                                        \n' +
+                   'LONG TEXT LINE 5 | PERFDATA LINE 3                      \n' +
+                   'LONG TEXT LINE 6                                        ';
         self.request.body = data;
         assert.throws(
             function() {
@@ -109,10 +107,9 @@ suite('nagios_parser', function() {
 
     test('parse_ok_multiline_text_output_only', function() {
         var self = this;
-        var data = 'TEXT OUTPUT         \n\
-                    LONG TEXT LINE 1    \n\
-                    LONG TEXT LINE 2    \
-                   ';
+        var data = 'TEXT OUTPUT         \n' +
+                   'LONG TEXT LINE 1    \n' +
+                   'LONG TEXT LINE 2    ';
         self.request.body = data;
         var entityData = parser.parseRequest(self.request);
         assert(!entityData.perfData);
@@ -145,7 +142,7 @@ suite('nagios_parser', function() {
 
     test('parse_ok_multiline_text_output_singleline_perf_data', function() {
         var self = this;
-        var data = ['TEXT OUTPUT','LONG TEXT LINE 1','LONG TEXT LINE 2'];
+        var data = ['TEXT OUTPUT', 'LONG TEXT LINE 1', 'LONG TEXT LINE 2'];
         var perf = 'OPTIONAL PERFDATA';
         self.request.body = util.format('%s|%s\n%s\n%s', data[0], perf, data[1], data[2]);
         var entityData = parser.parseRequest(self.request);
@@ -155,8 +152,8 @@ suite('nagios_parser', function() {
 
     test('parse_ok_multiline_text_output_multiline_perf_data', function() {
         var self = this;
-        var data = ['TEXT OUTPUT','LONG TEXT LINE 1','LONG TEXT LINE 2'];
-        var perf = ['OPTIONAL PERFDATA','PERFDATA LINE 2','PERFDATA LINE 3'];
+        var data = ['TEXT OUTPUT', 'LONG TEXT LINE 1', 'LONG TEXT LINE 2'];
+        var perf = ['OPTIONAL PERFDATA', 'PERFDATA LINE 2', 'PERFDATA LINE 3'];
         self.request.body = util.format('%s|%s\n%s\n%s|%s\n%s', data[0], perf[0], data[1], data[2], perf[1], perf[2]);
         var entityData = parser.parseRequest(self.request);
         assert.deepEqual(entityData.perfData.split('\n'), perf);

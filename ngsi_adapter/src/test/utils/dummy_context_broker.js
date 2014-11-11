@@ -28,14 +28,14 @@
 
 var domain = require('domain'),
     logger = require('logops'),
-    http   = require('http'),
-    util   = require('util'),
-    cuid   = require('cuid'),
+    http = require('http'),
+    util = require('util'),
+    cuid = require('cuid'),
     common = require('../../lib/common');
 
 
 var defaults = {
-    logLevel:   'DEBUG',
+    logLevel: 'DEBUG',
     listenHost: '127.0.0.1',
     listenPort: 1026
 };
@@ -53,7 +53,7 @@ function doPost(request, response) {
     }
     response.writeHead(responseCode, {
         'Content-Length': responseBody.length,
-        'Content-Type':   'application/xml'
+        'Content-Type': 'application/xml'
     });
     response.end(responseBody, 'utf8');
     logger.info('Response %d %s', response.statusCode, http.STATUS_CODES[response.statusCode]);
@@ -73,7 +73,7 @@ function doError(request, response, status) {
 function syncRequestListener(request, response) {
     var requestTxId = request.headers[common.txIdHttpHeader.toLowerCase()],
         contentType = request.headers['content-type'],
-        contentLen  = request.headers['content-length'],
+        contentLen = request.headers['content-length'],
         reqd = domain.create();
     reqd.add(request);
     reqd.add(response);
@@ -89,7 +89,7 @@ function syncRequestListener(request, response) {
         logger.info('Request %s, Content-Type=%s Content-Length=%s %s=%s',
             request.url,
             contentType || 'n/a',
-            contentLen  || 'n/a',
+            contentLen || 'n/a',
             common.txIdHttpHeader,
             requestTxId || 'n/a');
         if (request.method !== 'POST') {
@@ -118,7 +118,7 @@ exports.main = function() {
         .options('l', { alias: 'logLevel',   'default': defaults.logLevel,   describe: 'Logging level'              })
         .options('h', { alias: 'help',       'boolean': true,                describe: 'Show help'                  })
         .demand([]);
-    var extra = (opts.argv._.length > 0) || (Object.keys(opts.argv).length !== 2 + 2*(Object.keys(defaults).length+1));
+    var extra = (opts.argv._.length > 0) || (Object.keys(opts.argv).length !== 2 + 2 * (Object.keys(defaults).length + 1));
     if (opts.argv.help || extra) {
         opts.showHelp();
         process.exit(1);
@@ -145,7 +145,7 @@ exports.main = function() {
         process.exit();
     });
     http.createServer(syncRequestListener).listen(opts.listenPort, opts.listenHost, function() {
-        logger.info({op: 'Init'}, 'Context Broker listening at http://%s:%d/', this.address().address,this.address().port);
+        logger.info({op: 'Init'}, 'Context Broker listening at http://%s:%d/', this.address().address, this.address().port);
     });
 };
 

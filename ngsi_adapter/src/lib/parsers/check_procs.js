@@ -36,15 +36,30 @@
 var nagios = require('./common/nagios');
 
 
-//
-// Sample data: "PROCS OK: 136 processes"
-//                 ^        ^
-//     Metric -----+        |       (list of metrics: PROCS,VSZ,RSS,CPU,ELAPSED)
-//     # of procs ----------+
-//
+/**
+ * Parser for `check_procs` Nagios probe.
+ * @augments nagios
+ */
 var parser = Object.create(nagios.parser);
+
+
+/**
+ * Parses `check_procs` raw data to extract an object whose members are NGSI context attributes.
+ *
+ * @function getContextAttrs
+ * @memberof parser
+ * @param {EntityData} data                 Object holding raw entity data.
+ * @returns {Object} Context attributes.
+ *
+ * <code>
+ * Sample data: "PROCS OK: 136 processes"
+ *                 ^        ^
+ *     Metric -----+        |       (list of metrics: PROCS,VSZ,RSS,CPU,ELAPSED)
+ *     # of procs ----------+
+ * </code>
+ */
 parser.getContextAttrs = function(probeEntityData) {
-    var data  = probeEntityData.data.split('\n')[0];    // only consider first line of probe data, discard perfData
+    var data = probeEntityData.data.split('\n')[0];     // only consider first line of probe data, discard perfData
     var attrs = { procs: NaN };
 
     var items = data.split(':');
@@ -60,4 +75,7 @@ parser.getContextAttrs = function(probeEntityData) {
 };
 
 
+/**
+ * Parser for `check_procs`.
+ */
 exports.parser = parser;

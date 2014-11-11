@@ -62,6 +62,7 @@ baseParser.getContentType = function() {
  *
  * @function updateContextRequest
  * @memberof baseParser
+ * @this baseParser
  * @param {http.IncomingMessage} request    The HTTP request to this server.
  * @returns {String} The request body, either in XML or JSON format.
  */
@@ -79,9 +80,9 @@ baseParser.updateContextRequest = function(request) {
     }
     // feature #4: automatically add request timestamp to entity attributes
     entityAttrs[this.timestampAttrName] = request.timestamp;
-    return (this.getContentType() === 'application/xml')
-        ? this.getUpdateContextXML(entityId, entityType, entityAttrs)
-        : this.getUpdateContextJSON(entityId, entityType, entityAttrs);
+    return (this.getContentType() === 'application/xml') ?
+        this.getUpdateContextXML(entityId, entityType, entityAttrs) :
+        this.getUpdateContextJSON(entityId, entityType, entityAttrs);
 };
 
 
@@ -89,7 +90,7 @@ baseParser.updateContextRequest = function(request) {
  * Parses the request to extract raw probe data.
  *
  * @abstract
- * @function paserRequest
+ * @function parseRequest
  * @memberof baseParser
  * @param {http.IncomingMessage} request    The HTTP request to this server.
  * @returns {EntityData} An object holding entity data taken from request body.
@@ -144,7 +145,7 @@ baseParser.getUpdateContextXML = function(id, type, attrs) {
     result += '<updateContextRequest>\n';
     result += '    <contextElementList>\n';
     result += '        <contextElement>\n';
-    result += '            <entityId type="' + type +'" isPattern="false">\n';
+    result += '            <entityId type="' + type + '" isPattern="false">\n';
     result += '                <id>' + id + '</id>\n';
     result += '            </entityId>\n';
     result += '            <contextAttributeList>\n';
@@ -164,4 +165,7 @@ baseParser.getUpdateContextXML = function(id, type, attrs) {
 };
 
 
+/**
+ * Base parser to be extended.
+ */
 exports.parser = baseParser;

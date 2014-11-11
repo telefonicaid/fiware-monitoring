@@ -26,7 +26,7 @@
 'use strict';
 
 
-var url  = require('url'),
+var url = require('url'),
     util = require('util'),
     path = require('path');
 
@@ -52,4 +52,7 @@ function getParser(request) {
 }
 
 
+/**
+ * Parser factory.
+ */
 exports.getParser = getParser;

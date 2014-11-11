@@ -36,31 +36,46 @@
 var nagios = require('./common/nagios');
 
 
-//
-// Sample data: "OK - load average: 0.00, 0.00, 0.00|load1=0.000;1.000;1.000;0; load5=0.000;5.000;5.000;0; load15=0.000;15.000;15.000;0;"
-//                                    ^     ^     ^           ^     ^     ^  ^           ^     ^     ^  ^            ^      ^      ^  ^
-//     % CPU load in last minute -----+     |     |           |     |     |  |           |     |     |  |            |      |      |  |
-//     % CPU load in last 5 minutes --------+     |           |     |     |  |           |     |     |  |            |      |      |  |
-//     % CPU load in last 15 minutes -------------+           |     |     |  |           |     |     |  |            |      |      |  |
-//     =============================                          |     |     |  |           |     |     |  |            |      |      |  |
-//     Last minute:     load average -------------------------+     |     |  |           |     |     |  |            |      |      |  |
-//                      warning threshold --------------------------+     |  |           |     |     |  |            |      |      |  |
-//                      critical threshold -------------------------------+  |           |     |     |  |            |      |      |  |
-//                      reserved --------------------------------------------+           |     |     |  |            |      |      |  |
-//                                                                                       |     |     |  |            |      |      |  |
-//     Last 5 minutes:  load average ----------------------------------------------------+     |     |  |            |      |      |  |
-//                      warning threshold -----------------------------------------------------+     |  |            |      |      |  |
-//                      critical threshold ----------------------------------------------------------+  |            |      |      |  |
-//                      reserved -----------------------------------------------------------------------+            |      |      |  |
-//                                                                                                                   |      |      |  |
-//     Last 15 minutes: load average --------------------------------------------------------------------------------+      |      |  |
-//                      warning threshold ----------------------------------------------------------------------------------+      |  |
-//                      critical threshold ----------------------------------------------------------------------------------------+  |
-//                      reserved -----------------------------------------------------------------------------------------------------+
-//
+/**
+ * Parser for `check_load` Nagios probe.
+ * @augments nagios
+ */
 var parser = Object.create(nagios.parser);
+
+
+/**
+ * Parses `check_load` raw data to extract an object whose members are NGSI context attributes.
+ *
+ * @function getContextAttrs
+ * @memberof parser
+ * @param {EntityData} data                 Object holding raw entity data.
+ * @returns {Object} Context attributes.
+ *
+ * <code>
+ * Sample data: "OK - load average: 0.00, 0.00, 0.00|load1=0.000;1.000;1.000;0; load5=0.000;5.000;5.000;0; load15=0.000;15.000;15.000;0;"
+ *                                    ^     ^     ^           ^     ^     ^  ^           ^     ^     ^  ^            ^      ^      ^  ^
+ *     % CPU load in last minute -----+     |     |           |     |     |  |           |     |     |  |            |      |      |  |
+ *     % CPU load in last 5 minutes --------+     |           |     |     |  |           |     |     |  |            |      |      |  |
+ *     % CPU load in last 15 minutes -------------+           |     |     |  |           |     |     |  |            |      |      |  |
+ *     =============================                          |     |     |  |           |     |     |  |            |      |      |  |
+ *     Last minute:     load average -------------------------+     |     |  |           |     |     |  |            |      |      |  |
+ *                      warning threshold --------------------------+     |  |           |     |     |  |            |      |      |  |
+ *                      critical threshold -------------------------------+  |           |     |     |  |            |      |      |  |
+ *                      reserved --------------------------------------------+           |     |     |  |            |      |      |  |
+ *                                                                                       |     |     |  |            |      |      |  |
+ *     Last 5 minutes:  load average ----------------------------------------------------+     |     |  |            |      |      |  |
+ *                      warning threshold -----------------------------------------------------+     |  |            |      |      |  |
+ *                      critical threshold ----------------------------------------------------------+  |            |      |      |  |
+ *                      reserved -----------------------------------------------------------------------+            |      |      |  |
+ *                                                                                                                   |      |      |  |
+ *     Last 15 minutes: load average --------------------------------------------------------------------------------+      |      |  |
+ *                      warning threshold ----------------------------------------------------------------------------------+      |  |
+ *                      critical threshold ----------------------------------------------------------------------------------------+  |
+ *                      reserved -----------------------------------------------------------------------------------------------------+
+ * </code>
+ */
 parser.getContextAttrs = function(probeEntityData) {
-    var data  = probeEntityData.data.split('\n')[0];    // only consider first line of probe data, discard perfData
+    var data = probeEntityData.data.split('\n')[0];     // only consider first line of probe data, discard perfData
     var attrs = { cpuLoadPct: NaN };
 
     var items = data.split(':');
@@ -77,4 +92,7 @@ parser.getContextAttrs = function(probeEntityData) {
 };
 
 
+/**
+ * Parser for `check_load`.
+ */
 exports.parser = parser;

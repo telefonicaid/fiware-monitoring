@@ -26,7 +26,7 @@
 'use strict';
 
 
-var util   = require('util'),
+var util = require('util'),
     assert = require('assert'),
     common = require('./common');
 
@@ -35,20 +35,20 @@ var util   = require('util'),
 suite('check_mem.sh', function() {
 
     suiteSetup(function() {
-        this.timestampName  = require('../../lib/parsers/common/base').parser.timestampAttrName;
-        this.factory        = require('../../lib/parsers/common/factory');
+        this.timestampName = require('../../lib/parsers/common/base').parser.timestampAttrName;
+        this.factory = require('../../lib/parsers/common/factory');
 
-        this.baseurl    = 'http://hostname:1234/check_mem.sh';
-        this.entityId   = '1';
+        this.baseurl = 'http://hostname:1234/check_mem.sh';
+        this.entityId = '1';
         this.entityType = 'host';
         this.entityData = {
             usedMemPct: 19
         };
 
-        this.probeData  = {
+        this.probeData = {
             usedMemPct: this.entityData.usedMemPct
         };
-        this.probeBody  = {
+        this.probeBody = {
             data: 'Memory: OK Total: 1877 MB - Used: 369 MB - ' + this.probeData.usedMemPct + '% used',
             perf: 'TOTAL=1969020928;;;; USED=386584576;;;; CACHE=999440384;;;; BUFFER=201584640;;;;'
         };

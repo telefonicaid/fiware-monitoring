@@ -28,15 +28,15 @@
 'use strict';
 
 
-var http   = require('http'),
-    url    = require('url'),
-    retry  = require('retry'),
+var http = require('http'),
+    url = require('url'),
+    retry = require('retry'),
     domain = require('domain'),
-    cuid   = require('cuid'),
+    cuid = require('cuid'),
     logger = require('./logger'),
     common = require('./common'),
     parser = require('./parsers/common/factory'),
-    opts   = require('../config/options');
+    opts = require('../config/options');
 
 
 /**
@@ -55,13 +55,13 @@ function doPost(request, callback) {
         var updateReqBody = dataParser.updateContextRequest(request);
         var updateReqOpts = {
             hostname: remoteUrl.hostname,
-            port:     remoteUrl.port,
-            path:     '/NGSI10/updateContext',
-            method:   'POST',
+            port: remoteUrl.port,
+            path: '/NGSI10/updateContext',
+            method: 'POST',
             headers: {
-               'Accept':            updateReqType,
-               'Content-Type':      updateReqType,
-               'Content-Length':    updateReqBody.length
+               'Accept': updateReqType,
+               'Content-Type': updateReqType,
+               'Content-Length': updateReqBody.length
             }
         };
         updateReqOpts.headers[common.txIdHttpHeader] = domain.active.context.trans;

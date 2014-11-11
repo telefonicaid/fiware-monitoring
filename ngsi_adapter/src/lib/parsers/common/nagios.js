@@ -19,17 +19,6 @@
 /**
  * Module that defines a base parser object specialized for Nagios probes.
  *
- * Probe output format: <code>
- *         TEXT OUTPUT | OPTIONAL PERFDATA
- *         LONG TEXT LINE 1
- *         LONG TEXT LINE 2
- *         ...
- *         LONG TEXT LINE N | PERFDATA LINE 2
- *         PERFDATA LINE 3
- *         ...
- *         PERFDATA LINE N
- * </code>
- *
  * @module nagios
  * @see http://nagios.sourceforge.net/docs/3_0/pluginapi.html
  */
@@ -57,6 +46,17 @@ var nagiosParser = Object.create(baseParser);
  * @memberof nagiosParser
  * @param {http.IncomingMessage} request    The HTTP request to this server.
  * @returns {EntityData} An object with `data` (and optional `perfData`) members.
+ *
+ * Probe output format: <code>
+ *         TEXT OUTPUT | OPTIONAL PERFDATA
+ *         LONG TEXT LINE 1
+ *         LONG TEXT LINE 2
+ *         ...
+ *         LONG TEXT LINE N | PERFDATA LINE 2
+ *         PERFDATA LINE 3
+ *         ...
+ *         PERFDATA LINE N
+ * </code>
  */
 nagiosParser.parseRequest = function(request) {
     var entityData = {};
@@ -92,4 +92,7 @@ nagiosParser.parseRequest = function(request) {
 };
 
 
+/**
+ * Nagios base parser.
+ */
 exports.parser = nagiosParser;
