@@ -20,7 +20,8 @@
 # Build this component within a Jenkins CI job
 #
 # Usage:
-#     $0 [--help]
+#     $0 build|release
+#     $0 --help
 #
 # Options:
 #     -h, --help	show this help message
@@ -28,6 +29,9 @@
 
 OPTS='h(help)'
 NAME=$(basename $0)
+
+# Command line options
+ACTION=			# build|release
 
 # Process command line
 OPTERR=
@@ -50,6 +54,8 @@ case $OPT in
 	continue;;
 esac; break; done; done
 shift $(expr $OPTIND - 1)
+ACTION=$(expr "$1" : "^\(build\|release\)$") && shift
+[ -z "$OPTERR" -a -z "$ACTION" ] && OPTERR="Missing or invalid action"
 [ -z "$OPTERR" -a -n "$*" ] && OPTERR="Too many arguments"
 [ -n "$OPTERR" ] && {
 	[ "$OPTERR" != "$OPTHLP" ] && OPTERR="${OPTERR}\nTry \`$NAME --help'"
@@ -85,69 +91,99 @@ NAGIOS_VERSION=3.4.1
 # Change to project directory
 cd $PROJECT_DIR
 
-# Install development dependencies
-if test -r /etc/redhat-release; then
-	# CentOS
-	sudo yum -y -q install wget gcc-c++ autoconf automake lcov libxslt cppcheck cppunit-devel libcurl-devel
-else
-	# Ubuntu
-	sudo apt-get -y -q install wget g++ autoconf automake autotools-dev lcov xsltproc cppcheck libcppunit-dev libcurl4-openssl-dev
-fi
-sudo pip install -q gcovr
-if ! test -d $NAGIOS_SRC_DIR; then
-	NAGIOS_URL=$NAGIOS_SOURCES/nagios-${NAGIOS_VERSION%%.*}.x/nagios-${NAGIOS_VERSION}/nagios-${NAGIOS_VERSION}.tar.gz/download
-	wget $NAGIOS_URL -q -O nagios-${NAGIOS_VERSION}.tar.gz
-	tar xzf nagios-${NAGIOS_VERSION}.tar.gz
-	(cd nagios && ./configure && make nagios)
-fi
+# Perform action
+case $ACTION in
+build)
+	# Install development dependencies
+	if test -r /etc/redhat-release; then
+		# CentOS
+		sudo yum -y -q install wget gcc-c++ autoconf automake lcov libxslt cppcheck cppunit-devel libcurl-devel
+	else
+		# Ubuntu
+		sudo apt-get -y -q install wget g++ autoconf automake autotools-dev lcov xsltproc cppcheck libcppunit-dev libcurl4-openssl-dev
+	fi
+	sudo pip install -q gcovr
+	if ! test -d $NAGIOS_SRC_DIR; then
+		NAGIOS_URL=$NAGIOS_SOURCES/nagios-${NAGIOS_VERSION%%.*}.x/nagios-${NAGIOS_VERSION}/nagios-${NAGIOS_VERSION}.tar.gz/download
+		wget $NAGIOS_URL -q -O nagios-${NAGIOS_VERSION}.tar.gz
+		tar xzf nagios-${NAGIOS_VERSION}.tar.gz
+		(cd nagios && ./configure && make nagios)
+	fi
 
-# Configure for debug build with coverage support
-mkdir -p m4 && autoreconf -i
-./configure --enable-gcov --with-nagios-srcdir=$NAGIOS_SRC_DIR
+	# Configure for debug build with coverage support
+	mkdir -p m4 && autoreconf -i
+	./configure --enable-gcov --with-nagios-srcdir=$NAGIOS_SRC_DIR
 
-# Compile and generate reports
-make clean lint-report test-report coverage-report
+	# Compile and generate reports
+	make clean lint-report test-report coverage-report
 
-# Copy reports with paths relative to $WORKSPACE root
-sed 's#\./src/#ngsi_event_broker/src/#' $COVERAGE_REPORT_DIR/lcov.info > $PROJECT_DIR/jenkins-lcov.info
-sed 's#filename="src/#filename="ngsi_event_broker/src/#' $COVERAGE_REPORT_DIR/cobertura-coverage.xml > $PROJECT_DIR/jenkins-cobertura-coverage.xml
+	# Copy reports with paths relative to $WORKSPACE root
+	sed 's#\./src/#ngsi_event_broker/src/#' $COVERAGE_REPORT_DIR/lcov.info > $PROJECT_DIR/jenkins-lcov.info
+	sed 's#filename="src/#filename="ngsi_event_broker/src/#' $COVERAGE_REPORT_DIR/cobertura-coverage.xml > $PROJECT_DIR/jenkins-cobertura-coverage.xml
 
-# Get include directories for sonar-cxx plugin
-C_CXX_INCLUDE_DIRS=$(cpp -x c++ -v 2>&1 /dev/null | sed -n '/include <\.\.\.>/,/End/ { p;}' | tail -n +2 | head -n -1 | tr -d ' ' | tr '\n ' ',')
-SONAR_INCLUDE_DIRS="${NAGIOS_INC_DIR},${C_CXX_INCLUDE_DIRS%,}"
+	# Get include directories for sonar-cxx plugin
+	C_CXX_INCLUDE_DIRS=$(cpp -x c++ -v 2>&1 /dev/null | sed -n '/include <\.\.\.>/,/End/ { p;}' | tail -n +2 | head -n -1 | tr -d ' ' | tr '\n ' ',')
+	SONAR_INCLUDE_DIRS="${NAGIOS_INC_DIR},${C_CXX_INCLUDE_DIRS%,}"
 
-# Prepare properties file for Sonar (awk to remove leading spaces)
-awk '$1=$1' > $PROJECT_DIR/sonar-project.properties <<-EOF
-	sonar.projectName=fiware-monitoring-ngsi-event-broker
-	sonar.projectKey=com.telefonica.fiware:fiware-monitoring-ngsi-event-broker
-	sonar.projectVersion=$PROJECT_VERSION
-	sonar.sources=src/
-	sonar.tests=test/
-	sonar.test.exclusions=**/*.c
-	product.area.name=iotplatform
-	product.name=fiware-monitoring
-	product.release=$PROJECT_VERSION
-	sonar.language=c++
-	sonar.sourceEncoding=UTF-8
-	sonar.cxx.includeDirectories=$SONAR_INCLUDE_DIRS
-	sonar.cxx.cppcheck.reportPath=report/cppcheck/cppcheck-result.xml
-	sonar.cxx.xunit.reportPath=report/test/TEST-xunit-*.xml
-	sonar.cxx.coverage.reportPath=report/coverage/cobertura-coverage.xml
-EOF
+	# Prepare properties file for Sonar (awk to remove leading spaces)
+	awk '$1=$1' > $PROJECT_DIR/sonar-project.properties <<-EOF
+		sonar.projectName=fiware-monitoring-ngsi-event-broker
+		sonar.projectKey=com.telefonica.fiware:fiware-monitoring-ngsi-event-broker
+		sonar.projectVersion=$PROJECT_VERSION
+		sonar.sources=src/
+		sonar.tests=test/
+		sonar.test.exclusions=**/*.c
+		product.area.name=iotplatform
+		product.name=fiware-monitoring
+		product.release=$PROJECT_VERSION
+		sonar.language=c++
+		sonar.sourceEncoding=UTF-8
+		sonar.cxx.includeDirectories=$SONAR_INCLUDE_DIRS
+		sonar.cxx.cppcheck.reportPath=report/cppcheck/cppcheck-result.xml
+		sonar.cxx.xunit.reportPath=report/test/TEST-xunit-*.xml
+		sonar.cxx.coverage.reportPath=report/coverage/cobertura-coverage.xml
+	EOF
 
-# Workaround if using sonar-cxx plugin version <=0.9
-# sed -i 's#includeDirectories#include_directories#' $PROJECT_DIR/sonar-project.properties
+	# Workaround if using sonar-cxx plugin version <=0.9
+	# sed -i 's#includeDirectories#include_directories#' $PROJECT_DIR/sonar-project.properties
 
-# Workaround for metrics_runner.sh to detect current pwd as metrics dir
-sed '/function getMetricsDir/,/}/ c\
-function getMetricsDir() { \
-	local currDir=$(readlink -f "$PWD")/ \
-	local workDir=$(readlink -f "$WORKSPACE")/ \
-	local metricsDir=${currDir#$workDir} \
-	echo $metricsDir \
-}' $(which metrics_runner.sh) > ./metrics_runner.sh
-chmod a+x ./metrics_runner.sh
+	# Workaround for metrics_runner.sh to detect current pwd as metrics dir
+	sed '/function getMetricsDir/,/}/ c\
+	function getMetricsDir() { \
+		local currDir=$(readlink -f "$PWD")/ \
+		local workDir=$(readlink -f "$WORKSPACE")/ \
+		local metricsDir=${currDir#$workDir} \
+		echo $metricsDir \
+	}' $(which metrics_runner.sh) > ./metrics_runner.sh
+	chmod a+x ./metrics_runner.sh
 
-# Generate metrics in Sonar
-export DEBUG_METRICS="FALSE"
-./metrics_runner.sh
+	# Generate metrics in Sonar
+	export DEBUG_METRICS="FALSE"
+	./metrics_runner.sh
+	;;
+
+release)
+	# Install development and package generation dependencies
+	if test -r /etc/redhat-release; then
+		# CentOS
+		sudo yum -y -q install wget gcc-c++ autoconf automake cppunit-devel libcurl-devel redhat-rpm-config
+	else
+		# Ubuntu
+		sudo apt-get -y -q install wget g++ autoconf automake autotools-dev libcppunit-dev libcurl4-openssl-dev dpkg-dev debhelper
+	fi
+	if ! test -d $NAGIOS_SRC_DIR; then
+		NAGIOS_URL=$NAGIOS_SOURCES/nagios-${NAGIOS_VERSION%%.*}.x/nagios-${NAGIOS_VERSION}/nagios-${NAGIOS_VERSION}.tar.gz/download
+		wget $NAGIOS_URL -q -O nagios-${NAGIOS_VERSION}.tar.gz
+		tar xzf nagios-${NAGIOS_VERSION}.tar.gz
+		(cd nagios && ./configure && make nagios)
+	fi
+
+	# Configure for release build
+	mkdir -p m4 && autoreconf -i
+	./configure --with-nagios-srcdir=$NAGIOS_SRC_DIR
+
+	# Generate source distribution and package
+	make clean dist
+	script/build/release.sh
+	;;
+esac
