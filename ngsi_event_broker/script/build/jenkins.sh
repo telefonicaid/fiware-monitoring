@@ -88,6 +88,10 @@ PROJECT_VERSION=$(sed -n '/AC_INIT/ {s/.*,[ \t]*\(.*\))/\1/; p}' $PROJECT_DIR/co
 NAGIOS_SOURCES=http://sourceforge.net/projects/nagios/files
 NAGIOS_VERSION=3.4.1
 
+# Dependencies
+RPM_DEPENDENCIES="wget gcc-c++ make autoconf automake libtool cppunit-devel libcurl-devel"
+DEB_DEPENDENCIES="wget g++ build-essential autoconf automake autotools-dev libtool libcppunit-dev libcurl4-openssl-dev"
+
 # Change to project directory
 cd $PROJECT_DIR
 
@@ -97,10 +101,10 @@ build)
 	# Install development dependencies
 	if test -r /etc/redhat-release; then
 		# CentOS
-		sudo yum -y -q install wget gcc-c++ autoconf automake lcov libxslt cppcheck cppunit-devel libcurl-devel
+		sudo yum -y -q install $RPM_DEPENDENCIES lcov libxslt cppcheck
 	else
 		# Ubuntu
-		sudo apt-get -y -q install wget g++ autoconf automake autotools-dev lcov xsltproc cppcheck libcppunit-dev libcurl4-openssl-dev
+		sudo apt-get -y -q install $DEB_DEPENDENCIES lcov xsltproc cppcheck
 	fi
 	sudo pip install -q gcovr
 	if ! test -d $NAGIOS_SRC_DIR; then
@@ -166,10 +170,10 @@ release)
 	# Install development and package generation dependencies
 	if test -r /etc/redhat-release; then
 		# CentOS
-		sudo yum -y -q install wget gcc-c++ autoconf automake cppunit-devel libcurl-devel redhat-rpm-config
+		sudo yum -y -q install $RPM_DEPENDENCIES redhat-rpm-config
 	else
 		# Ubuntu
-		sudo apt-get -y -q install wget g++ autoconf automake autotools-dev libcppunit-dev libcurl4-openssl-dev dpkg-dev debhelper
+		sudo apt-get -y -q install $DEB_DEPENDENCIES dpkg-dev debhelper
 	fi
 	if ! test -d $NAGIOS_SRC_DIR; then
 		NAGIOS_URL=$NAGIOS_SOURCES/nagios-${NAGIOS_VERSION%%.*}.x/nagios-${NAGIOS_VERSION}/nagios-${NAGIOS_VERSION}.tar.gz/download
