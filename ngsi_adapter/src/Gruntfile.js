@@ -1,5 +1,10 @@
 'use strict';
 
+/**
+ * Grunt tasks definitions
+ *
+ * @param {Object} grunt
+ */
 module.exports = function(grunt) {
 
     grunt.initConfig({
@@ -77,7 +82,7 @@ module.exports = function(grunt) {
                 src: ['<%= dirs.lib[0] %>/**/*.js']
             },
             test: {
-                src: ['<%= dirs.test[0] %>/**/*.js']
+                src: ['<%= dirs.test[0] %>/unit/*.js']
             },
             reportGruntfile: {
                 src: 'Gruntfile.js',
@@ -119,7 +124,7 @@ module.exports = function(grunt) {
 
         env: {
             dev: {
-                NODE_ENV : 'development',
+                NODE_ENV: 'development',
                 XUNIT_FILE: '<%= dirs.reportTest[0] %>/TEST-xunit.xml'
             }
         },
@@ -162,15 +167,15 @@ module.exports = function(grunt) {
         exec: {
             istanbul: {
                 cmd:
-                    './node_modules/.bin/istanbul cover --root <%= dirs.lib[0] %>/ ' +
-                    '--dir <%= dirs.reportCoverage[0] %> -- grunt test >/dev/null && ' +
+                    'bash -c "./node_modules/.bin/istanbul cover --root <%= dirs.lib[0] %>/ ' +
+                    '--dir <%= dirs.reportCoverage[0] %> --preload-sources -- ' +
+                    '\\"`npm root -g`/grunt-cli/bin/grunt\\" test >/dev/null && ' +
                     'mv <%= dirs.reportCoverage[0] %>/lcov-report <%= clean.lcovCoverage[0] %> && ' +
                     './node_modules/.bin/istanbul report --dir <%= dirs.reportCoverage[0] %> text-summary'
             },
             istanbulCobertura: {
                 cmd:
-                    './node_modules/.bin/istanbul report --dir <%= dirs.reportCoverage[0] %> cobertura'
-
+                    'bash -c "./node_modules/.bin/istanbul report --dir <%= dirs.reportCoverage[0] %> cobertura"'
             }
         },
 
@@ -191,7 +196,7 @@ module.exports = function(grunt) {
                     name: 'console'
                 },
                 flags: [
-                    '--flagfile .gjslintrc' //use flag file'
+                    '--flagfile .gjslintrc' //use flag file
                 ],
                 force: false
             },

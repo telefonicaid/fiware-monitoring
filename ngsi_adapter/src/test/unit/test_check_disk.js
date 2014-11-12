@@ -27,7 +27,7 @@
 /* jshint -W101, laxbreak: true */
 
 
-var util   = require('util'),
+var util = require('util'),
     assert = require('assert'),
     common = require('./common');
 
@@ -35,22 +35,22 @@ var util   = require('util'),
 suite('check_disk', function() {
 
     suiteSetup(function() {
-        this.timestampName  = require('../../lib/parsers/common/base').parser.timestampAttrName;
-        this.factory        = require('../../lib/parsers/common/factory');
+        this.timestampName = require('../../lib/parsers/common/base').parser.timestampAttrName;
+        this.factory = require('../../lib/parsers/common/factory');
 
-        this.baseurl    = 'http://hostname:1234/check_disk';
-        this.entityId   = '1';
+        this.baseurl = 'http://hostname:1234/check_disk';
+        this.entityId = '1';
         this.entityType = 'host';
         this.entityData = {
             freeSpacePct: 29
         };
 
-        this.probeData  = {
-            groupName:    'mygroup',
-            freeSpaceMB:  1393,
+        this.probeData = {
+            groupName: 'mygroup',
+            freeSpaceMB: 1393,
             freeSpacePct: this.entityData.freeSpacePct
         };
-        this.probeBody  = {
+        this.probeBody = {
             singleGroup: {
                 data: util.format('DISK OK - free space: %s %d MB (%d%% inode=66%%);',
                       this.probeData.groupName, this.probeData.freeSpaceMB, this.probeData.freeSpacePct),

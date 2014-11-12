@@ -36,18 +36,33 @@
 var nagios = require('./common/nagios');
 
 
-//
-// Sample data: "USERS OK - 1 users currently logged in |users=1;10;15;0"
-//                          ^                                  ^  ^  ^ ^
-//     # of users ----------+----------------------------------+  |  | |
-//     ==========                                                 |  | |
-//     Warning threshold -----------------------------------------+  | |
-//     Critical threshold -------------------------------------------+ |
-//     Reserved -------------------------------------------------------+
-//
+/**
+ * Parser for `check_users` Nagios probe.
+ * @augments nagios
+ */
 var parser = Object.create(nagios.parser);
+
+
+/**
+ * Parses `check_users` raw data to extract an object whose members are NGSI context attributes.
+ *
+ * @function getContextAttrs
+ * @memberof parser
+ * @param {EntityData} data                 Object holding raw entity data.
+ * @returns {Object} Context attributes.
+ *
+ * <code>
+ * Sample data: "USERS OK - 1 users currently logged in |users=1;10;15;0"
+ *                          ^                                  ^  ^  ^ ^
+ *     # of users ----------+----------------------------------+  |  | |
+ *     ==========                                                 |  | |
+ *     Warning threshold -----------------------------------------+  | |
+ *     Critical threshold -------------------------------------------+ |
+ *     Reserved -------------------------------------------------------+
+ * </code>
+ */
 parser.getContextAttrs = function(probeEntityData) {
-    var data  = probeEntityData.data.split('\n')[0];    // only consider first line of probe data, discard perfData
+    var data = probeEntityData.data.split('\n')[0];     // only consider first line of probe data, discard perfData
     var attrs = { users: NaN };
 
     var items = data.split('-');
@@ -63,4 +78,7 @@ parser.getContextAttrs = function(probeEntityData) {
 };
 
 
+/**
+ * Parser for `check_users`.
+ */
 exports.parser = parser;

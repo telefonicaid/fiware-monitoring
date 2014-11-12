@@ -35,21 +35,36 @@
 var nagios = require('./common/nagios');
 
 
-//
-// Sample data: "Memory: OK Total: 1877 MB - Used: 369 MB - 19% used|TOTAL=1969020928;;;; USED=386584576;;;; CACHE=999440384;;;; BUFFER=201584640;;;;"
-//                                   ^              ^        ^                 ^                   ^                   ^                    ^
-//     Total memory (with units) ----+              |        |                 |                   |                   |                    |
-//     Used memory (with units) --------------------+        |                 |                   |                   |                    |
-//     Used memory (percentage) -----------------------------+                 |                   |                   |                    |
-//     ====================                                                    |                   |                   |                    |
-//     Total memory (bytes) ---------------------------------------------------+                   |                   |                    |
-//     Used memory (bytes) ------------------------------------------------------------------------+                   |                    |
-//     Cache memory (bytes) -------------------------------------------------------------------------------------------+                    |
-//     Buffers memory (bytes) --------------------------------------------------------------------------------------------------------------+
-//
+/**
+ * Parser for `check_mem.sh` Nagios probe.
+ * @augments nagios
+ */
 var parser = Object.create(nagios.parser);
+
+
+/**
+ * Parses `check_mem.sh` raw data to extract an object whose members are NGSI context attributes.
+ *
+ * @function getContextAttrs
+ * @memberof parser
+ * @param {EntityData} data                 Object holding raw entity data.
+ * @returns {Object} Context attributes.
+ *
+ * <code>
+ * Sample data: "Memory: OK Total: 1877 MB - Used: 369 MB - 19% used|TOTAL=1969020928;;;; USED=386584576;;;; CACHE=999440384;;;; BUFFER=201584640;;;;"
+ *                                   ^              ^        ^                 ^                   ^                   ^                    ^
+ *     Total memory (with units) ----+              |        |                 |                   |                   |                    |
+ *     Used memory (with units) --------------------+        |                 |                   |                   |                    |
+ *     Used memory (percentage) -----------------------------+                 |                   |                   |                    |
+ *     ====================                                                    |                   |                   |                    |
+ *     Total memory (bytes) ---------------------------------------------------+                   |                   |                    |
+ *     Used memory (bytes) ------------------------------------------------------------------------+                   |                    |
+ *     Cache memory (bytes) -------------------------------------------------------------------------------------------+                    |
+ *     Buffers memory (bytes) --------------------------------------------------------------------------------------------------------------+
+ * </code>
+ */
 parser.getContextAttrs = function(probeEntityData) {
-    var data  = probeEntityData.data.split('\n')[0];    // only consider first line of probe data, discard perfData
+    var data = probeEntityData.data.split('\n')[0];     // only consider first line of probe data, discard perfData
     var attrs = { usedMemPct: NaN };
 
     var items = data.split('-');
@@ -65,4 +80,7 @@ parser.getContextAttrs = function(probeEntityData) {
 };
 
 
+/**
+ * Parser for `check_mem.sh`.
+ */
 exports.parser = parser;

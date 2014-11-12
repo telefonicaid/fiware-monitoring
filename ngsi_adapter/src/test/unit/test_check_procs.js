@@ -26,7 +26,7 @@
 'use strict';
 
 
-var util   = require('util'),
+var util = require('util'),
     assert = require('assert'),
     common = require('./common');
 
@@ -35,20 +35,20 @@ var util   = require('util'),
 suite('check_procs', function() {
 
     suiteSetup(function() {
-        this.timestampName  = require('../../lib/parsers/common/base').parser.timestampAttrName;
-        this.factory        = require('../../lib/parsers/common/factory');
+        this.timestampName = require('../../lib/parsers/common/base').parser.timestampAttrName;
+        this.factory = require('../../lib/parsers/common/factory');
 
-        this.baseurl    = 'http://hostname:1234/check_procs';
-        this.entityId   = '1';
+        this.baseurl = 'http://hostname:1234/check_procs';
+        this.entityId = '1';
         this.entityType = 'host';
         this.entityData = {
             procs: 136
         };
 
-        this.probeData  = {
+        this.probeData = {
             procs: this.entityData.procs
         };
-        this.probeBody  = {
+        this.probeBody = {
             data: util.format('PROCS OK: %d processes', this.probeData.procs)
         };
     });

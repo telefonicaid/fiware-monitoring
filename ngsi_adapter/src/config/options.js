@@ -36,11 +36,11 @@
  * @property {Number} defaults.retries      Default maximum number of invocation retries.
  */
 var defaults = {
-    logLevel:   'INFO',
-    brokerUrl:  'http://127.0.0.1:1026/',
+    logLevel: 'INFO',
+    brokerUrl: 'http://127.0.0.1:1026/',
     listenHost: '0.0.0.0',
     listenPort: 1337,
-    retries:    2
+    retries: 2
 };
 
 
@@ -71,4 +71,7 @@ if (opts.argv.help || extra) {
 }
 
 
+/**
+ * Command line options.
+ */
 module.exports = opts.argv;

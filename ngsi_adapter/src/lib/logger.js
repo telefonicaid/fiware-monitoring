@@ -24,12 +24,13 @@
 
 
 'use strict';
+/* jshint -W072 */
 
 
-var util   = require('util'),
+var util = require('util'),
     domain = require('domain'),
     logger = require('logops'),
-    opts   = require('../config/options');
+    opts = require('../config/options');
 
 
 logger.setLevel(opts.logLevel);
@@ -69,4 +70,7 @@ logger.format = (process.env.NODE_ENV === 'development') ?
     };
 
 
+/**
+ * Logger object.
+ */
 module.exports = logger;

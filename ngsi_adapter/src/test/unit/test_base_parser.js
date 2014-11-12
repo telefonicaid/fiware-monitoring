@@ -26,7 +26,7 @@
 'use strict';
 
 
-var sinon  = require('sinon'),
+var sinon = require('sinon'),
     assert = require('assert'),
     common = require('./common'),
     parser = require('../../lib/parsers/common/base').parser;
@@ -36,8 +36,8 @@ var sinon  = require('sinon'),
 suite('base_parser', function() {
 
     suiteSetup(function() {
-        this.baseurl    = 'http://hostname:1234/path';
-        this.entityId   = '1';
+        this.baseurl = 'http://hostname:1234/path';
+        this.entityId = '1';
         this.entityType = 'host';
         this.entityData = {
             attr: 4321
