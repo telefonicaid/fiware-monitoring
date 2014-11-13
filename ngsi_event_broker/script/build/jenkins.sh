@@ -17,7 +17,7 @@
 #
 
 #
-# Continuous integration tool for this component within a Jenkins job
+# Support script for this component within a Jenkins CI job
 #
 # Usage:
 #     $0 build|release
