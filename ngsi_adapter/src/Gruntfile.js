@@ -99,7 +99,7 @@ module.exports = function(grunt) {
                 }
             },
             reportTest: {
-                src: '<%= dirs.test[0] %>/**/*.js',
+                src: '<%= dirs.test[0] %>/unit/*.js',
                 options: {
                     reporter: 'checkstyle',
                     reporterOutput: '<%= dirs.reportLint[0] %>/jshint-test.xml'
