@@ -17,7 +17,7 @@
 #
 
 #
-# Build this component within a Jenkins CI job
+# Continuous integration tool for this component within a Jenkins job
 #
 # Usage:
 #     $0 build|release
@@ -26,12 +26,16 @@
 # Options:
 #     -h, --help	show this help message
 #
+# Actions:
+#     build		build, reports generation and SonarQube processing
+#     release		distribution package generation
+#
 
 OPTS='h(help)'
 NAME=$(basename $0)
 
 # Command line options
-ACTION=			# build|release
+ACTION=
 
 # Process command line
 OPTERR=
@@ -59,7 +63,7 @@ ACTION=$(expr "$1" : "^\(build\|release\)$") && shift
 [ -z "$OPTERR" -a -n "$*" ] && OPTERR="Too many arguments"
 [ -n "$OPTERR" ] && {
 	[ "$OPTERR" != "$OPTHLP" ] && OPTERR="${OPTERR}\nTry \`$NAME --help'"
-	TAB=4; LEN=$(echo "$OPTERR" | awk -F'\t' '/\t.+\t/ {print $2}' | wc -L)
+	TAB=4; LEN=$(echo "$OPTERR" | awk -F'\t' '/ .+\t/ {print $1}' | wc -L)
 	TABSTOPS=$TAB,$(((2+LEN/TAB)*TAB)); WIDTH=${COLUMNS:-$(tput cols)}
 	printf "$OPTERR" | tr -s '\t' | expand -t$TABSTOPS | fmt -$WIDTH -s 1>&2
 	exit 1
@@ -130,7 +134,7 @@ build)
 	C_CXX_INCLUDE_DIRS=$(cpp -x c++ -v 2>&1 /dev/null | sed -n '/include <\.\.\.>/,/End/ { p;}' | tail -n +2 | head -n -1 | tr -d ' ' | tr '\n ' ',')
 	SONAR_INCLUDE_DIRS="${NAGIOS_INC_DIR},${C_CXX_INCLUDE_DIRS%,}"
 
-	# Prepare properties file for Sonar (awk to remove leading spaces)
+	# Prepare properties file for SonarQube (awk to remove leading spaces)
 	awk '$1=$1' > $PROJECT_DIR/sonar-project.properties <<-EOF
 		product.area.name=iotplatform
 		product.name=fiware-monitoring
@@ -162,7 +166,7 @@ build)
 	}' $(which metrics_runner.sh) > ./metrics_runner.sh
 	chmod a+x ./metrics_runner.sh
 
-	# Generate metrics in Sonar
+	# Generate metrics in SonarQube
 	export DEBUG_METRICS="FALSE"
 	./metrics_runner.sh
 	;;
