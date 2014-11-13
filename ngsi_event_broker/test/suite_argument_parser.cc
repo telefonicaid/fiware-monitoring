@@ -75,7 +75,8 @@ class ArgumentParserTest: public TestFixture
 	void parse_ok_with_valid_argument_opts(const string& separator);
 
 	// tests
-	void parse_detects_missing_required_argument();
+	void parse_detects_missing_required_argument_first();
+	void parse_detects_missing_required_argument_last();
 	void parse_detects_unknown_option();
 	void parse_ok_with_valid_argument_opts_space_separation();
 	void parse_ok_with_valid_argument_opts_tab_separation();
@@ -87,7 +88,8 @@ public:
 	void setUp();
 	void tearDown();
 	CPPUNIT_TEST_SUITE(ArgumentParserTest);
-	CPPUNIT_TEST(parse_detects_missing_required_argument);
+	CPPUNIT_TEST(parse_detects_missing_required_argument_first);
+	CPPUNIT_TEST(parse_detects_missing_required_argument_last);
 	CPPUNIT_TEST(parse_detects_unknown_option);
 	CPPUNIT_TEST(parse_ok_with_valid_argument_opts_space_separation);
 	CPPUNIT_TEST(parse_ok_with_valid_argument_opts_tab_separation);
@@ -169,7 +171,41 @@ void ArgumentParserTest::tearDown()
 ///////////////////////////////////
 
 
-void ArgumentParserTest::parse_detects_missing_required_argument()
+void ArgumentParserTest::parse_detects_missing_required_argument_first()
+{
+	char	opt_no_arg = 'a',
+		opt_valid  = 'b';
+
+	// given
+	string optstr = ((ostringstream&)(ostringstream(OPTSTR_PREFIX, ios_base::ate).flush()
+		<< opt_no_arg << ':'
+		<< opt_valid  << ':'
+		)).str();
+	string argline = ((ostringstream&)(ostringstream().flush()
+		<<        '-' << opt_no_arg << ""
+		<< ' ' << '-' << opt_valid  << "value"
+		)).str();
+
+	// when
+	list<OptionValue> optlist;
+	parse_args(argline, optstr, optlist);
+
+	// then
+	bool found_opt_valid  = false;
+	bool found_opt_no_arg = false;
+	bool detected_missing = false;
+	for (list<OptionValue>::iterator iter = optlist.begin(); iter != optlist.end(); iter++) {
+		found_opt_no_arg = found_opt_no_arg || (iter->opt == opt_no_arg);
+		found_opt_valid  = found_opt_valid  || (iter->opt == opt_valid);
+		detected_missing = (iter->opt == MISSING_VALUE) && (iter->err == opt_no_arg);
+	}
+	CPPUNIT_ASSERT(!found_opt_no_arg);	// opt_no_arg not found because it has no value
+	CPPUNIT_ASSERT(!found_opt_valid);	// args parsing aborts prior reaching opt_valid
+	CPPUNIT_ASSERT(detected_missing);
+}
+
+
+void ArgumentParserTest::parse_detects_missing_required_argument_last()
 {
 	char	opt_valid  = 'a',
 		opt_no_arg = 'b';
@@ -193,12 +229,13 @@ void ArgumentParserTest::parse_detects_missing_required_argument()
 	bool found_opt_no_arg = false;
 	bool detected_missing = false;
 	for (list<OptionValue>::iterator iter = optlist.begin(); iter != optlist.end(); iter++) {
-		found_opt_valid  = found_opt_valid    || (iter->opt == opt_valid);
-		found_opt_no_arg = found_opt_no_arg   || (iter->opt == opt_no_arg);
-		detected_missing = (iter->opt == ':') && (iter->err == opt_no_arg);
+		found_opt_valid  = found_opt_valid  || (iter->opt == opt_valid);
+		found_opt_no_arg = found_opt_no_arg || (iter->opt == opt_no_arg);
+		detected_missing = (iter->opt == MISSING_VALUE) && (iter->err == opt_no_arg);
 	}
-	CPPUNIT_ASSERT_EQUAL(true, found_opt_valid && !found_opt_no_arg);
-	CPPUNIT_ASSERT_EQUAL(true, detected_missing);
+	CPPUNIT_ASSERT(found_opt_valid);	// first valid option is reached
+	CPPUNIT_ASSERT(!found_opt_no_arg);	// opt_no_arg not found because it has no value
+	CPPUNIT_ASSERT(detected_missing);
 }
 
 
@@ -225,12 +262,13 @@ void ArgumentParserTest::parse_detects_unknown_option()
 	bool found_opt_unknown = false;
 	bool detected_unknown  = false;
 	for (list<OptionValue>::iterator iter = optlist.begin(); iter != optlist.end(); iter++) {
-		found_opt_valid   = found_opt_valid    || (iter->opt == opt_valid);
-		found_opt_unknown = found_opt_unknown  || (iter->opt == opt_unknown);
-		detected_unknown  = (iter->opt == '?') && (iter->err == opt_unknown);
+		found_opt_valid   = found_opt_valid   || (iter->opt == opt_valid);
+		found_opt_unknown = found_opt_unknown || (iter->opt == opt_unknown);
+		detected_unknown  = (iter->opt == UNKNOWN_OPTION) && (iter->err == opt_unknown);
 	}
-	CPPUNIT_ASSERT_EQUAL(true, found_opt_valid && !found_opt_unknown);
-	CPPUNIT_ASSERT_EQUAL(true, detected_unknown);
+	CPPUNIT_ASSERT(found_opt_valid);
+	CPPUNIT_ASSERT(!found_opt_unknown);
+	CPPUNIT_ASSERT(detected_unknown);
 }
 
 
@@ -278,5 +316,7 @@ void ArgumentParserTest::parse_ok_with_valid_argument_opts(const string& separat
 		found_opt_valid_1 = found_opt_valid_1 || (iter->opt == opt_valid_1);
 		found_opt_valid_2 = found_opt_valid_2 || (iter->opt == opt_valid_2);
 	}
-	CPPUNIT_ASSERT(found_opt_valid_1 && found_opt_valid_2 && (optlist.size()==2));
+	CPPUNIT_ASSERT(found_opt_valid_1);
+	CPPUNIT_ASSERT(found_opt_valid_2);
+	CPPUNIT_ASSERT(optlist.size() == 2);
 }

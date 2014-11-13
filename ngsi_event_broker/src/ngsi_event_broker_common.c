@@ -61,19 +61,7 @@ loglevel_t		log_level   = LOG_INFO;
 /**@}*/
 
 
-/**
- * @name Nagios NEB API entry points
- * @{
- */
-
-/**
- * Deinitializes the module (entry point for [NEB API](@NagiosModule_ref))
- *
- * @param[in] flags	The deinitialization flags (ignored).
- * @param[in] reason	The reason why this module is being deinitialized.
- *
- * @retval NEB_OK	Successfully initialized.
- */
+/* deinitializes the module */
 int nebmodule_deinit(int flags, int reason)
 {
 	int		result = NEB_OK;
@@ -90,16 +78,7 @@ int nebmodule_deinit(int flags, int reason)
 }
 
 
-/**
- * Initializes the module (entry point for [NEB API](@NagiosModule_ref))
- *
- * @param[in] flags	The initialization flags (ignored).
- * @param[in] args	The module arguments as a space-separated string.
- * @param[in] handle	The module handle passed by Nagios Core server.
- *
- * @retval NEB_OK	Successfully initialized.
- * @retval NEB_ERROR	Not successfully initialized.
- */
+/* initializes the module */
 int nebmodule_init(int flags, char* args, void* handle)
 {
 	int		result  = NEB_OK;
@@ -125,8 +104,6 @@ int nebmodule_init(int flags, char* args, void* handle)
 
 	return result;
 }
-
-/**@}*/
 
 
 /* checks to make sure Nagios object version matches what we know about */
@@ -166,11 +143,11 @@ int init_module_variables(char* args, context_t* context)
 					region_id = strdup(opts[i].val);
 					break;
 				}
-				case ':': {
+				case MISSING_VALUE: {
 					logging(LOG_WARN, context, "Missing value for option -%c", (char) opts[i].err);
 					break;
 				}
-				case '?': {
+				case UNKNOWN_OPTION: {
 					logging(LOG_WARN, context, "Unrecognized option -%c", (char) opts[i].err);
 					break;
 				}
@@ -258,48 +235,6 @@ int resolve_address(const char* hostname, char* addr, size_t addrmaxlen)
 	}
 
 	return result;
-}
-
-
-/* gets the name and arguments of the executed plugin */
-char* find_plugin_name(nebstruct_service_check_data* data, char** args)
-{
-	host*    check_host	= NULL;
-	service* check_service	= NULL;
-	command* check_command	= NULL;
-	char*    check_plugin	= NULL;
-
-	if (((check_host = find_host(data->host_name)) != NULL)
-	    && ((check_service = find_service(data->host_name, data->service_description)) != NULL)) {
-		char* service_check_command = strdup(check_service->service_check_command);
-		char* command_name;
-		char* command_args;
-		command_name = strtok_r(service_check_command, "!", &command_args);
-		if ((check_command = find_command(command_name)) != NULL) {
-			nagios_macros	mac;
-			char*		raw = NULL;
-			char*		cmd = NULL;
-			memset(&mac, 0, sizeof(mac));
-			grab_host_macros_r(&mac, check_host);
-			grab_service_macros_r(&mac, check_service);
-			get_raw_command_line_r(&mac, check_command, check_service->service_check_command, &raw, 0);
-			if (raw != NULL) {
-				char* ptr;
-				char* last;
-				process_macros_r(&mac, raw, &cmd, 0);
-				strtok_r(cmd, " \t", &last);
-				ptr = strrchr(cmd, '/');
-				check_plugin = strdup((ptr) ? ++ptr : cmd);
-				if (args) *args = strdup(last);
-			}
-			my_free(raw);
-			my_free(cmd);
-		}
-		free(service_check_command);
-		service_check_command = NULL;
-	}
-
-	return check_plugin;
 }
 
 

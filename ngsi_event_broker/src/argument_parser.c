@@ -47,6 +47,9 @@ option_list_t parse_args(const char* args, const char* optstr)
 	int		argc = 0;
 	char*		argv[MAX_ARGS] = { "" };
 
+	/* possible opt values if parsing fails */
+	char		optfail[] = { UNKNOWN_OPTION, MISSING_VALUE, '\0' };
+
 	/* split a non-null copy of args string into char* array */
 	char* last;
 	char* copy = strdup((args) ? args : "");
@@ -59,11 +62,12 @@ option_list_t parse_args(const char* args, const char* optstr)
 	optind  = 1;
 	optlist = (option_list_t) malloc(argc * sizeof(struct option_value));
 	while ((opt = getopt(argc, argv, optstr)) != -1) {
-		const int fail = (strchr("?:", opt) != NULL);
+		const int dash = (optarg != NULL && optarg[0] == '-');
+		const int fail = (strchr(optfail, opt) != NULL) || dash;
 		const struct option_value optval = {
-			.opt = opt,
-			.err = (fail) ? optopt : NO_CHAR,
-			.val = (fail) ? NULL   : strdup(optarg)
+			.opt = (dash) ? MISSING_VALUE : opt,
+			.err = (fail) ? ((dash) ? opt : optopt) : NO_CHAR,
+			.val = (fail) ? NULL : strdup(optarg)
 		};
 		optlist[optsize++] = optval;
 		if (fail) break;

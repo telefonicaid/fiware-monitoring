@@ -4,6 +4,7 @@ suite_broker_xifi_dem
 suite_broker_xifi_npm
 suite_broker_xifi_srv
 nagios_main.c
+nagios_nebmods.c
 *stub.c
 *.trs
 *.log

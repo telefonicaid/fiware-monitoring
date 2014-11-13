@@ -186,6 +186,39 @@ extern loglevel_t			log_level;
 
 
 /**
+ * @name Nagios NEB API entry points
+ * @{
+ */
+
+
+/**
+ * Initializes the module (entry point for [NEB API](@NagiosModule_ref))
+ *
+ * @param[in] flags		The initialization flags (ignored).
+ * @param[in] args		The module arguments as a space-separated string.
+ * @param[in] handle		The module handle passed by Nagios Core server.
+ *
+ * @retval NEB_OK		Successfully initialized.
+ * @retval NEB_ERROR		Not successfully initialized.
+ */
+int nebmodule_init(int flags, char* args, void* handle);
+
+
+/**
+ * Deinitializes the module (entry point for [NEB API](@NagiosModule_ref))
+ *
+ * @param[in] flags		The deinitialization flags (ignored).
+ * @param[in] reason		The reason why this module is being deinitialized.
+ *
+ * @retval NEB_OK		Successfully deinitialized.
+ */
+int nebmodule_deinit(int flags, int reason);
+
+
+/**@}*/
+
+
+/**
  * @name Functions to be implemented by specific Event Broker module implementations
  * @{
  */
@@ -263,17 +296,6 @@ int check_nagios_object_version(context_t* context);
  * @retval NEB_OK		Regardless event processing result, NEB_OK is returned.
  */
 int callback_service_check(int callback_type, void* data);
-
-
-/**
- * Gets details of executed plugin from event data passed to callback_service_check()
- *
- * @param[in]  data		The event data.
- * @param[out] args		The command line arguments of executed plugin.
- *
- * @return			The executable name (without path) of executed plugin.
- */
-char* find_plugin_name(nebstruct_service_check_data* data, char** args);
 
 
 /**
