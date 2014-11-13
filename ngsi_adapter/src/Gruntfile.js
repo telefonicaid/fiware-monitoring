@@ -171,7 +171,7 @@ module.exports = function(grunt) {
                     '--dir <%= dirs.reportCoverage[0] %> --preload-sources -- ' +
                     '\\"`npm root -g`/grunt-cli/bin/grunt\\" test >/dev/null && ' +
                     'mv <%= dirs.reportCoverage[0] %>/lcov-report <%= clean.lcovCoverage[0] %> && ' +
-                    './node_modules/.bin/istanbul report --dir <%= dirs.reportCoverage[0] %> text-summary'
+                    './node_modules/.bin/istanbul report --dir <%= dirs.reportCoverage[0] %> text-summary"'
             },
             istanbulCobertura: {
                 cmd:
