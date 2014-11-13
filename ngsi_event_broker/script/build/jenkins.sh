@@ -76,21 +76,22 @@ PROJECT_DIR=$WORKSPACE/ngsi_event_broker
 
 # Absolute directories
 PROJECT_SRC_DIR=$PROJECT_DIR/src
-NAGIOS_SRC_DIR=$PROJECT_DIR/nagios
-NAGIOS_INC_DIR=$PROJECT_DIR/contrib/nagios/include
-CPPUNIT_REPORT_DIR=$PROJECT_DIR/report/test
-CPPCHECK_REPORT_DIR=$PROJECT_DIR/report/cppcheck
+LINT_REPORT_DIR=$PROJECT_DIR/report/cppcheck
+TEST_REPORT_DIR=$PROJECT_DIR/report/test
 COVERAGE_REPORT_DIR=$PROJECT_DIR/report/coverage
 COVERAGE_SITE_DIR=$PROJECT_DIR/site/coverage/lcov-report
 
 # Properties
 PROJECT_VERSION=$(sed -n '/AC_INIT/ {s/.*,[ \t]*\(.*\))/\1/; p}' $PROJECT_DIR/configure.ac)
-NAGIOS_SOURCES=http://sourceforge.net/projects/nagios/files
-NAGIOS_VERSION=3.4.1
+PRODUCT_RELEASE=4.1.1
 
 # Dependencies
 RPM_DEPENDENCIES="wget gcc-c++ make autoconf automake libtool cppunit-devel libcurl-devel"
 DEB_DEPENDENCIES="wget g++ build-essential autoconf automake autotools-dev libtool libcppunit-dev libcurl4-openssl-dev"
+NAGIOS_SRC_URL=http://sourceforge.net/projects/nagios/files
+NAGIOS_SRC_DIR=$PROJECT_DIR/nagios
+NAGIOS_INC_DIR=$PROJECT_DIR/$(awk -F= '/nagios_incdir=/ { print $2 }' $PROJECT_DIR/configure.ac)
+NAGIOS_VERSION=3.4.1
 
 # Change to project directory
 cd $PROJECT_DIR
@@ -108,8 +109,8 @@ build)
 	fi
 	sudo pip install -q gcovr
 	if ! test -d $NAGIOS_SRC_DIR; then
-		NAGIOS_URL=$NAGIOS_SOURCES/nagios-${NAGIOS_VERSION%%.*}.x/nagios-${NAGIOS_VERSION}/nagios-${NAGIOS_VERSION}.tar.gz/download
-		wget $NAGIOS_URL -q -O nagios-${NAGIOS_VERSION}.tar.gz
+		URL=$NAGIOS_SRC_URL/nagios-${NAGIOS_VERSION%%.*}.x/nagios-${NAGIOS_VERSION}/nagios-${NAGIOS_VERSION}.tar.gz/download
+		wget $URL -q -O nagios-${NAGIOS_VERSION}.tar.gz
 		tar xzf nagios-${NAGIOS_VERSION}.tar.gz
 		(cd nagios && ./configure && make nagios)
 	fi
@@ -131,17 +132,17 @@ build)
 
 	# Prepare properties file for Sonar (awk to remove leading spaces)
 	awk '$1=$1' > $PROJECT_DIR/sonar-project.properties <<-EOF
+		product.area.name=iotplatform
+		product.name=fiware-monitoring
+		product.release=$PRODUCT_RELEASE
 		sonar.projectName=fiware-monitoring-ngsi-event-broker
 		sonar.projectKey=com.telefonica.fiware:fiware-monitoring-ngsi-event-broker
 		sonar.projectVersion=$PROJECT_VERSION
+		sonar.language=c++
+		sonar.sourceEncoding=UTF-8
 		sonar.sources=src/
 		sonar.tests=test/
 		sonar.test.exclusions=**/*.c
-		product.area.name=iotplatform
-		product.name=fiware-monitoring
-		product.release=$PROJECT_VERSION
-		sonar.language=c++
-		sonar.sourceEncoding=UTF-8
 		sonar.cxx.includeDirectories=$SONAR_INCLUDE_DIRS
 		sonar.cxx.cppcheck.reportPath=report/cppcheck/cppcheck-result.xml
 		sonar.cxx.xunit.reportPath=report/test/TEST-xunit-*.xml
@@ -176,8 +177,8 @@ release)
 		sudo apt-get -y -q install $DEB_DEPENDENCIES dpkg-dev debhelper
 	fi
 	if ! test -d $NAGIOS_SRC_DIR; then
-		NAGIOS_URL=$NAGIOS_SOURCES/nagios-${NAGIOS_VERSION%%.*}.x/nagios-${NAGIOS_VERSION}/nagios-${NAGIOS_VERSION}.tar.gz/download
-		wget $NAGIOS_URL -q -O nagios-${NAGIOS_VERSION}.tar.gz
+		URL=$NAGIOS_SRC_URL/nagios-${NAGIOS_VERSION%%.*}.x/nagios-${NAGIOS_VERSION}/nagios-${NAGIOS_VERSION}.tar.gz/download
+		wget $URL -q -O nagios-${NAGIOS_VERSION}.tar.gz
 		tar xzf nagios-${NAGIOS_VERSION}.tar.gz
 		(cd nagios && ./configure && make nagios)
 	fi
