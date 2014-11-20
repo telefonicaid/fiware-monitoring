@@ -35,10 +35,22 @@ extern "C" {
 #endif
 
 
-/** Value meaning no option char (therefore, the end of options list) */
+/** Macro meaning no option char (therefore, the end of options list) */
 #ifndef NO_CHAR
 #define NO_CHAR -1
 #endif /*NO_CHAR*/
+
+
+/** Macro meaning unknown option */
+#ifndef UNKNOWN_OPTION
+#define UNKNOWN_OPTION '?'
+#endif /*UNKNOWN_OPTION*/
+
+
+/** Macro meaning missing option value */
+#ifndef MISSING_VALUE
+#define MISSING_VALUE ':'
+#endif /*MISSING_VALUE*/
 
 
 /** Option-value pair */

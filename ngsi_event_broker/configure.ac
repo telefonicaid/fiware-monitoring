@@ -56,11 +56,13 @@ AC_ARG_WITH(nagios-srcdir,
    nagios_srcdir=/usr/local/src/nagios)
 AC_SUBST([NAGIOS_SRCDIR],[$nagios_srcdir])
 if test -d $nagios_srcdir/include; then
-   # Use a copy of Nagios headers in which <syslog.h> is not included
-   mkdir -p src/nagios/include
-   cp $nagios_srcdir/include/*.h src/nagios/include
-   sed -i 's/#define HAVE_SYSLOG_H 1/#undef HAVE_SYSLOG_H/' src/nagios/include/config.h
-   CPPFLAGS="$CPPFLAGS -I$(readlink -f src/nagios/include)"
+   # Directory where Nagios headers are copied
+   nagios_incdir=contrib/nagios/include
+   mkdir -p $nagios_incdir
+   # Avoid including <syslog.h> in Nagios headers copy
+   cp $nagios_srcdir/include/*.h $nagios_incdir
+   sed -i 's/#define HAVE_SYSLOG_H 1/#undef HAVE_SYSLOG_H/' $nagios_incdir/config.h
+   CPPFLAGS="$CPPFLAGS -I$(readlink -f $nagios_incdir)"
 fi
 
 # Library version spec (major:minor:revision).

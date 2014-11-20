@@ -31,6 +31,8 @@
 #include <cstdlib>
 #include "config.h"
 #include "ngsi_event_broker_common.h"
+#include "neberrors.h"
+#include "curl/curl.h"
 #include "cppunit/TestResult.h"
 #include "cppunit/TestFixture.h"
 #include "cppunit/TextTestRunner.h"
@@ -78,16 +80,93 @@ extern "C" {
 /// @}
 
 
+///
+/// @name Mocks for cURL functions
+/// @{
+///
+extern "C" {
+	CURLcode curl_global_init_result = CURLE_OK;
+	CURLcode curl_global_init(long flags)
+	{
+		return curl_global_init_result;
+	}
+
+	void curl_global_cleanup(void)
+	{
+	}
+
+	CURL* curl_easy_init_result = NULL;
+	CURL* curl_easy_init(void)
+	{
+		return curl_easy_init_result;
+	}
+
+	CURLcode curl_easy_setopt_result = CURLE_OK;
+	CURLcode curl_easy_setopt(CURL* curl, CURLoption option, ...)
+	{
+		return curl_easy_setopt_result;
+	}
+
+	CURLcode curl_easy_perform_result = CURLE_OK;
+	CURLcode curl_easy_perform(CURL*curl)
+	{
+		return curl_easy_perform_result;
+	}
+
+	void curl_easy_cleanup(CURL* curl)
+	{
+	}
+
+	const char* curl_easy_strerror_result = NULL;
+	const char* curl_easy_strerror(CURLcode)
+	{
+		return curl_easy_strerror_result;
+	}
+
+	struct curl_slist* curl_slist_append_result = NULL;
+	struct curl_slist* curl_slist_append(struct curl_slist* list, const char* string)
+	{
+		return curl_slist_append_result;
+	}
+
+	void curl_slist_free_all(struct curl_slist* list)
+	{
+	}
+}
+
+/// @}
+
+
+///
+/// @name Mocks for Nagios functions
+/// @{
+///
+extern "C" {
+	int neb_register_callback_result = NEB_OK;
+	int neb_register_callback(int callback_type, void* handle, int priority, int (*callback_func)(int, void*))
+	{
+		return neb_register_callback_result;
+	}
+}
+
+/// @}
+
+
 /// Broker common features test suite
 class BrokerCommonTest: public TestFixture
 {
 	// C function wrappers
-	static bool init_module_variables(const string& args);
-	static bool free_module_variables();
+	static bool nebmodule_init(int flags, const string& args, void* handle);
+	static bool nebmodule_deinit(int flags, int reason);
 
 	// tests
-	void init_fails_with_missing_adapter_url();
-	void init_fails_with_missing_region();
+	void init_fails_with_unknown_args_option();
+	void init_fails_with_missing_adapter_url_option();
+	void init_fails_with_missing_adapter_url_value();
+	void init_fails_with_missing_region_option();
+	void init_fails_with_missing_region_value();
+	void init_fails_when_curl_cannot_be_initialized();
+	void init_fails_when_callback_cannot_be_registered();
 	void init_ok_with_valid_args();
 
 public:
@@ -96,8 +175,13 @@ public:
 	void setUp();
 	void tearDown();
 	CPPUNIT_TEST_SUITE(BrokerCommonTest);
-	CPPUNIT_TEST(init_fails_with_missing_adapter_url);
-	CPPUNIT_TEST(init_fails_with_missing_region);
+	CPPUNIT_TEST(init_fails_with_unknown_args_option);
+	CPPUNIT_TEST(init_fails_with_missing_adapter_url_option);
+	CPPUNIT_TEST(init_fails_with_missing_adapter_url_value);
+	CPPUNIT_TEST(init_fails_with_missing_region_option);
+	CPPUNIT_TEST(init_fails_with_missing_region_value);
+	CPPUNIT_TEST(init_fails_when_curl_cannot_be_initialized);
+	CPPUNIT_TEST(init_fails_when_callback_cannot_be_registered);
 	CPPUNIT_TEST(init_ok_with_valid_args);
 	CPPUNIT_TEST_SUITE_END();
 };
@@ -122,28 +206,34 @@ int main(int argc, char* argv[])
 
 
 ///
-/// C++ wrapper for function ::init_module_variables()
+/// C++ wrapper for function ::nebmodule_init()
 ///
+/// @param[in] flags	The initialization flags (ignored).
 /// @param[in] args	The module arguments as a space-separated string.
-/// @return		Successful initialization.
+/// @param[in] handle	The module handle passed by Nagios Core server.
 ///
-bool BrokerCommonTest::init_module_variables(const string& args)
+/// @retval NEB_OK	Successfully initialized.
+/// @retval NEB_ERROR	Not successfully initialized.
+///
+bool BrokerCommonTest::nebmodule_init(int flags, const string& args, void* handle)
 {
 	char buffer[MAXBUFLEN];
 	buffer[args.copy(buffer, MAXBUFLEN-1)] = '\0';
-	context_t* context = NULL;
-	return (bool) ::init_module_variables(buffer, context);
+	return (bool) ::nebmodule_init(flags, buffer, handle);
 }
 
 
 ///
-/// C++ wrapper for function ::free_module_variables()
+/// C++ wrapper for function ::nebmodule_deinit()
 ///
-/// @return		Successful resources release.
+/// @param[in] flags	The deinitialization flags (ignored).
+/// @param[in] reason	The reason why this module is being deinitialized.
 ///
-bool BrokerCommonTest::free_module_variables()
+/// @retval NEB_OK	Successfully deinitialized.
+///
+bool BrokerCommonTest::nebmodule_deinit(int flags, int reason)
 {
-	return (bool) ::free_module_variables();
+	return (bool) ::nebmodule_deinit(flags, reason);
 }
 
 
@@ -179,39 +269,141 @@ void BrokerCommonTest::setUp()
 ///
 void BrokerCommonTest::tearDown()
 {
-	free_module_variables();
+	nebmodule_deinit(0, NEBMODULE_NEB_SHUTDOWN);
+	neb_register_callback_result	= NEB_OK;
+	curl_global_init_result		= CURLE_OK;
+	curl_easy_setopt_result		= CURLE_OK;
+	curl_easy_perform_result	= CURLE_OK;
+	curl_easy_init_result		= NULL;
+	curl_easy_strerror_result	= NULL;
+	curl_slist_append_result	= NULL;
 }
 
 
 /////////////////////////////////
 
 
-void BrokerCommonTest::init_fails_with_missing_adapter_url()
+void BrokerCommonTest::init_fails_with_unknown_args_option()
 {
 	// given
-	string	region	= "region";
-	string	argline	= ((ostringstream&)(ostringstream().flush()
-		<< "-r" << region
+	int	flags	= 0;
+	string	value	= "value",
+		argline	= ((ostringstream&)(ostringstream().flush()
+		<< "-Z" << value
 		)).str();
 
 	// when
-	bool init_error = init_module_variables(argline);
+	bool init_error = nebmodule_init(flags, argline, module_handle);
 
 	// then
 	CPPUNIT_ASSERT(init_error);
 }
 
 
-void BrokerCommonTest::init_fails_with_missing_region()
+void BrokerCommonTest::init_fails_with_missing_adapter_url_option()
 {
 	// given
-	string	url	= "url";
-	string	argline	= ((ostringstream&)(ostringstream().flush()
+	int	flags	= 0;
+	string	region	= "region",
+		argline	= ((ostringstream&)(ostringstream().flush()
+		<< "-r" << region
+		)).str();
+
+	// when
+	bool init_error = nebmodule_init(flags, argline, module_handle);
+
+	// then
+	CPPUNIT_ASSERT(init_error);
+}
+
+
+void BrokerCommonTest::init_fails_with_missing_adapter_url_value()
+{
+	// given
+	int	flags	= 0;
+	string	region	= "region",
+		argline	= ((ostringstream&)(ostringstream().flush()
+		<<        "-u" << ""
+		<< ' ' << "-r" << region
+		)).str();
+
+	// when
+	bool init_error = nebmodule_init(flags, argline, module_handle);
+
+	// then
+	CPPUNIT_ASSERT(init_error);
+}
+
+
+void BrokerCommonTest::init_fails_with_missing_region_option()
+{
+	// given
+	int	flags	= 0;
+	string	url	= "url",
+		argline	= ((ostringstream&)(ostringstream().flush()
 		<< "-u" << url
 		)).str();
 
 	// when
-	bool init_error = init_module_variables(argline);
+	bool init_error = nebmodule_init(flags, argline, module_handle);
+
+	// then
+	CPPUNIT_ASSERT(init_error);
+}
+
+
+void BrokerCommonTest::init_fails_with_missing_region_value()
+{
+	// given
+	int	flags	= 0;
+	string	url	= "url",
+		argline	= ((ostringstream&)(ostringstream().flush()
+		<<        "-u" << url
+		<< ' ' << "-r" << ""
+		)).str();
+
+	// when
+	bool init_error = nebmodule_init(flags, argline, module_handle);
+
+	// then
+	CPPUNIT_ASSERT(init_error);
+}
+
+
+void BrokerCommonTest::init_fails_when_curl_cannot_be_initialized()
+{
+	// given
+	int	flags	= 0;
+	string	url	= "url",
+		region	= "region",
+		argline	= ((ostringstream&)(ostringstream().flush()
+		<<        "-u" << url
+		<< ' ' << "-r" << region
+		)).str();
+	curl_global_init_result = CURLE_FAILED_INIT;
+
+	// when
+	bool init_error = nebmodule_init(flags, argline, module_handle);
+
+	// then
+	CPPUNIT_ASSERT(init_error);
+}
+
+
+void BrokerCommonTest::init_fails_when_callback_cannot_be_registered()
+{
+	// given
+	int	flags	= 0;
+	string	url	= "url",
+		region	= "region",
+		argline	= ((ostringstream&)(ostringstream().flush()
+		<<        "-u" << url
+		<< ' ' << "-r" << region
+		)).str();
+	neb_register_callback_result = NEB_ERROR;
+
+	// when
+	bool init_error = nebmodule_init(flags, argline, module_handle);
 
 	// then
 	CPPUNIT_ASSERT(init_error);
@@ -221,6 +413,7 @@ void BrokerCommonTest::init_fails_with_missing_region()
 void BrokerCommonTest::init_ok_with_valid_args()
 {
 	// given
+	int	flags	= 0;
 	string	url	= "url",
 		region	= "region",
 		argline	= ((ostringstream&)(ostringstream().flush()
@@ -229,7 +422,7 @@ void BrokerCommonTest::init_ok_with_valid_args()
 		)).str();
 
 	// when
-	bool init_error = init_module_variables(argline);
+	bool init_error = nebmodule_init(flags, argline, module_handle);
 
 	// then
 	CPPUNIT_ASSERT(!init_error);
