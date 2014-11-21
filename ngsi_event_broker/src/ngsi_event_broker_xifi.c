@@ -110,9 +110,9 @@ char* get_adapter_request(nebstruct_service_check_data* data, context_t* context
 		} else if (!strcmp(name, SNMP_PLUGIN)) {
 			type = NPM_DEFAULT_ENTITY_TYPE;
 		} else if (nrpe) {
-			type = DEM_ENTITY_TYPE_REMOTE;
+			type = DEM_ENTITY_TYPE_HOST_REMOTE;
 		} else {
-			type = DEM_ENTITY_TYPE_LOCAL;
+			type = DEM_ENTITY_TYPE_HOST_LOCAL;
 		}
 
 		/* get request URL */
@@ -217,7 +217,7 @@ char* dem_get_adapter_request(context_t* context, char* name, char* args, const 
 		if (host == NULL) {
 			logging(LOG_ERROR, context, "Missing NRPE plugin options");
 			result = ADAPTER_REQUEST_INVALID;
-		} else if (resolve_address(host, addr, INET_ADDRSTRLEN)) {
+		} else if (resolve_address(host, addr, INET_ADDRSTRLEN) == NEB_ERROR) {
 			logging(LOG_ERROR, context, "Cannot resolve remote address for %s", host);
 			result = ADAPTER_REQUEST_INVALID;
 		} else {
