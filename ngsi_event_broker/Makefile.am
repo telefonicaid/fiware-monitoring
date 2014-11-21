@@ -33,7 +33,7 @@ clean-local:
 
 # check coding style
 lint:
-	$(call cppcheck,src,&2)
+	$(call cppcheck,src,&2) || true
 
 # generate coding style report
 lint-report: REPORT_DIR = $(call relpath,$(CPPCHECK_REPORT_DIR))
