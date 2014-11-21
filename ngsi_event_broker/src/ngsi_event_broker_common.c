@@ -157,6 +157,7 @@ int init_module_variables(char* args, context_t* context)
 			}
 		}
 	}
+
 	if (!adapter_url || !region_id) {
 		logging(LOG_ERROR, context, "Missing required broker module options");
 		result = NEB_ERROR;
@@ -255,9 +256,8 @@ char* find_plugin_command_name(nebstruct_service_check_data* data, char** args, 
 		char* command_args;
 		char* service_check_command = strdup(check_service->service_check_command);
 		command_name = strtok_r(service_check_command, "!", &command_args);
+		/* plugin command */
 		if ((check_command = find_command(command_name)) != NULL) {
-			/* plugin service */
-			if (serv != NULL) *serv = check_service;
 			/* plugin arguments */
 			if (args != NULL) {
 				nagios_macros	mac;
@@ -269,7 +269,9 @@ char* find_plugin_command_name(nebstruct_service_check_data* data, char** args, 
 				get_raw_command_line_r(&mac, check_command,
 				                       check_service->service_check_command,
 				                       &raw, 0);
-				if (raw != NULL) {
+				if (raw == NULL) {
+					*args = strdup("");
+				} else {
 					char* exec;
 					process_macros_r(&mac, raw, &cmd, 0);
 					strtok_r(cmd, " \t", &last);
@@ -277,17 +279,19 @@ char* find_plugin_command_name(nebstruct_service_check_data* data, char** args, 
 					exec = (ptr) ? ++ptr : cmd;
 					*args = strdup(last);
 					is_nrpe = !strcmp(exec, NRPE_PLUGIN);
-					if (nrpe != NULL) *nrpe = is_nrpe;
 				}
 				my_free(raw);
 				my_free(cmd);
 			}
+			/* command name (after resolving NRPE remote command) */
+			result = strdup((is_nrpe) ? command_args : command_name);
 		}
-		/* command name (after resolving NRPE remote command) */
-		result = strdup((is_nrpe) ? command_args : command_name);
 		free(service_check_command);
 		service_check_command = NULL;
 	}
+	/* output arguments */
+	if (nrpe != NULL) *nrpe = is_nrpe;
+	if (serv != NULL) *serv = check_service;
 
 	return result;
 }
@@ -344,7 +348,6 @@ int callback_service_check(int callback_type, void* data)
 		snprintf(request_txt, sizeof(request_txt)-1, "%s|%s",
 		         check_data->output, check_data->perf_data);
 		request_txt[sizeof(request_txt)-1] = '\0';
-
 		curl_headers = curl_slist_append(curl_headers, "Content-Type: text/plain");
 		curl_headers = curl_slist_append(curl_headers, txHdr);
 		curl_easy_setopt(curl_handle, CURLOPT_URL, request_url);

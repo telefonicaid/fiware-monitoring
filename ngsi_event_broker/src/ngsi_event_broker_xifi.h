@@ -58,19 +58,19 @@ extern "C" {
  */
 
 /** Entity type of a physical host being monitored */
-#define DEM_ENTITY_TYPE_PHYSICAL	"host"
+#define DEM_ENTITY_TYPE_HOST_PHYSICAL	"host"
 
 /** Entity type of a virtual machine being monitored */
-#define DEM_ENTITY_TYPE_VIRTUAL		"vm"
+#define DEM_ENTITY_TYPE_HOST_VIRTUAL	"vm"
 
 /** Default entity type of a local host, when no type is specified */
-#define DEM_ENTITY_TYPE_LOCAL		DEM_ENTITY_TYPE_PHYSICAL
+#define DEM_ENTITY_TYPE_HOST_LOCAL	DEM_ENTITY_TYPE_HOST_PHYSICAL
 
 /** Default entity type of a remote host, when no type is specified */
-#define DEM_ENTITY_TYPE_REMOTE		DEM_ENTITY_TYPE_VIRTUAL
+#define DEM_ENTITY_TYPE_HOST_REMOTE	DEM_ENTITY_TYPE_HOST_VIRTUAL
 
 /** Default entity type for DEM monitoring, if none of the former applies */
-#define DEM_DEFAULT_ENTITY_TYPE		DEM_ENTITY_TYPE_VIRTUAL
+#define DEM_DEFAULT_ENTITY_TYPE		DEM_ENTITY_TYPE_HOST_VIRTUAL
 
 /** Adapter request query string fields (`id = region:hostaddr`) */
 #define DEM_ADAPTER_REQUEST_FORMAT	ADAPTER_REQUEST_FORMAT
