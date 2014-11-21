@@ -194,12 +194,12 @@ extern loglevel_t			log_level;
 /**
  * Initializes the module (entry point for [NEB API](@NagiosModule_ref))
  *
- * @param[in] flags		The initialization flags (ignored).
- * @param[in] args		The module arguments as a space-separated string.
- * @param[in] handle		The module handle passed by Nagios Core server.
+ * @param[in] flags			The initialization flags (ignored).
+ * @param[in] args			The module arguments as a space-separated string.
+ * @param[in] handle			The module handle passed by Nagios Core server.
  *
- * @retval NEB_OK		Successfully initialized.
- * @retval NEB_ERROR		Not successfully initialized.
+ * @retval NEB_OK			Successfully initialized.
+ * @retval NEB_ERROR			Not successfully initialized.
  */
 int nebmodule_init(int flags, char* args, void* handle);
 
@@ -207,10 +207,10 @@ int nebmodule_init(int flags, char* args, void* handle);
 /**
  * Deinitializes the module (entry point for [NEB API](@NagiosModule_ref))
  *
- * @param[in] flags		The deinitialization flags (ignored).
- * @param[in] reason		The reason why this module is being deinitialized.
+ * @param[in] flags			The deinitialization flags (ignored).
+ * @param[in] reason			The reason why this module is being deinitialized.
  *
- * @retval NEB_OK		Successfully deinitialized.
+ * @retval NEB_OK			Successfully deinitialized.
  */
 int nebmodule_deinit(int flags, int reason);
 
@@ -227,11 +227,11 @@ int nebmodule_deinit(int flags, int reason);
 /**
  * Initializes global module handle and info (name and version)
  *
- * @param[in] handle		The module handle passed by Nagios to nebmodule_init().
- * @param[in] context		The operations context (may be null).
+ * @param[in] handle			The module handle passed by Nagios to nebmodule_init().
+ * @param[in] context			The operations context (may be null).
  *
- * @retval NEB_OK		Successfully initialized.
- * @retval NEB_ERROR		Not successfully initialized.
+ * @retval NEB_OK			Successfully initialized.
+ * @retval NEB_ERROR			Not successfully initialized.
  */
 int init_module_handle_info(void* handle, context_t* context);
 
@@ -239,10 +239,12 @@ int init_module_handle_info(void* handle, context_t* context);
 /**
  * Composes the request to NGSI Adapter according to plugin data
  *
- * @param[in] data		The plugin data passed by Nagios to the registered callback_service_check().
- * @param[in] context		The operations context (may be null).
+ * @param[in] data			The plugin data passed by Nagios to the registered callback_service_check().
+ * @param[in] context			The operations context (may be null).
  *
- * @return			The request URL to invoke NGSI Adapter (including query string).
+ * @return				The request URL to invoke NGSI Adapter (including query string).
+ * @retval ADAPTER_REQUEST_INVALID	An error ocurred and no request could be composed.
+ * @retval ADAPTER_REQUEST_IGNORE	Skip request to NGSI Adapter.
  */
 char* get_adapter_request(nebstruct_service_check_data* data, context_t* context);
 
@@ -259,11 +261,11 @@ char* get_adapter_request(nebstruct_service_check_data* data, context_t* context
 /**
  * Initializes module global variables, parsing module arguments in configuration file
  *
- * @param[in] args		The module arguments as a space-separated string.
- * @param[in] context		The operations context (may be null).
+ * @param[in] args			The module arguments as a space-separated string.
+ * @param[in] context			The operations context (may be null).
  *
- * @retval NEB_OK		Successfully initialized.
- * @retval NEB_ERROR		Not successfully initialized.
+ * @retval NEB_OK			Successfully initialized.
+ * @retval NEB_ERROR			Not successfully initialized.
  */
 int init_module_variables(char* args, context_t* context);
 
@@ -279,10 +281,10 @@ int free_module_variables(void);
 /**
  * Checks current Nagios object version
  *
- * @param[in] context		The operations context (may be null).
+ * @param[in] context			The operations context (may be null).
  *
- * @retval NEB_OK		Valid (compatible) version.
- * @retval NEB_ERROR		Invalid version.
+ * @retval NEB_OK			Valid (compatible) version.
+ * @retval NEB_ERROR			Invalid version.
  */
 int check_nagios_object_version(context_t* context);
 
@@ -290,10 +292,10 @@ int check_nagios_object_version(context_t* context);
 /**
  * Callback function invoked on `NEBCALLBACK_SERVICE_CHECK_DATA` events
  *
- * @param[in] callback_type	The event type (always `NEBCALLBACK_SERVICE_CHECK_DATA`).
- * @param[in] data		The event data (`nebstruct_service_check_data*`).
+ * @param[in] callback_type		The event type (always `NEBCALLBACK_SERVICE_CHECK_DATA`).
+ * @param[in] data			The event data (`nebstruct_service_check_data*`).
  *
- * @retval NEB_OK		Regardless event processing result, NEB_OK is returned.
+ * @retval NEB_OK			Regardless event processing result, NEB_OK is returned.
  */
 int callback_service_check(int callback_type, void* data);
 
@@ -301,10 +303,10 @@ int callback_service_check(int callback_type, void* data);
 /**
  * Gets command details of executed plugin from event data passed to callback_service_check()
  *
- * @param[in]  data		The event data.
- * @param[out] args		The command line arguments of executed plugin.
- * @param[out] nrpe		True (non-zero) when plugin is remotely executed via NRPE.
- * @param[out] serv		The details of service definition associated to the plugin.
+ * @param[in]  data			The event data.
+ * @param[out] args			The command line arguments of executed plugin.
+ * @param[out] nrpe			True (non-zero) when plugin is remotely executed via NRPE.
+ * @param[out] serv			The details of service definition associated to the plugin.
  *
  * @return			The command name (may not coincide with executable name) of executed plugin.
  */
@@ -314,12 +316,12 @@ char* find_plugin_command_name(nebstruct_service_check_data* data, char** args, 
 /**
  * Resolves a given hostname to get the IP address
  *
- * @param[in]  hostname		The hostname.
- * @param[in]  addr		The buffer where IP address will be written to.
- * @param[in]  addrmaxlen	The length of the buffer.
+ * @param[in]  hostname			The hostname.
+ * @param[in]  addr			The buffer where IP address will be written to.
+ * @param[in]  addrmaxlen		The length of the buffer.
  *
- * @retval NEB_OK		Successfully resolved.
- * @retval NEB_ERROR		Not successfully resolved.
+ * @retval NEB_OK			Successfully resolved.
+ * @retval NEB_ERROR			Not successfully resolved.
  */
 int resolve_address(const char* hostname, char* addr, size_t addrmaxlen);
 
@@ -327,10 +329,10 @@ int resolve_address(const char* hostname, char* addr, size_t addrmaxlen);
 /**
  * Writes a formatted message to Nagios log
  *
- * @param[in] level		The logging level.
- * @param[in] context		The operations context (may be null).
- * @param[in] format		The printf()-like format spec of the message.
- * @param[in] ...		The variable list of arguments to format.
+ * @param[in] level			The logging level.
+ * @param[in] context			The operations context (may be null).
+ * @param[in] format			The printf()-like format spec of the message.
+ * @param[in] ...			The variable list of arguments to format.
  */
 void logging(loglevel_t level, context_t* context, const char* format, ...);
 
