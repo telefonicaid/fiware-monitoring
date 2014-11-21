@@ -54,57 +54,120 @@ using CppUnit::BriefTestProgressListener;
 using namespace std;
 
 
-/// Any `nebstruct_service_check_data` (ignored)
-#define CHECK_DATA			NULL
+/// Some custom entity type
+#define SOME_ENTITY_TYPE	"some_type"
 
 
-/// Any custom entity type
-#define SOME_ENTITY_TYPE		"some"
+/// Some check name
+#define SOME_CHECK_NAME		"some_check"
 
 
-/// Any remote address
-#define REMOTEHOST_ADDR			"169.254.0.1"
+/// Some check arguments
+#define SOME_CHECK_ARGS		"-w 10 -c 20"
 
 
-/// Any adapter URL
-#define ADAPTER_URL			"http://localhost:5000"
+/// Some service description
+#define SOME_DESCRIPTION	"some_description"
 
 
-/// Any region id
-#define REGION_ID			"myregion"
+/// Some region id
+#define REGION_ID		"some_region"
 
 
-/// Any timeout
-#define TIMEOUT				1000
+/// Fake adapter URL
+#define ADAPTER_URL		"http://adapter_host:5000"
+
+
+/// Fake local host address
+#define LOCALHOST_ADDR		"10.95.0.6"
+
+
+/// Fake local host name
+#define LOCALHOST_NAME		"my_local_host"
+
+
+/// Fake remote address
+#define REMOTEHOST_ADDR		"169.254.0.1"
+
+
+/// Fake remote host name
+#define REMOTEHOST_NAME		"my_remote_host"
+
+
+/// Fake unknown remote host name
+#define REMOTEHOST_UNKNOWN	"my_remote_unknown_host"
+
+
+///
+/// @name Mocks for system calls
+/// @{
+///
+extern "C" {
+	int			__wrap_gethostname(char*, size_t);
+	struct hostent*		__wrap_gethostbyname(const char*);
+}
+
+/// @}
+
+
+///
+/// @name Mocks for Nagios functions
+/// @{
+///
+extern "C" {
+	host*			__wrap_find_host(char*);
+	service*		__wrap_find_service(char*, char*);
+	command*		__wrap_find_command(char*);
+	int			__wrap_grab_host_macros_r(nagios_macros*, host*);
+	int			__wrap_grab_service_macros_r(nagios_macros*, service*);
+	int			__wrap_get_raw_command_line_r(nagios_macros*, command*, char*, char**, int);
+	int			__wrap_process_macros_r(nagios_macros*, char*, char**, int);
+}
+
+/// @}
 
 
 /// XIFI Broker (DEM features) test suite
 class BrokerXifiDemTest: public TestFixture
 {
-	static string			localhost_addr;
-	static string			plugin_name;
-	static string			plugin_args;
-	static bool			plugin_nrpe;
-	static service			plugin_serv;
-	static customvariablesmember	custom_vars;
+	// mocks: return & output values, and friend declaration to access static members
+	static int		__retval_gethostname;
+	friend int		::__wrap_gethostname(char*, size_t);
+	friend struct hostent*	::__wrap_gethostbyname(const char*);
+	static host*		__retval_find_host;
+	friend host*		::__wrap_find_host(char*);
+	static service*		__retval_find_service;
+	friend service*		::__wrap_find_service(char*, char*);
+	static command*		__retval_find_command;
+	friend command*		::__wrap_find_command(char*);
+	static int		__retval_grab_host_macros_r;
+	friend int		::__wrap_grab_host_macros_r(nagios_macros*, host*);
+	static int		__retval_grab_service_macros_r;
+	friend int		::__wrap_grab_service_macros_r(nagios_macros*, service*);
+	static char*		__output_get_raw_command_line_r;
+	static int		__retval_get_raw_command_line_r;
+	friend int		::__wrap_get_raw_command_line_r(nagios_macros*, command*, char*, char**, int);
+	static char*		__output_process_macros_r;
+	static int		__retval_process_macros_r;
+	friend int		::__wrap_process_macros_r(nagios_macros*, char*, char**, int);
 
-	// C function wrappers
-	static bool init_module_variables(const string& args);
-	static bool free_module_variables();
-	static bool get_adapter_request(nebstruct_service_check_data* data, string& request);
-
-	// mock for function ::find_plugin_command_name()
-	friend char* find_plugin_command_name(nebstruct_service_check_data* data, char** args, int* nrpe, const service** serv);
+	// static methods equivalent to external C functions
+	static bool		init_module_variables(const string&);
+	static bool		free_module_variables();
+	static const char*	get_adapter_request(nebstruct_service_check_data*, string&);
 
 	// tests
-	void wrong_request_remote_physical_host_implicit_type();
-	void get_request_ok_remote_physical_host_explicit_type();
-	void get_request_ok_remote_entity_explicit_type();
-	void get_request_ok_local_physical_host_implicit_type();
-	void get_request_ok_local_physical_host_explicit_type();
-	void get_request_ok_local_entity_explicit_type();
-	void get_request_ok_remote_vm_implicit_type();
-	void get_request_ok_remote_vm_explicit_type();
+	void wrong_request_remote_physical_host_implicit_entity_type();
+	void get_request_ok_remote_physical_host_explicit_entity_type();
+	void get_request_ok_remote_entity_custom_explicit_entity_type();
+	void get_request_ok_local_physical_host_implicit_entity_type();
+	void get_request_ok_local_physical_host_explicit_entity_type();
+	void get_request_ok_local_entity_custom_explicit_entity_type();
+	void get_request_ok_remote_vm_implicit_entity_type();
+	void get_request_ok_remote_vm_explicit_entity_type();
+	void get_request_ok_remote_vm_by_hostname();
+	void invalid_request_unknown_remote_vm_hostname();
+	void invalid_request_missing_nrpe_host_argument();
 
 public:
 	static void suiteSetUp();
@@ -112,14 +175,17 @@ public:
 	void setUp();
 	void tearDown();
 	CPPUNIT_TEST_SUITE(BrokerXifiDemTest);
-	CPPUNIT_TEST(wrong_request_remote_physical_host_implicit_type);
-	CPPUNIT_TEST(get_request_ok_remote_physical_host_explicit_type);
-	CPPUNIT_TEST(get_request_ok_remote_entity_explicit_type);
-	CPPUNIT_TEST(get_request_ok_local_physical_host_implicit_type);
-	CPPUNIT_TEST(get_request_ok_local_physical_host_explicit_type);
-	CPPUNIT_TEST(get_request_ok_local_entity_explicit_type);
-	CPPUNIT_TEST(get_request_ok_remote_vm_implicit_type);
-	CPPUNIT_TEST(get_request_ok_remote_vm_explicit_type);
+	CPPUNIT_TEST(wrong_request_remote_physical_host_implicit_entity_type);
+	CPPUNIT_TEST(get_request_ok_remote_physical_host_explicit_entity_type);
+	CPPUNIT_TEST(get_request_ok_remote_entity_custom_explicit_entity_type);
+	CPPUNIT_TEST(get_request_ok_local_physical_host_implicit_entity_type);
+	CPPUNIT_TEST(get_request_ok_local_physical_host_explicit_entity_type);
+	CPPUNIT_TEST(get_request_ok_local_entity_custom_explicit_entity_type);
+	CPPUNIT_TEST(get_request_ok_remote_vm_implicit_entity_type);
+	CPPUNIT_TEST(get_request_ok_remote_vm_explicit_entity_type);
+	CPPUNIT_TEST(get_request_ok_remote_vm_by_hostname);
+	CPPUNIT_TEST(invalid_request_unknown_remote_vm_hostname);
+	CPPUNIT_TEST(invalid_request_missing_nrpe_host_argument);
 	CPPUNIT_TEST_SUITE_END();
 };
 
@@ -142,33 +208,186 @@ int main(int argc, char* argv[])
 }
 
 
-string			BrokerXifiDemTest::localhost_addr;
-string			BrokerXifiDemTest::plugin_name;
-string			BrokerXifiDemTest::plugin_args;
-bool			BrokerXifiDemTest::plugin_nrpe;
-service			BrokerXifiDemTest::plugin_serv;
-customvariablesmember	BrokerXifiDemTest::custom_vars;
-
-
 ///
-/// Mock for function ::find_plugin_command_name()
-/// @memberof BrokerXifiDemTest
+/// @name Mock for gethostname()
+/// @{
 ///
-char* find_plugin_command_name(nebstruct_service_check_data* data, char** args, int* nrpe, const service** serv)
+
+/// Return value
+int BrokerXifiDemTest::__retval_gethostname = EXIT_SUCCESS;
+
+/// Mock function
+int __wrap_gethostname(char* name, size_t len)
 {
-	char* name = NULL;
+	memcpy(name, LOCALHOST_NAME, len);
+	return BrokerXifiDemTest::__retval_gethostname;
+}
 
-	name  = strdup(BrokerXifiDemTest::plugin_name.c_str());
-	*args = strdup(BrokerXifiDemTest::plugin_args.c_str());
-	*nrpe = (int) BrokerXifiDemTest::plugin_nrpe;
-	*serv = (const service*) &BrokerXifiDemTest::plugin_serv;
+/// @}
 
-	return name;
+
+///
+/// @name Mock for gethostbyname()
+/// @{
+///
+
+/// Mock function
+struct hostent* __wrap_gethostbyname(const char* name)
+{
+	static struct hostent	host;
+	static struct in_addr	addr;
+	static char*		list[] = { (char*) &addr, NULL };
+
+	string			hostname(name);
+	const char*		hostaddr;
+
+	if (hostname == LOCALHOST_NAME || hostname == LOCALHOST_ADDR) {
+		hostaddr = LOCALHOST_ADDR;
+	} else if (hostname == REMOTEHOST_NAME || hostname == REMOTEHOST_ADDR) {
+		hostaddr = REMOTEHOST_ADDR;
+	} else {
+		return NULL;	// host not found
+	}
+
+	host.h_addr_list = (char**) list;
+	inet_pton(AF_INET, hostaddr, host.h_addr_list[0]);
+	return &host;
+}
+
+/// @}
+
+
+///
+/// @name Mock for find_host()
+/// @{
+///
+
+/// Return value
+host* BrokerXifiDemTest::__retval_find_host = NULL;
+
+/// Mock function
+host* __wrap_find_host(char* name)
+{
+	return BrokerXifiDemTest::__retval_find_host;
+}
+
+/// @}
+
+
+///
+/// @name Mock for find_service()
+/// @{
+///
+
+/// Return value
+service* BrokerXifiDemTest::__retval_find_service = NULL;
+
+/// Mock function
+service* __wrap_find_service(char* name, char* svc_desc)
+{
+	return BrokerXifiDemTest::__retval_find_service;
+}
+
+/// @}
+
+
+///
+/// @name Mock for find_command()
+/// @{
+///
+
+/// Return value
+command* BrokerXifiDemTest::__retval_find_command = NULL;
+
+/// Mock function
+command* __wrap_find_command(char* name)
+{
+	return BrokerXifiDemTest::__retval_find_command;
+}
+
+/// @}
+
+
+///
+/// @name Mock for grab_host_macros_r()
+/// @{
+///
+
+/// Return value
+int BrokerXifiDemTest::__retval_grab_host_macros_r = EXIT_SUCCESS;
+
+/// Mock function
+int __wrap_grab_host_macros_r(nagios_macros* mac, host* hst)
+{
+	return BrokerXifiDemTest::__retval_grab_host_macros_r;
+}
+
+/// @}
+
+
+///
+/// @name Mock for grab_service_macros_r()
+/// @{
+///
+
+/// Return value
+int BrokerXifiDemTest::__retval_grab_service_macros_r = EXIT_SUCCESS;
+
+/// Mock function
+int __wrap_grab_service_macros_r(nagios_macros* mac, service* svc)
+{
+	return BrokerXifiDemTest::__retval_grab_service_macros_r;
+}
+
+/// @}
+
+
+///
+/// @name Mock for get_raw_command_line_r()
+/// @{
+///
+
+/// Output value for `full_command`
+char* BrokerXifiDemTest::__output_get_raw_command_line_r = NULL;
+
+/// Return value
+int BrokerXifiDemTest::__retval_get_raw_command_line_r = EXIT_SUCCESS;
+
+/// Mock function
+int __wrap_get_raw_command_line_r(nagios_macros* mac, command* ptr, char* cmd, char** full_command, int macro_options)
+{
+	if (full_command) {
+		*full_command = strdup(BrokerXifiDemTest::__output_get_raw_command_line_r);
+	}
+	return BrokerXifiDemTest::__retval_get_raw_command_line_r;
+}
+
+/// @}
+
+
+///
+/// @name Mock for process_macros_r()
+/// @{
+///
+
+/// Output value for `output_buffer`
+char* BrokerXifiDemTest::__output_process_macros_r = NULL;
+
+/// Return value
+int BrokerXifiDemTest::__retval_process_macros_r = EXIT_SUCCESS;
+
+/// Mock function
+int __wrap_process_macros_r(nagios_macros* mac, char* input_buffer, char** output_buffer, int options)
+{
+	if (output_buffer) {
+		*output_buffer = strdup(BrokerXifiDemTest::__output_process_macros_r);
+	}
+	return BrokerXifiDemTest::__retval_process_macros_r;
 }
 
 
 ///
-/// C++ wrapper for function ::init_module_variables()
+/// Static method for C function ::init_module_variables()
 ///
 /// @param[in] args	The module arguments as a space-separated string.
 /// @return		Successful initialization.
@@ -183,7 +402,7 @@ bool BrokerXifiDemTest::init_module_variables(const string& args)
 
 
 ///
-/// C++ wrapper for function ::free_module_variables()
+/// Static method for C function ::free_module_variables()
 ///
 /// @return		Successful resources release.
 ///
@@ -194,21 +413,21 @@ bool BrokerXifiDemTest::free_module_variables()
 
 
 ///
-/// C++ wrapper for function ::get_adapter_request()
+/// Static method for C function ::get_adapter_request()
 ///
 /// @param[in]  data	The plugin data passed by Nagios to the registered callback_service_check().
-/// @param[out] request	The request URL to invoke NGSI Adapter (including query string).
-/// @return		Request successfully generated.
+/// @param[out] request	The string storing the request URL to invoke NGSI Adapter (including query string).
+/// @return		Pointer to the string storing the request.
 ///
-bool BrokerXifiDemTest::get_adapter_request(nebstruct_service_check_data* data, string& request)
+const char* BrokerXifiDemTest::get_adapter_request(nebstruct_service_check_data* data, string& request)
 {
 	context_t* context = NULL;
-	char* result = ::get_adapter_request(data, context);
-	bool  error = (result == NULL);
-	request.assign((error) ? "" : result);
-	::free(result);
-	result = NULL;
-	return error;
+	char* adapter_request_str = ::get_adapter_request(data, context);
+	request.assign((adapter_request_str == ADAPTER_REQUEST_INVALID) ? "{invalid}" : adapter_request_str);
+	const char* result = (adapter_request_str == ADAPTER_REQUEST_INVALID) ? adapter_request_str : request.c_str();
+	::free(adapter_request_str);
+	adapter_request_str = NULL;
+	return result;
 }
 
 
@@ -217,15 +436,7 @@ bool BrokerXifiDemTest::get_adapter_request(nebstruct_service_check_data* data, 
 ///
 void BrokerXifiDemTest::suiteSetUp()
 {
-	char name[HOST_NAME_MAX];
-	char addr[INET_ADDRSTRLEN];
-
-	if (gethostname(name, HOST_NAME_MAX) || resolve_address(name, addr, INET_ADDRSTRLEN)) {
-		localhost_addr.assign("127.0.0.1");
-	} else {
-		localhost_addr.assign(addr);
-	}
-
+	// Setup broker arguments
 	string argline	= ((ostringstream&)(ostringstream().flush()
 		<<        "-u" << ADAPTER_URL
 		<< ' ' << "-r" << REGION_ID
@@ -260,92 +471,137 @@ void BrokerXifiDemTest::setUp()
 ///
 void BrokerXifiDemTest::tearDown()
 {
+	__retval_gethostname			= EXIT_SUCCESS;
+	__retval_find_host			= NULL;
+	__retval_find_service			= NULL;
+	__retval_find_command			= NULL;
+	__retval_grab_host_macros_r		= EXIT_SUCCESS;
+	__retval_grab_service_macros_r		= EXIT_SUCCESS;
+	__output_get_raw_command_line_r		= NULL;
+	__retval_get_raw_command_line_r		= EXIT_SUCCESS;
+	__output_process_macros_r		= NULL;
+	__retval_process_macros_r		= EXIT_SUCCESS;
 }
 
 
-//////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
 
 
-void BrokerXifiDemTest::wrong_request_remote_physical_host_implicit_type()
+void BrokerXifiDemTest::wrong_request_remote_physical_host_implicit_entity_type()
 {
-	string expected_request, actual_request;
+	string					request;
+	host					check_host;
+	service					check_service;
+	command					check_command;
+	nebstruct_service_check_data		check_data;
 
 	// given
-	plugin_serv.custom_variables = NULL;	// implicit entity_type
-	plugin_nrpe = true;			// remote monitored host
-	plugin_name = "check_load";
-	plugin_args =((ostringstream&)(ostringstream().flush()
-		<<        "-H" << REMOTEHOST_ADDR
-		<< ' ' << "-c" << plugin_name
-		<< ' ' << "-t" << TIMEOUT
-		)).str();
-	expected_request = ((ostringstream&)(ostringstream().flush()
-		<< ADAPTER_URL << '/' << plugin_name
+	check_service.host_name			= REMOTEHOST_ADDR;
+	check_service.service_check_command	= NRPE_PLUGIN "!" SOME_CHECK_NAME;
+	check_service.description		= SOME_DESCRIPTION;
+	check_service.custom_variables		= NULL;			// no explicit entity type given
+	check_command.name			= NRPE_PLUGIN;		// remote check using NRPE
+	check_command.command_line		= "$USER1$/" NRPE_PLUGIN " -H $HOSTADDRESS$ -c $ARG1$";
+	check_data.host_name			= check_service.host_name;
+	check_data.service_description		= check_service.description;
+	__output_get_raw_command_line_r		= check_command.command_line;
+	__output_process_macros_r		= "/usr/local/" NRPE_PLUGIN " -H " REMOTEHOST_ADDR " -c arguments";
+	__retval_find_command			= &check_command;
+	__retval_find_service			= &check_service;
+	__retval_find_host			= &check_host;
+
+	string expected_request = ((ostringstream&)(ostringstream().flush()
+		<< ADAPTER_URL << '/' << SOME_CHECK_NAME
 		<< '?' << ADAPTER_QUERY_FIELD_ID
 		<< '=' << REGION_ID << ':' << REMOTEHOST_ADDR
 		<< '&' << ADAPTER_QUERY_FIELD_TYPE
-		<< '=' << DEM_ENTITY_TYPE_PHYSICAL
+		<< '=' << DEM_ENTITY_TYPE_HOST_PHYSICAL
 		)).str();
 
 	// when
-	bool error = get_adapter_request(CHECK_DATA, actual_request);
-	bool wrong = (expected_request != actual_request);
+	const char* actual_request = get_adapter_request(&check_data, request);
 
 	// then
-	CPPUNIT_ASSERT(!error);
-	CPPUNIT_ASSERT(wrong);
+	CPPUNIT_ASSERT(actual_request != ADAPTER_REQUEST_INVALID);
+	CPPUNIT_ASSERT(expected_request != actual_request);
 }
 
 
-void BrokerXifiDemTest::get_request_ok_remote_physical_host_explicit_type()
+void BrokerXifiDemTest::get_request_ok_remote_physical_host_explicit_entity_type()
 {
-	string expected_request, actual_request;
+	string					request;
+	host					check_host;
+	service					check_service;
+	command					check_command;
+	customvariablesmember			check_vars;
+	nebstruct_service_check_data		check_data;
 
 	// given
-	custom_vars.variable_name	= CUSTOM_VAR_ENTITY_TYPE;
-	custom_vars.variable_value	= DEM_ENTITY_TYPE_PHYSICAL;
-	plugin_serv.custom_variables	= &custom_vars;
-	plugin_nrpe = true;
-	plugin_name = "check_load";
-	plugin_args =((ostringstream&)(ostringstream().flush()
-		<<        "-H" << REMOTEHOST_ADDR
-		<< ' ' << "-c" << plugin_name
-		<< ' ' << "-t" << TIMEOUT
-		)).str();
-	expected_request = ((ostringstream&)(ostringstream().flush()
-		<< ADAPTER_URL << '/' << plugin_name
+	check_vars = {
+		variable_name:			CUSTOM_VAR_ENTITY_TYPE,
+		variable_value:			DEM_ENTITY_TYPE_HOST_PHYSICAL
+	};
+	check_service.host_name			= REMOTEHOST_ADDR;
+	check_service.service_check_command	= NRPE_PLUGIN "!" SOME_CHECK_NAME;
+	check_service.description		= SOME_DESCRIPTION;
+	check_service.custom_variables		= &check_vars;
+	check_command.name			= NRPE_PLUGIN;
+	check_command.command_line		= "$USER1$/" NRPE_PLUGIN " -H $HOSTADDRESS$ -c $ARG1$";
+	check_data.host_name			= check_service.host_name;
+	check_data.service_description		= check_service.description;
+	__output_get_raw_command_line_r		= check_command.command_line;
+	__output_process_macros_r		= "/usr/local/" NRPE_PLUGIN " -H " REMOTEHOST_ADDR " -c arguments";
+	__retval_find_command			= &check_command;
+	__retval_find_service			= &check_service;
+	__retval_find_host			= &check_host;
+
+	string expected_request = ((ostringstream&)(ostringstream().flush()
+		<< ADAPTER_URL << '/' << SOME_CHECK_NAME
 		<< '?' << ADAPTER_QUERY_FIELD_ID
 		<< '=' << REGION_ID << ':' << REMOTEHOST_ADDR
 		<< '&' << ADAPTER_QUERY_FIELD_TYPE
-		<< '=' << DEM_ENTITY_TYPE_PHYSICAL
+		<< '=' << DEM_ENTITY_TYPE_HOST_PHYSICAL
 		)).str();
 
 	// when
-	bool error = get_adapter_request(CHECK_DATA, actual_request);
+	const char* actual_request = get_adapter_request(&check_data, request);
 
 	// then
-	CPPUNIT_ASSERT(!error);
-	CPPUNIT_ASSERT_EQUAL(expected_request, actual_request);
+	CPPUNIT_ASSERT(actual_request != ADAPTER_REQUEST_INVALID);
+	CPPUNIT_ASSERT(expected_request == actual_request);
 }
 
 
-void BrokerXifiDemTest::get_request_ok_remote_entity_explicit_type()
+void BrokerXifiDemTest::get_request_ok_remote_entity_custom_explicit_entity_type()
 {
-	string expected_request, actual_request;
+	string					request;
+	host					check_host;
+	service					check_service;
+	command					check_command;
+	customvariablesmember			check_vars;
+	nebstruct_service_check_data		check_data;
 
 	// given
-	custom_vars.variable_name	= CUSTOM_VAR_ENTITY_TYPE;
-	custom_vars.variable_value	= SOME_ENTITY_TYPE;
-	plugin_serv.custom_variables	= &custom_vars;
-	plugin_nrpe = true;
-	plugin_name = "check_load";
-	plugin_args =((ostringstream&)(ostringstream().flush()
-		<<        "-H" << REMOTEHOST_ADDR
-		<< ' ' << "-c" << plugin_name
-		<< ' ' << "-t" << TIMEOUT
-		)).str();
-	expected_request = ((ostringstream&)(ostringstream().flush()
-		<< ADAPTER_URL << '/' << plugin_name
+	check_vars = {
+		variable_name:			CUSTOM_VAR_ENTITY_TYPE,
+		variable_value:			SOME_ENTITY_TYPE	// custom explicit entity type
+	};
+	check_service.host_name			= REMOTEHOST_ADDR;
+	check_service.service_check_command	= NRPE_PLUGIN "!" SOME_CHECK_NAME;
+	check_service.description		= SOME_DESCRIPTION;
+	check_service.custom_variables		= &check_vars;
+	check_command.name			= NRPE_PLUGIN;
+	check_command.command_line		= "$USER1$/" NRPE_PLUGIN " -H $HOSTADDRESS$ -c $ARG1$";
+	check_data.host_name			= check_service.host_name;
+	check_data.service_description		= check_service.description;
+	__output_get_raw_command_line_r		= check_command.command_line;
+	__output_process_macros_r		= "/usr/local/" NRPE_PLUGIN " -H " REMOTEHOST_ADDR " -c arguments";
+	__retval_find_command			= &check_command;
+	__retval_find_service			= &check_service;
+	__retval_find_host			= &check_host;
+
+	string expected_request = ((ostringstream&)(ostringstream().flush()
+		<< ADAPTER_URL << '/' << SOME_CHECK_NAME
 		<< '?' << ADAPTER_QUERY_FIELD_ID
 		<< '=' << REGION_ID << ':' << REMOTEHOST_ADDR
 		<< '&' << ADAPTER_QUERY_FIELD_TYPE
@@ -353,162 +609,343 @@ void BrokerXifiDemTest::get_request_ok_remote_entity_explicit_type()
 		)).str();
 
 	// when
-	bool error = get_adapter_request(CHECK_DATA, actual_request);
+	const char* actual_request = get_adapter_request(&check_data, request);
 
 	// then
-	CPPUNIT_ASSERT(!error);
-	CPPUNIT_ASSERT_EQUAL(expected_request, actual_request);
+	CPPUNIT_ASSERT(actual_request != ADAPTER_REQUEST_INVALID);
+	CPPUNIT_ASSERT(expected_request == actual_request);
 }
 
 
-void BrokerXifiDemTest::get_request_ok_local_physical_host_implicit_type()
+void BrokerXifiDemTest::get_request_ok_local_physical_host_implicit_entity_type()
 {
-	string expected_request, actual_request;
+	string					request;
+	host					check_host;
+	service					check_service;
+	command					check_command;
+	nebstruct_service_check_data		check_data;
 
 	// given
-	plugin_serv.custom_variables = NULL;
-	plugin_nrpe = false;
-	plugin_name = "check_load";
-	plugin_args =((ostringstream&)(ostringstream().flush()
-		<<        "-w" << 1 << ',' << 5 << ',' << 15
-		<< ' ' << "-c" << 1 << ',' << 5 << ',' << 15
-		)).str();
-	expected_request = ((ostringstream&)(ostringstream().flush()
-		<< ADAPTER_URL << '/' << plugin_name
+	check_service.host_name			= LOCALHOST_ADDR;
+	check_service.service_check_command	= SOME_CHECK_NAME;
+	check_service.description		= SOME_DESCRIPTION;
+	check_service.custom_variables		= NULL;			// no explicit entity type given
+	check_command.name			= SOME_CHECK_NAME;
+	check_command.command_line		= "$USER1$/" SOME_CHECK_NAME " " SOME_CHECK_ARGS;
+	check_data.host_name			= check_service.host_name;
+	check_data.service_description		= check_service.description;
+	__output_get_raw_command_line_r		= check_command.command_line;
+	__output_process_macros_r		= "/usr/local/" SOME_CHECK_NAME " " SOME_CHECK_ARGS;
+	__retval_find_command			= &check_command;
+	__retval_find_service			= &check_service;
+	__retval_find_host			= &check_host;
+
+	string expected_request = ((ostringstream&)(ostringstream().flush()
+		<< ADAPTER_URL << '/' << SOME_CHECK_NAME
 		<< '?' << ADAPTER_QUERY_FIELD_ID
-		<< '=' << REGION_ID << ':' << localhost_addr
+		<< '=' << REGION_ID << ':' << LOCALHOST_ADDR
 		<< '&' << ADAPTER_QUERY_FIELD_TYPE
-		<< '=' << DEM_ENTITY_TYPE_PHYSICAL
+		<< '=' << DEM_ENTITY_TYPE_HOST_PHYSICAL
 		)).str();
 
 	// when
-	bool error = get_adapter_request(CHECK_DATA, actual_request);
+	const char* actual_request = get_adapter_request(&check_data, request);
 
 	// then
-	CPPUNIT_ASSERT(!error);
-	CPPUNIT_ASSERT_EQUAL(expected_request, actual_request);
+	CPPUNIT_ASSERT(actual_request != ADAPTER_REQUEST_INVALID);
+	CPPUNIT_ASSERT(expected_request == actual_request);
 }
 
 
-void BrokerXifiDemTest::get_request_ok_local_physical_host_explicit_type()
+void BrokerXifiDemTest::get_request_ok_local_physical_host_explicit_entity_type()
 {
-	string expected_request, actual_request;
+	string					request;
+	host					check_host;
+	service					check_service;
+	command					check_command;
+	customvariablesmember			check_vars;
+	nebstruct_service_check_data		check_data;
 
 	// given
-	custom_vars.variable_name	= CUSTOM_VAR_ENTITY_TYPE;
-	custom_vars.variable_value	= DEM_ENTITY_TYPE_PHYSICAL;
-	plugin_serv.custom_variables	= &custom_vars;
-	plugin_nrpe = false;
-	plugin_name = "check_load";
-	plugin_args =((ostringstream&)(ostringstream().flush()
-		<<        "-w" << 1 << ',' << 5 << ',' << 15
-		<< ' ' << "-c" << 1 << ',' << 5 << ',' << 15
-		)).str();
-	expected_request = ((ostringstream&)(ostringstream().flush()
-		<< ADAPTER_URL << '/' << plugin_name
+	check_vars = {
+		variable_name:			CUSTOM_VAR_ENTITY_TYPE,
+		variable_value:			DEM_ENTITY_TYPE_HOST_PHYSICAL
+	};
+	check_service.host_name			= LOCALHOST_ADDR;
+	check_service.service_check_command	= SOME_CHECK_NAME;
+	check_service.description		= SOME_DESCRIPTION;
+	check_service.custom_variables		= &check_vars;
+	check_command.name			= SOME_CHECK_NAME;
+	check_command.command_line		= "$USER1$/" SOME_CHECK_NAME " " SOME_CHECK_ARGS;
+	check_data.host_name			= check_service.host_name;
+	check_data.service_description		= check_service.description;
+	__output_get_raw_command_line_r		= check_command.command_line;
+	__output_process_macros_r		= "/usr/local/" SOME_CHECK_NAME " " SOME_CHECK_ARGS;
+	__retval_find_command			= &check_command;
+	__retval_find_service			= &check_service;
+	__retval_find_host			= &check_host;
+
+	string expected_request = ((ostringstream&)(ostringstream().flush()
+		<< ADAPTER_URL << '/' << SOME_CHECK_NAME
 		<< '?' << ADAPTER_QUERY_FIELD_ID
-		<< '=' << REGION_ID << ':' << localhost_addr
+		<< '=' << REGION_ID << ':' << LOCALHOST_ADDR
 		<< '&' << ADAPTER_QUERY_FIELD_TYPE
-		<< '=' << DEM_ENTITY_TYPE_PHYSICAL
+		<< '=' << DEM_ENTITY_TYPE_HOST_PHYSICAL
 		)).str();
 
 	// when
-	bool error = get_adapter_request(CHECK_DATA, actual_request);
+	const char* actual_request = get_adapter_request(&check_data, request);
 
 	// then
-	CPPUNIT_ASSERT(!error);
-	CPPUNIT_ASSERT_EQUAL(expected_request, actual_request);
+	CPPUNIT_ASSERT(actual_request != ADAPTER_REQUEST_INVALID);
+	CPPUNIT_ASSERT(expected_request == actual_request);
 }
 
 
-void BrokerXifiDemTest::get_request_ok_local_entity_explicit_type()
+void BrokerXifiDemTest::get_request_ok_local_entity_custom_explicit_entity_type()
 {
-	string expected_request, actual_request;
+	string					request;
+	host					check_host;
+	service					check_service;
+	command					check_command;
+	customvariablesmember			check_vars;
+	nebstruct_service_check_data		check_data;
 
 	// given
-	custom_vars.variable_name	= CUSTOM_VAR_ENTITY_TYPE;
-	custom_vars.variable_value	= SOME_ENTITY_TYPE;
-	plugin_serv.custom_variables	= &custom_vars;
-	plugin_nrpe = false;
-	plugin_name = "check_load";
-	plugin_args =((ostringstream&)(ostringstream().flush()
-		<<        "-w" << 1 << ',' << 5 << ',' << 15
-		<< ' ' << "-c" << 1 << ',' << 5 << ',' << 15
-		)).str();
-	expected_request = ((ostringstream&)(ostringstream().flush()
-		<< ADAPTER_URL << '/' << plugin_name
+	check_vars = {
+		variable_name:			CUSTOM_VAR_ENTITY_TYPE,
+		variable_value:			SOME_ENTITY_TYPE	// custom explicit entity type
+	};
+	check_service.host_name			= LOCALHOST_ADDR;
+	check_service.service_check_command	= SOME_CHECK_NAME;
+	check_service.description		= SOME_DESCRIPTION;
+	check_service.custom_variables		= &check_vars;
+	check_command.name			= SOME_CHECK_NAME;
+	check_command.command_line		= "$USER1$/" SOME_CHECK_NAME " " SOME_CHECK_ARGS;
+	check_data.host_name			= check_service.host_name;
+	check_data.service_description		= check_service.description;
+	__output_get_raw_command_line_r		= check_command.command_line;
+	__output_process_macros_r		= "/usr/local/" SOME_CHECK_NAME " " SOME_CHECK_ARGS;
+	__retval_find_command			= &check_command;
+	__retval_find_service			= &check_service;
+	__retval_find_host			= &check_host;
+
+	string expected_request = ((ostringstream&)(ostringstream().flush()
+		<< ADAPTER_URL << '/' << SOME_CHECK_NAME
 		<< '?' << ADAPTER_QUERY_FIELD_ID
-		<< '=' << REGION_ID << ':' << localhost_addr
+		<< '=' << REGION_ID << ':' << LOCALHOST_ADDR
 		<< '&' << ADAPTER_QUERY_FIELD_TYPE
 		<< '=' << SOME_ENTITY_TYPE
 		)).str();
 
 	// when
-	bool error = get_adapter_request(CHECK_DATA, actual_request);
+	const char* actual_request = get_adapter_request(&check_data, request);
 
 	// then
-	CPPUNIT_ASSERT(!error);
-	CPPUNIT_ASSERT_EQUAL(expected_request, actual_request);
+	CPPUNIT_ASSERT(actual_request != ADAPTER_REQUEST_INVALID);
+	CPPUNIT_ASSERT(expected_request == actual_request);
 }
 
 
-void BrokerXifiDemTest::get_request_ok_remote_vm_implicit_type()
+void BrokerXifiDemTest::get_request_ok_remote_vm_implicit_entity_type()
 {
-	string expected_request, actual_request;
+	string					request;
+	host					check_host;
+	service					check_service;
+	command					check_command;
+	nebstruct_service_check_data		check_data;
 
 	// given
-	plugin_serv.custom_variables = NULL;
-	plugin_nrpe = true;
-	plugin_name = "check_load";
-	plugin_args =((ostringstream&)(ostringstream().flush()
-		<<        "-H" << REMOTEHOST_ADDR
-		<< ' ' << "-c" << plugin_name
-		<< ' ' << "-t" << TIMEOUT
-		)).str();
-	expected_request = ((ostringstream&)(ostringstream().flush()
-		<< ADAPTER_URL << '/' << plugin_name
+	check_service.host_name			= REMOTEHOST_ADDR;
+	check_service.service_check_command	= NRPE_PLUGIN "!" SOME_CHECK_NAME;
+	check_service.description		= SOME_DESCRIPTION;
+	check_service.custom_variables		= NULL;			// no explicit entity type given
+	check_command.name			= NRPE_PLUGIN;		// remote check using NRPE
+	check_command.command_line		= "$USER1$/" NRPE_PLUGIN " -H $HOSTADDRESS$ -c $ARG1$";
+	check_data.host_name			= check_service.host_name;
+	check_data.service_description		= check_service.description;
+	__output_get_raw_command_line_r		= check_command.command_line;
+	__output_process_macros_r		= "/usr/local/" NRPE_PLUGIN " -H " REMOTEHOST_ADDR " -c arguments";
+	__retval_find_command			= &check_command;
+	__retval_find_service			= &check_service;
+	__retval_find_host			= &check_host;
+
+	string expected_request = ((ostringstream&)(ostringstream().flush()
+		<< ADAPTER_URL << '/' << SOME_CHECK_NAME
 		<< '?' << ADAPTER_QUERY_FIELD_ID
 		<< '=' << REGION_ID << ':' << REMOTEHOST_ADDR
 		<< '&' << ADAPTER_QUERY_FIELD_TYPE
-		<< '=' << DEM_ENTITY_TYPE_VIRTUAL
+		<< '=' << DEM_ENTITY_TYPE_HOST_VIRTUAL
 		)).str();
 
 	// when
-	bool error = get_adapter_request(CHECK_DATA, actual_request);
+	const char* actual_request = get_adapter_request(&check_data, request);
 
 	// then
-	CPPUNIT_ASSERT(!error);
-	CPPUNIT_ASSERT_EQUAL(expected_request, actual_request);
+	CPPUNIT_ASSERT(actual_request != ADAPTER_REQUEST_INVALID);
+	CPPUNIT_ASSERT(expected_request == actual_request);
 }
 
 
-void BrokerXifiDemTest::get_request_ok_remote_vm_explicit_type()
+void BrokerXifiDemTest::get_request_ok_remote_vm_explicit_entity_type()
 {
-	string expected_request, actual_request;
+	string					request;
+	host					check_host;
+	service					check_service;
+	command					check_command;
+	customvariablesmember			check_vars;
+	nebstruct_service_check_data		check_data;
 
 	// given
-	custom_vars.variable_name	= CUSTOM_VAR_ENTITY_TYPE;
-	custom_vars.variable_value	= DEM_ENTITY_TYPE_VIRTUAL;
-	plugin_serv.custom_variables	= &custom_vars;
-	plugin_nrpe = true;
-	plugin_name = "check_load";
-	plugin_args =((ostringstream&)(ostringstream().flush()
-		<<        "-H" << REMOTEHOST_ADDR
-		<< ' ' << "-c" << plugin_name
-		<< ' ' << "-t" << TIMEOUT
-		)).str();
-	expected_request = ((ostringstream&)(ostringstream().flush()
-		<< ADAPTER_URL << '/' << plugin_name
+	check_vars = {
+		variable_name:			CUSTOM_VAR_ENTITY_TYPE,
+		variable_value:			DEM_ENTITY_TYPE_HOST_VIRTUAL
+	};
+	check_service.host_name			= REMOTEHOST_ADDR;
+	check_service.service_check_command	= NRPE_PLUGIN "!" SOME_CHECK_NAME;
+	check_service.description		= SOME_DESCRIPTION;
+	check_service.custom_variables		= &check_vars;
+	check_command.name			= NRPE_PLUGIN;
+	check_command.command_line		= "$USER1$/" NRPE_PLUGIN " -H $HOSTADDRESS$ -c $ARG1$";
+	check_data.host_name			= check_service.host_name;
+	check_data.service_description		= check_service.description;
+	__output_get_raw_command_line_r		= check_command.command_line;
+	__output_process_macros_r		= "/usr/local/" NRPE_PLUGIN " -H " REMOTEHOST_ADDR " -c arguments";
+	__retval_find_command			= &check_command;
+	__retval_find_service			= &check_service;
+	__retval_find_host			= &check_host;
+
+	string expected_request = ((ostringstream&)(ostringstream().flush()
+		<< ADAPTER_URL << '/' << SOME_CHECK_NAME
 		<< '?' << ADAPTER_QUERY_FIELD_ID
 		<< '=' << REGION_ID << ':' << REMOTEHOST_ADDR
 		<< '&' << ADAPTER_QUERY_FIELD_TYPE
-		<< '=' << DEM_ENTITY_TYPE_VIRTUAL
+		<< '=' << DEM_ENTITY_TYPE_HOST_VIRTUAL
 		)).str();
 
 	// when
-	bool error = get_adapter_request(CHECK_DATA, actual_request);
+	const char* actual_request = get_adapter_request(&check_data, request);
 
 	// then
-	CPPUNIT_ASSERT(!error);
-	CPPUNIT_ASSERT_EQUAL(expected_request, actual_request);
+	CPPUNIT_ASSERT(actual_request != ADAPTER_REQUEST_INVALID);
+	CPPUNIT_ASSERT(expected_request == actual_request);
+}
+
+
+void BrokerXifiDemTest::get_request_ok_remote_vm_by_hostname()
+{
+	string					request;
+	host					check_host;
+	service					check_service;
+	command					check_command;
+	customvariablesmember			check_vars;
+	nebstruct_service_check_data		check_data;
+
+	// given
+	check_vars = {
+		variable_name:			CUSTOM_VAR_ENTITY_TYPE,
+		variable_value:			DEM_ENTITY_TYPE_HOST_VIRTUAL
+	};
+	check_service.host_name			= REMOTEHOST_NAME;	// service defined using the hostname
+	check_service.service_check_command	= NRPE_PLUGIN "!" SOME_CHECK_NAME;
+	check_service.description		= SOME_DESCRIPTION;
+	check_service.custom_variables		= &check_vars;
+	check_command.name			= NRPE_PLUGIN;
+	check_command.command_line		= "$USER1$/" NRPE_PLUGIN " -H $HOSTADDRESS$ -c $ARG1$";
+	check_data.host_name			= check_service.host_name;
+	check_data.service_description		= check_service.description;
+	__output_get_raw_command_line_r		= check_command.command_line;
+	__output_process_macros_r		= "/usr/local/" NRPE_PLUGIN " -H " REMOTEHOST_NAME " -c arguments";
+	__retval_find_command			= &check_command;
+	__retval_find_service			= &check_service;
+	__retval_find_host			= &check_host;
+
+	string expected_request = ((ostringstream&)(ostringstream().flush()
+		<< ADAPTER_URL << '/' << SOME_CHECK_NAME
+		<< '?' << ADAPTER_QUERY_FIELD_ID
+		<< '=' << REGION_ID << ':' << REMOTEHOST_ADDR		// hostnames are always resolved to addresses
+		<< '&' << ADAPTER_QUERY_FIELD_TYPE
+		<< '=' << DEM_ENTITY_TYPE_HOST_VIRTUAL
+		)).str();
+
+	// when
+	const char* actual_request = get_adapter_request(&check_data, request);
+
+	// then
+	CPPUNIT_ASSERT(actual_request != ADAPTER_REQUEST_INVALID);
+	CPPUNIT_ASSERT(expected_request == actual_request);
+}
+
+
+void BrokerXifiDemTest::invalid_request_unknown_remote_vm_hostname()
+{
+	string					request;
+	host					check_host;
+	service					check_service;
+	command					check_command;
+	customvariablesmember			check_vars;
+	nebstruct_service_check_data		check_data;
+
+	// given
+	check_vars = {
+		variable_name:			CUSTOM_VAR_ENTITY_TYPE,
+		variable_value:			DEM_ENTITY_TYPE_HOST_VIRTUAL
+	};
+	check_service.host_name			= REMOTEHOST_UNKNOWN;	// service defined using unknown hostname
+	check_service.service_check_command	= NRPE_PLUGIN "!" SOME_CHECK_NAME;
+	check_service.description		= SOME_DESCRIPTION;
+	check_service.custom_variables		= &check_vars;
+	check_command.name			= NRPE_PLUGIN;
+	check_command.command_line		= "$USER1$/" NRPE_PLUGIN " -H $HOSTADDRESS$ -c $ARG1$";
+	check_data.host_name			= check_service.host_name;
+	check_data.service_description		= check_service.description;
+	__output_get_raw_command_line_r		= check_command.command_line;
+	__output_process_macros_r		= "/usr/local/" NRPE_PLUGIN " -H " REMOTEHOST_UNKNOWN " -c arguments";
+	__retval_find_command			= &check_command;
+	__retval_find_service			= &check_service;
+	__retval_find_host			= &check_host;
+	const char* expected_request		= ADAPTER_REQUEST_INVALID;
+
+	// when
+	const char* actual_request = get_adapter_request(&check_data, request);
+
+	// then
+	CPPUNIT_ASSERT(expected_request == actual_request);
+}
+
+
+void BrokerXifiDemTest::invalid_request_missing_nrpe_host_argument()
+{
+	string					request;
+	host					check_host;
+	service					check_service;
+	command					check_command;
+	customvariablesmember			check_vars;
+	nebstruct_service_check_data		check_data;
+
+	// given
+	check_vars = {
+		variable_name:			CUSTOM_VAR_ENTITY_TYPE,
+		variable_value:			DEM_ENTITY_TYPE_HOST_VIRTUAL
+	};
+	check_service.host_name			= REMOTEHOST_UNKNOWN;	// service defined using unknown hostname
+	check_service.service_check_command	= NRPE_PLUGIN "!" SOME_CHECK_NAME;
+	check_service.description		= SOME_DESCRIPTION;
+	check_service.custom_variables		= &check_vars;
+	check_command.name			= NRPE_PLUGIN;
+	check_command.command_line		= "$USER1$/" NRPE_PLUGIN;
+	check_data.host_name			= check_service.host_name;
+	check_data.service_description		= check_service.description;
+	__output_get_raw_command_line_r		= check_command.command_line;
+	__output_process_macros_r		= "/usr/local/" NRPE_PLUGIN;
+	__retval_find_command			= &check_command;
+	__retval_find_service			= &check_service;
+	__retval_find_host			= &check_host;
+	const char* expected_request		= ADAPTER_REQUEST_INVALID;
+
+	// when
+	const char* actual_request = get_adapter_request(&check_data, request);
+
+	// then
+	CPPUNIT_ASSERT(expected_request == actual_request);
 }

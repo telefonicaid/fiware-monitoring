@@ -28,7 +28,12 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <cstring>
 #include <cstdlib>
+#include <unistd.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include "config.h"
 #include "ngsi_event_broker_common.h"
 #include "neberrors.h"
@@ -47,6 +52,22 @@ using CppUnit::TextTestRunner;
 using CppUnit::XmlOutputter;
 using CppUnit::BriefTestProgressListener;
 using namespace std;
+
+
+/// Some region id
+#define REGION_ID			"some_region"
+
+
+/// Fake adapter URL
+#define ADAPTER_URL			"http://adapter_host:5000"
+
+
+/// Fake local host address
+#define LOCALHOST_ADDR			"10.95.0.6"
+
+
+/// Fake local host name
+#define LOCALHOST_NAME			"my_local_host"
 
 
 ///
@@ -69,7 +90,7 @@ extern "C" {
 extern "C" {
 	int init_module_handle_info(void* handle, context_t* context)
 	{
-		return 0;
+		return NEB_OK;
 	}
 	char* get_adapter_request(nebstruct_service_check_data* data, context_t* context)
 	{
@@ -81,57 +102,12 @@ extern "C" {
 
 
 ///
-/// @name Mocks for cURL functions
+/// @name Mocks for system calls
 /// @{
 ///
 extern "C" {
-	CURLcode curl_global_init_result = CURLE_OK;
-	CURLcode curl_global_init(long flags)
-	{
-		return curl_global_init_result;
-	}
-
-	void curl_global_cleanup(void)
-	{
-	}
-
-	CURL* curl_easy_init_result = NULL;
-	CURL* curl_easy_init(void)
-	{
-		return curl_easy_init_result;
-	}
-
-	CURLcode curl_easy_setopt_result = CURLE_OK;
-	CURLcode curl_easy_setopt(CURL* curl, CURLoption option, ...)
-	{
-		return curl_easy_setopt_result;
-	}
-
-	CURLcode curl_easy_perform_result = CURLE_OK;
-	CURLcode curl_easy_perform(CURL*curl)
-	{
-		return curl_easy_perform_result;
-	}
-
-	void curl_easy_cleanup(CURL* curl)
-	{
-	}
-
-	const char* curl_easy_strerror_result = NULL;
-	const char* curl_easy_strerror(CURLcode)
-	{
-		return curl_easy_strerror_result;
-	}
-
-	struct curl_slist* curl_slist_append_result = NULL;
-	struct curl_slist* curl_slist_append(struct curl_slist* list, const char* string)
-	{
-		return curl_slist_append_result;
-	}
-
-	void curl_slist_free_all(struct curl_slist* list)
-	{
-	}
+	int				__wrap_gethostname(char*, size_t);
+	struct hostent*			__wrap_gethostbyname(const char*);
 }
 
 /// @}
@@ -142,11 +118,20 @@ extern "C" {
 /// @{
 ///
 extern "C" {
-	int neb_register_callback_result = NEB_OK;
-	int neb_register_callback(int callback_type, void* handle, int priority, int (*callback_func)(int, void*))
-	{
-		return neb_register_callback_result;
-	}
+	int				__wrap_neb_set_module_info(void*, int, char*);
+	int				__wrap_neb_register_callback(int, void*, int, int (*)(int, void*));
+}
+
+/// @}
+
+
+///
+/// @name Mocks for cURL functions
+/// @{
+///
+extern "C" {
+	CURLcode			__wrap_curl_global_init(long);
+	void				__wrap_curl_global_cleanup(void);
 }
 
 /// @}
@@ -155,9 +140,21 @@ extern "C" {
 /// Broker common features test suite
 class BrokerCommonTest: public TestFixture
 {
-	// C function wrappers
-	static bool nebmodule_init(int flags, const string& args, void* handle);
-	static bool nebmodule_deinit(int flags, int reason);
+	// mocks: return & output values, hit counters, and friend declaration to access static members
+	static int			__retval_gethostname;
+	friend int			::__wrap_gethostname(char*, size_t);
+	friend struct hostent*		::__wrap_gethostbyname(const char*);
+	static int			__retval_neb_set_module_info;
+	friend int			::__wrap_neb_set_module_info(void*, int, char*);
+	static int			__retval_neb_register_callback;
+	friend int			::__wrap_neb_register_callback(int, void*, int, int (*)(int, void*));
+	static CURLcode			__retval_curl_global_init;
+	friend CURLcode			::__wrap_curl_global_init(long);
+	friend void			::__wrap_curl_global_cleanup(void);
+
+	// static methods equivalent to external C functions
+	static bool			nebmodule_init(int, const string&, void*);
+	static bool			nebmodule_deinit(int, int);
 
 	// tests
 	void init_fails_with_unknown_args_option();
@@ -206,7 +203,118 @@ int main(int argc, char* argv[])
 
 
 ///
-/// C++ wrapper for function ::nebmodule_init()
+/// @name Mock for gethostname()
+/// @{
+///
+
+/// Return value
+int BrokerCommonTest::__retval_gethostname = EXIT_SUCCESS;
+
+/// Mock function
+int __wrap_gethostname(char* name, size_t len)
+{
+	memcpy(name, LOCALHOST_NAME, len);
+	return BrokerCommonTest::__retval_gethostname;
+}
+
+/// @}
+
+
+///
+/// @name Mock for gethostbyname()
+/// @{
+///
+
+/// Mock function
+struct hostent* __wrap_gethostbyname(const char* name)
+{
+	static struct hostent	host;
+	static struct in_addr	addr;
+	static char*		list[] = { (char*) &addr, NULL };
+
+	string			hostname(name);
+	const char*		hostaddr;
+
+	if (hostname == LOCALHOST_NAME || hostname == LOCALHOST_ADDR) {
+		hostaddr = LOCALHOST_ADDR;
+	} else {
+		return NULL;	// host not found
+	}
+
+	host.h_addr_list = (char**) list;
+	inet_pton(AF_INET, hostaddr, host.h_addr_list[0]);
+	return &host;
+}
+
+/// @}
+
+
+///
+/// @name Mock for neb_set_module_info()
+/// @{
+///
+
+/// Return value
+int BrokerCommonTest::__retval_neb_set_module_info = NEB_OK;
+
+/// Mock function
+int __wrap_neb_set_module_info(void* handle, int type, char* data)
+{
+	return BrokerCommonTest::__retval_neb_set_module_info;
+}
+
+/// @}
+
+
+///
+/// @name Mock for neb_register_callback()
+/// @{
+///
+
+/// Return value
+int BrokerCommonTest::__retval_neb_register_callback = NEB_OK;
+
+/// Mock function
+int __wrap_neb_register_callback(int type, void* handle, int priority, int (*func)(int, void*))
+{
+	return BrokerCommonTest::__retval_neb_register_callback;
+}
+
+/// @}
+
+
+///
+/// @name Mock for curl_global_init()
+/// @{
+///
+
+/// Return value
+CURLcode BrokerCommonTest::__retval_curl_global_init = CURLE_OK;
+
+/// Mock function
+CURLcode __wrap_curl_global_init(long flags)
+{
+	return BrokerCommonTest::__retval_curl_global_init;
+}
+
+/// @}
+
+
+///
+/// @name Mock for curl_global_cleanup()
+/// @{
+///
+
+/// Mock function
+void __wrap_curl_global_cleanup(void)
+{
+}
+
+/// @}
+
+
+///
+/// Static method for C function ::nebmodule_init()
 ///
 /// @param[in] flags	The initialization flags (ignored).
 /// @param[in] args	The module arguments as a space-separated string.
@@ -224,7 +332,7 @@ bool BrokerCommonTest::nebmodule_init(int flags, const string& args, void* handl
 
 
 ///
-/// C++ wrapper for function ::nebmodule_deinit()
+/// Static method for C function ::nebmodule_deinit()
 ///
 /// @param[in] flags	The deinitialization flags (ignored).
 /// @param[in] reason	The reason why this module is being deinitialized.
@@ -270,17 +378,14 @@ void BrokerCommonTest::setUp()
 void BrokerCommonTest::tearDown()
 {
 	nebmodule_deinit(0, NEBMODULE_NEB_SHUTDOWN);
-	neb_register_callback_result	= NEB_OK;
-	curl_global_init_result		= CURLE_OK;
-	curl_easy_setopt_result		= CURLE_OK;
-	curl_easy_perform_result	= CURLE_OK;
-	curl_easy_init_result		= NULL;
-	curl_easy_strerror_result	= NULL;
-	curl_slist_append_result	= NULL;
+	__retval_gethostname		= EXIT_SUCCESS;
+	__retval_neb_set_module_info	= NEB_OK;
+	__retval_neb_register_callback	= NEB_OK;
+	__retval_curl_global_init	= CURLE_OK;
 }
 
 
-/////////////////////////////////
+////////////////////////////////////////////////////////////
 
 
 void BrokerCommonTest::init_fails_with_unknown_args_option()
@@ -304,7 +409,7 @@ void BrokerCommonTest::init_fails_with_missing_adapter_url_option()
 {
 	// given
 	int	flags	= 0;
-	string	region	= "region",
+	string	region	= REGION_ID,
 		argline	= ((ostringstream&)(ostringstream().flush()
 		<< "-r" << region
 		)).str();
@@ -321,7 +426,7 @@ void BrokerCommonTest::init_fails_with_missing_adapter_url_value()
 {
 	// given
 	int	flags	= 0;
-	string	region	= "region",
+	string	region	= REGION_ID,
 		argline	= ((ostringstream&)(ostringstream().flush()
 		<<        "-u" << ""
 		<< ' ' << "-r" << region
@@ -339,7 +444,7 @@ void BrokerCommonTest::init_fails_with_missing_region_option()
 {
 	// given
 	int	flags	= 0;
-	string	url	= "url",
+	string	url	= ADAPTER_URL,
 		argline	= ((ostringstream&)(ostringstream().flush()
 		<< "-u" << url
 		)).str();
@@ -356,7 +461,7 @@ void BrokerCommonTest::init_fails_with_missing_region_value()
 {
 	// given
 	int	flags	= 0;
-	string	url	= "url",
+	string	url	= ADAPTER_URL,
 		argline	= ((ostringstream&)(ostringstream().flush()
 		<<        "-u" << url
 		<< ' ' << "-r" << ""
@@ -374,13 +479,13 @@ void BrokerCommonTest::init_fails_when_curl_cannot_be_initialized()
 {
 	// given
 	int	flags	= 0;
-	string	url	= "url",
-		region	= "region",
+	string	url	= ADAPTER_URL,
+		region	= REGION_ID,
 		argline	= ((ostringstream&)(ostringstream().flush()
 		<<        "-u" << url
 		<< ' ' << "-r" << region
 		)).str();
-	curl_global_init_result = CURLE_FAILED_INIT;
+	__retval_curl_global_init = CURLE_FAILED_INIT;
 
 	// when
 	bool init_error = nebmodule_init(flags, argline, module_handle);
@@ -394,13 +499,13 @@ void BrokerCommonTest::init_fails_when_callback_cannot_be_registered()
 {
 	// given
 	int	flags	= 0;
-	string	url	= "url",
-		region	= "region",
+	string	url	= ADAPTER_URL,
+		region	= REGION_ID,
 		argline	= ((ostringstream&)(ostringstream().flush()
 		<<        "-u" << url
 		<< ' ' << "-r" << region
 		)).str();
-	neb_register_callback_result = NEB_ERROR;
+	__retval_neb_register_callback = NEB_ERROR;
 
 	// when
 	bool init_error = nebmodule_init(flags, argline, module_handle);
@@ -414,8 +519,8 @@ void BrokerCommonTest::init_ok_with_valid_args()
 {
 	// given
 	int	flags	= 0;
-	string	url	= "url",
-		region	= "region",
+	string	url	= ADAPTER_URL,
+		region	= REGION_ID,
 		argline	= ((ostringstream&)(ostringstream().flush()
 		<<        "-u" << url
 		<< ' ' << "-r" << region
