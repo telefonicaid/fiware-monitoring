@@ -198,13 +198,15 @@ class BrokerXifiTest: public TestFixture
 	friend const char*	::__wrap_curl_easy_strerror(CURLcode);
 
 	// static methods equivalent to external C functions
-	static bool		nebmodule_init(int, const string&, void*);
-	static bool		nebmodule_deinit(int, int);
+	static int		nebmodule_init(int, const string&, void*);
+	static int		nebmodule_deinit(int, int);
 
 	// tests
+	void callback_skips_request_if_invoked_before_plugin_exec_ends();
 	void callback_skips_request_if_cannot_find_host();
 	void callback_skips_request_if_cannot_find_service();
 	void callback_skips_request_if_cannot_find_command();
+	void callback_skips_request_if_cannot_find_command_arguments();
 	void callback_skips_request_if_cannot_initialize_curl();
 	void callback_skips_request_if_curl_perform_fails();
 	void callback_sends_request_if_curl_perform_succeedes();
@@ -216,9 +218,11 @@ public:
 	void setUp();
 	void tearDown();
 	CPPUNIT_TEST_SUITE(BrokerXifiTest);
+	CPPUNIT_TEST(callback_skips_request_if_invoked_before_plugin_exec_ends);
 	CPPUNIT_TEST(callback_skips_request_if_cannot_find_host);
 	CPPUNIT_TEST(callback_skips_request_if_cannot_find_service);
 	CPPUNIT_TEST(callback_skips_request_if_cannot_find_command);
+	CPPUNIT_TEST(callback_skips_request_if_cannot_find_command_arguments);
 	CPPUNIT_TEST(callback_skips_request_if_cannot_initialize_curl);
 	CPPUNIT_TEST(callback_skips_request_if_curl_perform_fails);
 	CPPUNIT_TEST(callback_sends_request_if_curl_perform_succeedes);
@@ -428,7 +432,9 @@ int BrokerXifiTest::__retval_get_raw_command_line_r = EXIT_SUCCESS;
 int __wrap_get_raw_command_line_r(nagios_macros* mac, command* ptr, char* cmd, char** full_command, int macro_options)
 {
 	if (full_command) {
-		*full_command = strdup(BrokerXifiTest::__output_get_raw_command_line_r);
+		*full_command = (BrokerXifiTest::__output_get_raw_command_line_r) ?
+			strdup(BrokerXifiTest::__output_get_raw_command_line_r) :
+			NULL;
 	}
 	return BrokerXifiTest::__retval_get_raw_command_line_r;
 }
@@ -608,11 +614,11 @@ const char* __wrap_curl_easy_strerror(CURLcode errornum)
 /// @retval NEB_OK	Successfully initialized.
 /// @retval NEB_ERROR	Not successfully initialized.
 ///
-bool BrokerXifiTest::nebmodule_init(int flags, const string& args, void* handle)
+int BrokerXifiTest::nebmodule_init(int flags, const string& args, void* handle)
 {
 	char buffer[MAXBUFLEN];
 	buffer[args.copy(buffer, MAXBUFLEN-1)] = '\0';
-	return (bool) ::nebmodule_init(flags, buffer, handle);
+	return ::nebmodule_init(flags, buffer, handle);
 }
 
 
@@ -624,9 +630,9 @@ bool BrokerXifiTest::nebmodule_init(int flags, const string& args, void* handle)
 ///
 /// @retval NEB_OK	Successfully deinitialized.
 ///
-bool BrokerXifiTest::nebmodule_deinit(int flags, int reason)
+int BrokerXifiTest::nebmodule_deinit(int flags, int reason)
 {
-	return (bool) ::nebmodule_deinit(flags, reason);
+	return ::nebmodule_deinit(flags, reason);
 }
 
 
@@ -670,6 +676,7 @@ void BrokerXifiTest::setUp()
 ///
 void BrokerXifiTest::tearDown()
 {
+	nebmodule_deinit(0, NEBMODULE_NEB_SHUTDOWN);
 	__retval_gethostname			= EXIT_SUCCESS;
 	__retval_neb_set_module_info		= NEB_OK;
 	__retval_neb_register_callback		= NEB_OK;
@@ -692,7 +699,26 @@ void BrokerXifiTest::tearDown()
 }
 
 
-/////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+
+void BrokerXifiTest::callback_skips_request_if_invoked_before_plugin_exec_ends()
+{
+	nebstruct_service_check_data		check_data;
+
+	// given
+	check_data.host_name			= REMOTEHOST_ADDR;
+	check_data.type				= NEBTYPE_SERVICECHECK_INITIATE;	// plugin execution initiated
+	int expected_retval			= NEB_OK;
+	size_t expected_curl_perform_hitcnt	= 0;
+
+	// when
+	int actual_retval = ::callback_service_check(NEBCALLBACK_SERVICE_CHECK_DATA, &check_data);
+
+	// then
+	CPPUNIT_ASSERT(expected_retval == actual_retval);
+	CPPUNIT_ASSERT(expected_curl_perform_hitcnt == __hitcnt_curl_easy_perform);
+}
 
 
 void BrokerXifiTest::callback_skips_request_if_cannot_find_host()
@@ -755,6 +781,41 @@ void BrokerXifiTest::callback_skips_request_if_cannot_find_command()
 	check_data.host_name			= check_service.host_name;
 	check_data.service_description		= check_service.description;
 	check_data.type				= NEBTYPE_SERVICECHECK_PROCESSED;
+	int expected_retval			= NEB_OK;
+	size_t expected_curl_perform_hitcnt	= 0;
+
+	// when
+	int actual_retval = ::callback_service_check(NEBCALLBACK_SERVICE_CHECK_DATA, &check_data);
+
+	// then
+	CPPUNIT_ASSERT(expected_retval == actual_retval);
+	CPPUNIT_ASSERT(expected_curl_perform_hitcnt == __hitcnt_curl_easy_perform);
+}
+
+
+void BrokerXifiTest::callback_skips_request_if_cannot_find_command_arguments()
+{
+	host					check_host;
+	service					check_service;
+	command					check_command;
+	nebstruct_service_check_data		check_data;
+
+	// given
+	check_service.host_name			= REMOTEHOST_ADDR;
+	check_service.service_check_command	= NRPE_PLUGIN "!" SOME_CHECK_NAME;
+	check_service.description		= SOME_DESCRIPTION;
+	check_service.custom_variables		= NULL;
+	check_command.name			= NRPE_PLUGIN;
+	check_command.command_line		= "/usr/local/" NRPE_PLUGIN " -H " REMOTEHOST_ADDR " -c arguments";
+	check_data.host_name			= check_service.host_name;
+	check_data.service_description		= check_service.description;
+	check_data.output			= SOME_CHECK_OUTPUT_DATA;
+	check_data.perf_data			= SOME_CHECK_PERF_DATA;
+	check_data.type				= NEBTYPE_SERVICECHECK_PROCESSED;
+	__retval_find_command			= &check_command;
+	__retval_find_service			= &check_service;
+	__retval_find_host			= &check_host;
+	__output_get_raw_command_line_r		= NULL;		// get command line fails
 	int expected_retval			= NEB_OK;
 	size_t expected_curl_perform_hitcnt	= 0;
 

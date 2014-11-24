@@ -149,8 +149,8 @@ class BrokerXifiSrvTest: public TestFixture
 	friend int		::__wrap_process_macros_r(nagios_macros*, char*, char**, int);
 
 	// static methods equivalent to external C functions
-	static bool		init_module_variables(const string&);
-	static bool		free_module_variables();
+	static int		init_module_variables(const string&);
+	static int		free_module_variables();
 	static const char*	get_adapter_request(nebstruct_service_check_data*, string&);
 
 	// tests
@@ -340,7 +340,9 @@ int BrokerXifiSrvTest::__retval_get_raw_command_line_r = EXIT_SUCCESS;
 int __wrap_get_raw_command_line_r(nagios_macros* mac, command* ptr, char* cmd, char** full_command, int macro_options)
 {
 	if (full_command) {
-		*full_command = strdup(BrokerXifiSrvTest::__output_get_raw_command_line_r);
+		*full_command = (BrokerXifiSrvTest::__output_get_raw_command_line_r) ?
+			strdup(BrokerXifiSrvTest::__output_get_raw_command_line_r) :
+			NULL;
 	}
 	return BrokerXifiSrvTest::__retval_get_raw_command_line_r;
 }
@@ -372,35 +374,40 @@ int __wrap_process_macros_r(nagios_macros* mac, char* input_buffer, char** outpu
 ///
 /// Static method for C function ::init_module_variables()
 ///
-/// @param[in] args	The module arguments as a space-separated string.
-/// @return		Successful initialization.
+/// @param[in] args			The module arguments as a space-separated string.
 ///
-bool BrokerXifiSrvTest::init_module_variables(const string& args)
+/// @retval NEB_OK			Successfully initialized.
+/// @retval NEB_ERROR			Not successfully initialized.
+///
+int BrokerXifiSrvTest::init_module_variables(const string& args)
 {
 	char buffer[MAXBUFLEN];
 	buffer[args.copy(buffer, MAXBUFLEN-1)] = '\0';
 	context_t* context = NULL;
-	return (bool) ::init_module_variables(buffer, context);
+	return ::init_module_variables(buffer, context);
 }
 
 
 ///
 /// Static method for C function ::free_module_variables()
 ///
-/// @return		Successful resources release.
+/// @retval NEB_OK			Success.
 ///
-bool BrokerXifiSrvTest::free_module_variables()
+int BrokerXifiSrvTest::free_module_variables()
 {
-	return (bool) ::free_module_variables();
+	return ::free_module_variables();
 }
 
 
 ///
 /// Static method for C function ::get_adapter_request()
 ///
-/// @param[in]  data	The plugin data passed by Nagios to the registered callback_service_check().
-/// @param[out] request	The string storing the request URL to invoke NGSI Adapter (including query string).
-/// @return		Pointer to the string storing the request.
+/// @param[in]  data			The plugin data passed by Nagios to the registered callback_service_check().
+/// @param[out] request			String storing the request URL to invoke NGSI Adapter (including query string).
+///
+/// @return				Pointer to the string storing the request.
+/// @retval ADAPTER_REQUEST_INVALID	An error ocurred and no request could be composed.
+/// @retval ADAPTER_REQUEST_IGNORE	Skip request to NGSI Adapter.
 ///
 const char* BrokerXifiSrvTest::get_adapter_request(nebstruct_service_check_data* data, string& request)
 {

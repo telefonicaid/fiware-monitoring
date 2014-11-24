@@ -85,11 +85,11 @@ int nebmodule_init(int flags, char* args, void* handle)
 	context_t	context = { .op = "Init" };
 
 	init_module_handle_info(handle, &context);
-	if (check_nagios_object_version(&context)) {
+	if (check_nagios_object_version(&context) != NEB_OK) {
 		result = NEB_ERROR;
-	} else if (init_module_variables(args, &context)) {
+	} else if (init_module_variables(args, &context) != NEB_OK) {
 		result = NEB_ERROR;
-	} else if (curl_global_init(CURL_GLOBAL_ALL)) {
+	} else if (curl_global_init(CURL_GLOBAL_ALL) != CURLE_OK) {
 		logging(LOG_ERROR, &context, "Could not initialize libcurl");
 		result = NEB_ERROR;
 	} else {
@@ -98,7 +98,7 @@ int nebmodule_init(int flags, char* args, void* handle)
 	}
 
 	/* check for errors in initialization */
-	if (result) {
+	if (result != NEB_OK) {
 		nebmodule_deinit(0, NEBMODULE_ERROR_BAD_INIT);
 	}
 

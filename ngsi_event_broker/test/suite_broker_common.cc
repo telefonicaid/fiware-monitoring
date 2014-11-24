@@ -140,9 +140,10 @@ extern "C" {
 /// Broker common features test suite
 class BrokerCommonTest: public TestFixture
 {
-	// mocks: return & output values, hit counters, and friend declaration to access static members
+	// mocks: return values and friend declaration to access static members
 	static int			__retval_gethostname;
 	friend int			::__wrap_gethostname(char*, size_t);
+	static bool			__retval_gethostbyname_is_null;
 	friend struct hostent*		::__wrap_gethostbyname(const char*);
 	static int			__retval_neb_set_module_info;
 	friend int			::__wrap_neb_set_module_info(void*, int, char*);
@@ -153,15 +154,18 @@ class BrokerCommonTest: public TestFixture
 	friend void			::__wrap_curl_global_cleanup(void);
 
 	// static methods equivalent to external C functions
-	static bool			nebmodule_init(int, const string&, void*);
-	static bool			nebmodule_deinit(int, int);
+	static int			nebmodule_init(int, const string&, void*);
+	static int			nebmodule_deinit(int, int);
 
 	// tests
+	void init_fails_wrong_nagios_object_version();
 	void init_fails_with_unknown_args_option();
 	void init_fails_with_missing_adapter_url_option();
 	void init_fails_with_missing_adapter_url_value();
 	void init_fails_with_missing_region_option();
 	void init_fails_with_missing_region_value();
+	void init_fails_when_cannot_get_hostname();
+	void init_fails_when_cannot_resolve_host_address();
 	void init_fails_when_curl_cannot_be_initialized();
 	void init_fails_when_callback_cannot_be_registered();
 	void init_ok_with_valid_args();
@@ -172,11 +176,14 @@ public:
 	void setUp();
 	void tearDown();
 	CPPUNIT_TEST_SUITE(BrokerCommonTest);
+	CPPUNIT_TEST(init_fails_wrong_nagios_object_version);
 	CPPUNIT_TEST(init_fails_with_unknown_args_option);
 	CPPUNIT_TEST(init_fails_with_missing_adapter_url_option);
 	CPPUNIT_TEST(init_fails_with_missing_adapter_url_value);
 	CPPUNIT_TEST(init_fails_with_missing_region_option);
 	CPPUNIT_TEST(init_fails_with_missing_region_value);
+	CPPUNIT_TEST(init_fails_when_cannot_get_hostname);
+	CPPUNIT_TEST(init_fails_when_cannot_resolve_host_address);
 	CPPUNIT_TEST(init_fails_when_curl_cannot_be_initialized);
 	CPPUNIT_TEST(init_fails_when_callback_cannot_be_registered);
 	CPPUNIT_TEST(init_ok_with_valid_args);
@@ -225,6 +232,9 @@ int __wrap_gethostname(char* name, size_t len)
 /// @{
 ///
 
+// Return value
+bool BrokerCommonTest::__retval_gethostbyname_is_null = false;
+
 /// Mock function
 struct hostent* __wrap_gethostbyname(const char* name)
 {
@@ -243,7 +253,7 @@ struct hostent* __wrap_gethostbyname(const char* name)
 
 	host.h_addr_list = (char**) list;
 	inet_pton(AF_INET, hostaddr, host.h_addr_list[0]);
-	return &host;
+	return (BrokerCommonTest::__retval_gethostbyname_is_null) ? NULL : &host;
 }
 
 /// @}
@@ -323,11 +333,11 @@ void __wrap_curl_global_cleanup(void)
 /// @retval NEB_OK	Successfully initialized.
 /// @retval NEB_ERROR	Not successfully initialized.
 ///
-bool BrokerCommonTest::nebmodule_init(int flags, const string& args, void* handle)
+int BrokerCommonTest::nebmodule_init(int flags, const string& args, void* handle)
 {
 	char buffer[MAXBUFLEN];
 	buffer[args.copy(buffer, MAXBUFLEN-1)] = '\0';
-	return (bool) ::nebmodule_init(flags, buffer, handle);
+	return ::nebmodule_init(flags, buffer, handle);
 }
 
 
@@ -339,9 +349,9 @@ bool BrokerCommonTest::nebmodule_init(int flags, const string& args, void* handl
 ///
 /// @retval NEB_OK	Successfully deinitialized.
 ///
-bool BrokerCommonTest::nebmodule_deinit(int flags, int reason)
+int BrokerCommonTest::nebmodule_deinit(int flags, int reason)
 {
-	return (bool) ::nebmodule_deinit(flags, reason);
+	return ::nebmodule_deinit(flags, reason);
 }
 
 
@@ -378,14 +388,31 @@ void BrokerCommonTest::setUp()
 void BrokerCommonTest::tearDown()
 {
 	nebmodule_deinit(0, NEBMODULE_NEB_SHUTDOWN);
-	__retval_gethostname		= EXIT_SUCCESS;
-	__retval_neb_set_module_info	= NEB_OK;
-	__retval_neb_register_callback	= NEB_OK;
-	__retval_curl_global_init	= CURLE_OK;
+	__nagios_object_structure_version	= CURRENT_OBJECT_STRUCTURE_VERSION;
+	__retval_gethostname			= EXIT_SUCCESS;
+	__retval_gethostbyname_is_null		= false;
+	__retval_neb_set_module_info		= NEB_OK;
+	__retval_neb_register_callback		= NEB_OK;
+	__retval_curl_global_init		= CURLE_OK;
 }
 
 
-////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+
+
+void BrokerCommonTest::init_fails_wrong_nagios_object_version()
+{
+	// given
+	int	flags	= 0;
+	string	argline	= "";
+	__nagios_object_structure_version = 0;
+
+	// when
+	bool init_error = nebmodule_init(flags, argline, module_handle) == NEB_ERROR;
+
+	// then
+	CPPUNIT_ASSERT(init_error);
+}
 
 
 void BrokerCommonTest::init_fails_with_unknown_args_option()
@@ -398,7 +425,7 @@ void BrokerCommonTest::init_fails_with_unknown_args_option()
 		)).str();
 
 	// when
-	bool init_error = nebmodule_init(flags, argline, module_handle);
+	bool init_error = nebmodule_init(flags, argline, module_handle) == NEB_ERROR;
 
 	// then
 	CPPUNIT_ASSERT(init_error);
@@ -415,7 +442,7 @@ void BrokerCommonTest::init_fails_with_missing_adapter_url_option()
 		)).str();
 
 	// when
-	bool init_error = nebmodule_init(flags, argline, module_handle);
+	bool init_error = nebmodule_init(flags, argline, module_handle) == NEB_ERROR;
 
 	// then
 	CPPUNIT_ASSERT(init_error);
@@ -433,7 +460,7 @@ void BrokerCommonTest::init_fails_with_missing_adapter_url_value()
 		)).str();
 
 	// when
-	bool init_error = nebmodule_init(flags, argline, module_handle);
+	bool init_error = nebmodule_init(flags, argline, module_handle) == NEB_ERROR;
 
 	// then
 	CPPUNIT_ASSERT(init_error);
@@ -450,7 +477,7 @@ void BrokerCommonTest::init_fails_with_missing_region_option()
 		)).str();
 
 	// when
-	bool init_error = nebmodule_init(flags, argline, module_handle);
+	bool init_error = nebmodule_init(flags, argline, module_handle) == NEB_ERROR;
 
 	// then
 	CPPUNIT_ASSERT(init_error);
@@ -468,7 +495,47 @@ void BrokerCommonTest::init_fails_with_missing_region_value()
 		)).str();
 
 	// when
-	bool init_error = nebmodule_init(flags, argline, module_handle);
+	bool init_error = nebmodule_init(flags, argline, module_handle) == NEB_ERROR;
+
+	// then
+	CPPUNIT_ASSERT(init_error);
+}
+
+
+void BrokerCommonTest::init_fails_when_cannot_get_hostname()
+{
+	// given
+	int	flags	= 0;
+	string	url	= ADAPTER_URL,
+		region	= REGION_ID,
+		argline	= ((ostringstream&)(ostringstream().flush()
+		<<        "-u" << url
+		<< ' ' << "-r" << region
+		)).str();
+	__retval_gethostname = EXIT_FAILURE;
+
+	// when
+	bool init_error = nebmodule_init(flags, argline, module_handle) == NEB_ERROR;
+
+	// then
+	CPPUNIT_ASSERT(init_error);
+}
+
+
+void BrokerCommonTest::init_fails_when_cannot_resolve_host_address()
+{
+	// given
+	int	flags	= 0;
+	string	url	= ADAPTER_URL,
+		region	= REGION_ID,
+		argline	= ((ostringstream&)(ostringstream().flush()
+		<<        "-u" << url
+		<< ' ' << "-r" << region
+		)).str();
+	__retval_gethostbyname_is_null = true;
+
+	// when
+	bool init_error = nebmodule_init(flags, argline, module_handle) == NEB_ERROR;
 
 	// then
 	CPPUNIT_ASSERT(init_error);
@@ -488,7 +555,7 @@ void BrokerCommonTest::init_fails_when_curl_cannot_be_initialized()
 	__retval_curl_global_init = CURLE_FAILED_INIT;
 
 	// when
-	bool init_error = nebmodule_init(flags, argline, module_handle);
+	bool init_error = nebmodule_init(flags, argline, module_handle) == NEB_ERROR;
 
 	// then
 	CPPUNIT_ASSERT(init_error);
@@ -508,7 +575,7 @@ void BrokerCommonTest::init_fails_when_callback_cannot_be_registered()
 	__retval_neb_register_callback = NEB_ERROR;
 
 	// when
-	bool init_error = nebmodule_init(flags, argline, module_handle);
+	bool init_error = nebmodule_init(flags, argline, module_handle) == NEB_ERROR;
 
 	// then
 	CPPUNIT_ASSERT(init_error);
@@ -527,7 +594,7 @@ void BrokerCommonTest::init_ok_with_valid_args()
 		)).str();
 
 	// when
-	bool init_error = nebmodule_init(flags, argline, module_handle);
+	bool init_error = nebmodule_init(flags, argline, module_handle) == NEB_ERROR;
 
 	// then
 	CPPUNIT_ASSERT(!init_error);
