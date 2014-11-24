@@ -468,10 +468,8 @@ CURLcode BrokerXifiTest::__retval_curl_easy_perform = CURLE_OK;
 CURLcode __wrap_curl_easy_perform(CURL* handle)
 {
 	if (BrokerXifiTest::__retval_curl_easy_perform == CURLE_OK) {
-printf("\n*entro ++\n");
 		++BrokerXifiTest::__hitcnt_curl_easy_perform;
 	}
-printf("\n*easy_perform=%d*\n", (int) BrokerXifiTest::__retval_curl_easy_perform);
 	return BrokerXifiTest::__retval_curl_easy_perform;
 }
 
