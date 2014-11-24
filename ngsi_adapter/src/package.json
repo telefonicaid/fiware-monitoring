@@ -37,7 +37,8 @@
     "sinon": "~1.7.3",
     "sinon-chai": "2.4.0",
     "istanbul": "~0.1.34",
-    "proxyquire": "0.5.1"
+    "proxyquire": "0.5.1",
+    "dev-null": "0.1.1"
   },
   "scripts": {
     "start": "adapter",
