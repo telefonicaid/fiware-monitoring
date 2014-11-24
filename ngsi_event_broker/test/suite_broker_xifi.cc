@@ -385,12 +385,12 @@ command* __wrap_find_command(char* name)
 ///
 
 /// Return value
-int BrokerXifiDemTest::__retval_grab_host_macros_r = EXIT_SUCCESS;
+int BrokerXifiTest::__retval_grab_host_macros_r = EXIT_SUCCESS;
 
 /// Mock function
 int __wrap_grab_host_macros_r(nagios_macros* mac, host* hst)
 {
-	return BrokerXifiDemTest::__retval_grab_host_macros_r;
+	return BrokerXifiTest::__retval_grab_host_macros_r;
 }
 
 /// @}
@@ -402,12 +402,12 @@ int __wrap_grab_host_macros_r(nagios_macros* mac, host* hst)
 ///
 
 /// Return value
-int BrokerXifiDemTest::__retval_grab_service_macros_r = EXIT_SUCCESS;
+int BrokerXifiTest::__retval_grab_service_macros_r = EXIT_SUCCESS;
 
 /// Mock function
 int __wrap_grab_service_macros_r(nagios_macros* mac, service* svc)
 {
-	return BrokerXifiDemTest::__retval_grab_service_macros_r;
+	return BrokerXifiTest::__retval_grab_service_macros_r;
 }
 
 /// @}
@@ -419,18 +419,18 @@ int __wrap_grab_service_macros_r(nagios_macros* mac, service* svc)
 ///
 
 /// Output value for `full_command`
-char* BrokerXifiDemTest::__output_get_raw_command_line_r = NULL;
+char* BrokerXifiTest::__output_get_raw_command_line_r = NULL;
 
 /// Return value
-int BrokerXifiDemTest::__retval_get_raw_command_line_r = EXIT_SUCCESS;
+int BrokerXifiTest::__retval_get_raw_command_line_r = EXIT_SUCCESS;
 
 /// Mock function
 int __wrap_get_raw_command_line_r(nagios_macros* mac, command* ptr, char* cmd, char** full_command, int macro_options)
 {
 	if (full_command) {
-		*full_command = strdup(BrokerXifiDemTest::__output_get_raw_command_line_r);
+		*full_command = strdup(BrokerXifiTest::__output_get_raw_command_line_r);
 	}
-	return BrokerXifiDemTest::__retval_get_raw_command_line_r;
+	return BrokerXifiTest::__retval_get_raw_command_line_r;
 }
 
 /// @}
@@ -442,18 +442,18 @@ int __wrap_get_raw_command_line_r(nagios_macros* mac, command* ptr, char* cmd, c
 ///
 
 /// Output value for `output_buffer`
-char* BrokerXifiDemTest::__output_process_macros_r = NULL;
+char* BrokerXifiTest::__output_process_macros_r = NULL;
 
 /// Return value
-int BrokerXifiDemTest::__retval_process_macros_r = EXIT_SUCCESS;
+int BrokerXifiTest::__retval_process_macros_r = EXIT_SUCCESS;
 
 /// Mock function
 int __wrap_process_macros_r(nagios_macros* mac, char* input_buffer, char** output_buffer, int options)
 {
 	if (output_buffer) {
-		*output_buffer = strdup(BrokerXifiDemTest::__output_process_macros_r);
+		*output_buffer = strdup(BrokerXifiTest::__output_process_macros_r);
 	}
-	return BrokerXifiDemTest::__retval_process_macros_r;
+	return BrokerXifiTest::__retval_process_macros_r;
 }
 
 
