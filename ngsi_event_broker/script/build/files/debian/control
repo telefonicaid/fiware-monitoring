@@ -9,5 +9,5 @@ Vcs-Git: git@github.com:telefonicaid/fiware-monitoring.git
 
 Package: fiware-monitoring-ngsi-event-broker
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: nagios3 (>= 3.3.1), ${shlibs:Depends}, ${misc:Depends}
 Description: Nagios event broker (NEB) module to forward plugin data to NGSI Adapter.
