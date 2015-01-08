@@ -97,15 +97,9 @@ Feature: Checking implemented parsers
 
     Examples:
     | parser       | resource_raw_data_template              |
-    | check_disk   | check_disk_grouping_invalid_missing     |
     | check_disk   | check_disk_grouping_invalid_malformed   |
-    | check_disk   | check_disk_nogrouping_invalid_missing   |
     | check_disk   | check_disk_nogrouping_invalid_malformed |
-    | check_load   | check_load_invalid_missing              |
     | check_load   | check_load_invalid_malformed            |
-    | check_mem.sh | check_mem.sh_invalid_missing            |
     | check_mem.sh | check_mem.sh_invalid_malformed          |
-    | check_procs  | check_procs_invalid_missing             |
     | check_procs  | check_procs_invalid_malformed           |
-    | check_users  | check_users_invalid_missing             |
     | check_users  | check_users_invalid_malformed           |
