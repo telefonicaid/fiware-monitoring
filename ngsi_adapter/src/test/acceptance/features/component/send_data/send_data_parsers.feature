@@ -9,7 +9,7 @@ Feature: Checking implemented parsers
   Scenario Outline: Probe sends valid raw data using an existing and well-formed parser
     Given the parser "<parser>"
     And   the monitored resource with id "<probe_id>" and type "<probe_type>"
-    When  I send valid raw data according to the selected parser
+    When  I send raw data according to the selected parser
     Then  the response status code is "200"
 
     Examples:
@@ -24,7 +24,7 @@ Feature: Checking implemented parsers
   Scenario: Probe sends raw data using a malformed parser
     Given the parser "qa_malformed"
     And   the monitored resource with id "qa:1234567890" and type "host"
-    When  I send valid raw data
+    When  I send raw data
     Then  the response status code is "200"
     And   NGSI-Adapter has logged properly asynchronous errors for malformed parser
 
@@ -33,7 +33,7 @@ Feature: Checking implemented parsers
     Given the parser "<parser>"
     And   the monitored resource with id "qa:192.168.1.2" and type "host"
     And   raw data loaded from resource file "<resource_raw_data_template>" with values "<value_list>"
-    When  I send valid raw data according to the selected parser
+    When  I send raw data according to the selected parser
     Then  the response status code is "200"
     And   NGSI-Adapter has sent the properly request to NGSI Context Broker
 
@@ -65,7 +65,7 @@ Feature: Checking implemented parsers
     Given the parser "<parser>"
     And   the monitored resource with id "qa:192.168.1.2" and type "host"
     And   raw data loaded from resource file "<resource_raw_data_template>" with values "<value_list>"
-    When  I send valid raw data according to the selected parser
+    When  I send raw data according to the selected parser
     Then  the response status code is "200"
     And   NGSI-Adapter has logged properly asynchronous errors for invalid data
 
@@ -91,7 +91,7 @@ Feature: Checking implemented parsers
     Given the parser "<parser>"
     And   the monitored resource with id "qa:192.168.1.2" and type "host"
     And   raw data loaded from resource file "<resource_raw_data_template>"
-    When  I send valid raw data according to the selected parser
+    When  I send raw data according to the selected parser
     Then  the response status code is "200"
     And   NGSI-Adapter has logged properly asynchronous errors for invalid data
 
@@ -103,3 +103,21 @@ Feature: Checking implemented parsers
     | check_mem.sh | check_mem.sh_invalid_malformed          |
     | check_procs  | check_procs_invalid_malformed           |
     | check_users  | check_users_invalid_malformed           |
+
+
+  Scenario Outline: Probe sends valid raw data using an existing and well-formed parser with invalid Content-Type
+    Given the parser "check_disk"
+    And   the monitored resource with id "qa:1234567890" and type "host"
+    And   the header Content-Type "<content_type>"
+    When  I send valid raw data according to the selected parser
+    Then  the response status code is "415"
+
+    Examples:
+    | content_type        |
+    | application/json    |
+    | application/xml     |
+    | multipart/from-data |
+    | text/html           |
+    | text1/plain         |
+    | text/plain1         |
+    |                     |

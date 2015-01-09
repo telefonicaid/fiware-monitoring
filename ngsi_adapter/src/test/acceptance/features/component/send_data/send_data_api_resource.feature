@@ -9,21 +9,21 @@ Feature: Sending probe data
   Scenario: Probe sends valid raw data using an existing and well-formed parser
     Given the parser "check_disk"
     And   the monitored resource with id "qa:192.168.1.2" and type "host"
-    When  I send valid raw data according to the selected parser
+    When  I send raw data according to the selected parser
     Then  the response status code is "200"
 
 
   Scenario: Probe sends valid raw data using a not existing parser
     Given the parser "not_existing"
     And   the monitored resource with id "qa:1234567890" and type "host"
-    When  I send valid raw data
+    When  I send raw data
     Then  the response status code is "404"
 
 
   Scenario Outline: Probe sends valid raw data using an existing and well-formed parser, with valid probe ID values.
     Given the parser "check_disk"
     And   the monitored resource with id "<probe_id>" and type "host"
-    When  I send valid raw data according to the selected parser
+    When  I send raw data according to the selected parser
     Then  the response status code is "200"
 
     Examples:
@@ -47,9 +47,8 @@ Feature: Sending probe data
   Scenario Outline: Probe sends valid raw data using an existing and well-formed parser, with valid probe TYPE values.
     Given the parser "check_disk"
     And   the monitored resource with id "qa:1234567890" and type "<probe_type>"
-    When  I send valid raw data according to the selected parser
+    When  I send raw data according to the selected parser
     Then  the response status code is "200"
-    And   the response contains raw data received
 
     Examples:
     | probe_type              |
@@ -72,9 +71,8 @@ Feature: Sending probe data
   Scenario Outline: Probe sends valid raw data using an existing and well-formed parser, with valid parser name values.
     Given the parser "<parser_name>"
     And   the monitored resource with id "qa:1234567890" and type "host"
-    When  I send valid raw data according to the selected parser
+    When  I send raw data according to the selected parser
     Then  the response status code is "200"
-    And   the response contains raw data received
 
     Examples:
     | parser_name             |
@@ -92,7 +90,7 @@ Feature: Sending probe data
   Scenario Outline: Probe sends valid raw data using an existing and well-formed parser, with invalid probe ID values.
     Given the parser "check_disk"
     And   the monitored resource with id "<probe_id>" and type "host"
-    When  I send valid raw data according to the selected parser
+    When  I send raw data according to the selected parser
     Then  the response status code is "400"
 
     Examples:
@@ -106,9 +104,8 @@ Feature: Sending probe data
   Scenario Outline: Probe sends valid raw data using an existing and well-formed parser, with invalid probe TYPE values.
     Given the parser "check_disk"
     And   the monitored resource with id "qa:1234567890" and type "<probe_type>"
-    When  I send valid raw data according to the selected parser
+    When  I send raw data according to the selected parser
     Then  the response status code is "400"
-    And   the response contains raw data received
 
     Examples:
     | probe_type                |
@@ -121,13 +118,27 @@ Feature: Sending probe data
   Scenario Outline: Probe sends valid raw data using an existing and well-formed parser, with invalid parser name values.
     Given the parser "<parser_name>"
     And   the monitored resource with id "qa:1234567890" and type "host"
-    When  I send valid raw data according to the selected parser
+    When  I send raw data according to the selected parser
     Then  the response status code is "400"
-    And   the response contains raw data received
 
     Examples:
-    | parser_name             |
+    | parser_name               |
     | abc 1234                  |
     |                           |
     | [STRING_WITH_LENGTH_2000] |
     | [MISSING_PARAM]           |
+
+
+  Scenario Outline: Probe sends valid raw data using an unsupported HTTP method
+    Given the parser "check_disk"
+    And   the monitored resource with id "qa:1234567890" and type "host"
+    And   http operation is "<http_verb>"
+    When  I send raw data according to the selected parser
+    Then  the response status code is "400"
+
+    Examples:
+    | http_verb |
+    | get       |
+    | put       |
+    | delete    |
+    | update    |
