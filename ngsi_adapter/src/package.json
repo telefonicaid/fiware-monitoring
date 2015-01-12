@@ -1,14 +1,28 @@
 {
-  "version": "1.2.0",
+  "version": "1.2.1",
   "name": "ngsi_adapter",
-  "main": "lib/adapter.js",
   "description": "Generic NGSI Probe Adapter",
+  "product": {
+    "name": "fiware-monitoring",
+    "area": "iotplatform",
+    "release": "4.2.1"
+  },
   "keywords": [
     "FIWARE",
     "Monitoring",
     "NGSI"
   ],
   "author": "Telefónica I+D",
+  "license": "Apache License 2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/telefonicaid/fiware-monitoring.git"
+  },
+  "main": "lib/adapter.js",
+  "scripts": {
+    "start": "adapter",
+    "test": "grunt test"
+  },
   "engines": {
     "node": ">=0.10.18"
   },
@@ -39,14 +53,5 @@
     "istanbul": "~0.1.34",
     "proxyquire": "0.5.1",
     "dev-null": "0.1.1"
-  },
-  "scripts": {
-    "start": "adapter",
-    "test": "grunt test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/telefonicaid/fiware-monitoring.git"
-  },
-  "license": "Apache License 2.0"
+  }
 }
