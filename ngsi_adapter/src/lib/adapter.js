@@ -165,7 +165,7 @@ function asyncRequestListener(request, response) {
                 logger.error(err.message);
             }
         }
-        logger.info('Response status %d %s', response.statusCode, http.STATUS_CODES[response.statusCode]);
+        logger.info('Response status %d %s', status, http.STATUS_CODES[status]);
         response.writeHead(status);
         response.end();
     });
