@@ -27,8 +27,8 @@
 #     -h, --help	show this help message
 #
 # Actions:
-#     build		build, reports generation and SonarQube processing
-#     release		distribution package generation
+#     build		build, generate reports and publish to SonarQube
+#     release		generate distribution package
 #
 
 OPTS='h(help)'
@@ -86,16 +86,22 @@ COVERAGE_REPORT_DIR=$PROJECT_DIR/report/coverage
 COVERAGE_SITE_DIR=$PROJECT_DIR/site/coverage/lcov-report
 
 # Properties
+PRODUCT_AREA=$(sed -n '/\[PRODUCT_AREA\]/ {s/.*\[.*\].*\[\(.*\)\].*/\1/; p}' $PROJECT_DIR/configure.ac)
+PRODUCT_NAME=$(sed -n '/\[PRODUCT_NAME\]/ {s/.*\[.*\].*\[\(.*\)\].*/\1/; p}' $PROJECT_DIR/configure.ac)
+PRODUCT_RELEASE=$(sed -n '/\[PRODUCT_RELEASE\]/ {s/.*\[.*\].*\[\(.*\)\].*/\1/; p}' $PROJECT_DIR/configure.ac)
+PROJECT_NAME=$(sed -n '/AC_INIT/ {s/.*\[PRODUCT_NAME-\(.*\)].*/\1/; p}' $PROJECT_DIR/configure.ac)
 PROJECT_VERSION=$(sed -n '/AC_INIT/ {s/.*,[ \t]*\(.*\))/\1/; p}' $PROJECT_DIR/configure.ac)
-PRODUCT_RELEASE=4.1.1
+SONAR_PROJECT_NAME=$(echo "$PRODUCT_NAME-$PROJECT_NAME" | tr '_' '-')
+SONAR_PROJECT_KEY=com.telefonica.fiware:$SONAR_PROJECT_NAME
 
 # Dependencies
 RPM_DEPENDENCIES="wget gcc-c++ make autoconf automake libtool cppunit-devel libcurl-devel"
 DEB_DEPENDENCIES="wget g++ build-essential autoconf automake autotools-dev libtool libcppunit-dev libcurl4-openssl-dev"
-NAGIOS_SRC_URL=http://sourceforge.net/projects/nagios/files
 NAGIOS_SRC_DIR=$PROJECT_DIR/nagios
 NAGIOS_INC_DIR=$PROJECT_DIR/$(awk -F= '/nagios_incdir=/ { print $2 }' $PROJECT_DIR/configure.ac)
-NAGIOS_VERSION=3.4.1
+NAGIOS_VERSION=$(awk -F= '/nagios_reqver=/ { print $2 }' $PROJECT_DIR/configure.ac)
+NAGIOS_FILES=http://sourceforge.net/projects/nagios/files
+NAGIOS_URL=$NAGIOS_FILES/nagios-${NAGIOS_VERSION%%.*}.x/nagios-$NAGIOS_VERSION/nagios-$NAGIOS_VERSION.tar.gz/download
 
 # Change to project directory
 cd $PROJECT_DIR
@@ -113,8 +119,7 @@ build)
 	fi
 	sudo pip install -q gcovr
 	if ! test -d $NAGIOS_SRC_DIR; then
-		URL=$NAGIOS_SRC_URL/nagios-${NAGIOS_VERSION%%.*}.x/nagios-${NAGIOS_VERSION}/nagios-${NAGIOS_VERSION}.tar.gz/download
-		wget $URL -q -O nagios-${NAGIOS_VERSION}.tar.gz
+		wget $NAGIOS_URL -q -O nagios-${NAGIOS_VERSION}.tar.gz
 		tar xzf nagios-${NAGIOS_VERSION}.tar.gz
 		(cd nagios && ./configure && make nagios)
 	fi
@@ -136,11 +141,11 @@ build)
 
 	# Prepare properties file for SonarQube (awk to remove leading spaces)
 	awk '$1=$1' > $PROJECT_DIR/sonar-project.properties <<-EOF
-		product.area.name=iotplatform
-		product.name=fiware-monitoring
+		product.area.name=$PRODUCT_AREA
+		product.name=$PRODUCT_NAME
 		product.release=$PRODUCT_RELEASE
-		sonar.projectName=fiware-monitoring-ngsi-event-broker
-		sonar.projectKey=com.telefonica.fiware:fiware-monitoring-ngsi-event-broker
+		sonar.projectName=$SONAR_PROJECT_NAME
+		sonar.projectKey=$SONAR_PROJECT_KEY
 		sonar.projectVersion=$PROJECT_VERSION
 		sonar.language=c++
 		sonar.sourceEncoding=UTF-8
@@ -181,8 +186,7 @@ release)
 		sudo apt-get -y -q install $DEB_DEPENDENCIES dpkg-dev debhelper
 	fi
 	if ! test -d $NAGIOS_SRC_DIR; then
-		URL=$NAGIOS_SRC_URL/nagios-${NAGIOS_VERSION%%.*}.x/nagios-${NAGIOS_VERSION}/nagios-${NAGIOS_VERSION}.tar.gz/download
-		wget $URL -q -O nagios-${NAGIOS_VERSION}.tar.gz
+		wget $NAGIOS_URL -q -O nagios-${NAGIOS_VERSION}.tar.gz
 		tar xzf nagios-${NAGIOS_VERSION}.tar.gz
 		(cd nagios && ./configure && make nagios)
 	fi

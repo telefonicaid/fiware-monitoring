@@ -1,5 +1,8 @@
 # Autoconf initialization.
-AC_INIT(fiware-monitoring-ngsi-event-broker, 1.4.0)
+m4_define([PRODUCT_NAME], [fiware-monitoring])
+m4_define([PRODUCT_AREA], [iotplatform])
+m4_define([PRODUCT_RELEASE], [4.2.1])
+AC_INIT([PRODUCT_NAME-ngsi-event-broker], 1.4.1)
 AC_LANG(C)
 if test -z "$CFLAGS"; then
    # prevent configure from assigning default flags
@@ -56,6 +59,10 @@ AC_ARG_WITH(nagios-srcdir,
    nagios_srcdir=/usr/local/src/nagios)
 AC_SUBST([NAGIOS_SRCDIR],[$nagios_srcdir])
 if test -d $nagios_srcdir/include; then
+   # Current and required Nagios versions
+   nagios_common=$nagios_srcdir/include/common.h
+   nagios_curver=$(awk -F'"' '/PROGRAM_VERSION/ {print $2}' $nagios_common)
+   nagios_reqver=3.4.1
    # Directory where Nagios headers are copied
    nagios_incdir=contrib/nagios/include
    mkdir -p $nagios_incdir
@@ -66,7 +73,7 @@ if test -d $nagios_srcdir/include; then
 fi
 
 # Library version spec (major:minor:revision).
-VERSION_SPEC=$(echo $VERSION | sed 's/\./:/g')
+VERSION_SPEC=$(echo $PACKAGE_VERSION | sed 's/\./:/g')
 AC_SUBST([VERSION_SPEC])
 
 # Package specification attributes.
@@ -94,6 +101,8 @@ AC_CACHE_CHECK([for Nagios sources],
    my_cv_nagios_sources=$nagios_srcdir, my_cv_nagios_sources=no)])
 if test "$my_cv_nagios_sources" = "no"; then
    AC_MSG_ERROR([cannot find sources (use --with-nagios-srcdir option)])
+elif test $(printf "$nagios_reqver\n$nagios_curver" | sort -V | head -1) != $nagios_reqver; then
+   AC_MSG_ERROR([Nagios sources of version $nagios_reqver or greater required])
 fi
 
 # Checks for header files.

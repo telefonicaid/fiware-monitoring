@@ -27,8 +27,8 @@
 #     -h, --help	show this help message
 #
 # Actions:
-#     build		build, reports generation and SonarQube processing
-#     release		distribution package generation
+#     build		build, generate reports and publish to SonarQube
+#     release		generate distribution package
 #
 
 OPTS='h(help)'
@@ -86,8 +86,14 @@ COVERAGE_REPORT_DIR=$PROJECT_BASE_DIR/report/coverage
 COVERAGE_SITE_DIR=$PROJECT_BASE_DIR/site/coverage/lcov-report
 
 # Properties
-PROJECT_VERSION=$(sed -n '/"version"/ {s/.*:.*"\(.*\)".*/\1/; p}' $PROJECT_BASE_DIR/package.json)
-PRODUCT_RELEASE=4.1.1
+PRODUCT_INFO=$(awk '/"product"/,/\}/' $PROJECT_BASE_DIR/package.json)
+PRODUCT_AREA=$(echo "$PRODUCT_INFO" | sed -n '/"area"/ {s/.*:.*"\(.*\)".*/\1/; p; q}')
+PRODUCT_NAME=$(echo "$PRODUCT_INFO" | sed -n '/"name"/ {s/.*:.*"\(.*\)".*/\1/; p; q}')
+PRODUCT_RELEASE=$(echo "$PRODUCT_INFO" | sed -n '/"release"/ {s/.*:.*"\(.*\)".*/\1/; p; q}')
+PROJECT_NAME=$(sed -n '/"name"/ {s/.*:.*"\(.*\)".*/\1/; p; q}' $PROJECT_BASE_DIR/package.json)
+PROJECT_VERSION=$(sed -n '/"version"/ {s/.*:.*"\(.*\)".*/\1/; p; q}' $PROJECT_BASE_DIR/package.json)
+SONAR_PROJECT_NAME=$(echo "$PRODUCT_NAME-$PROJECT_NAME" | tr '_' '-')
+SONAR_PROJECT_KEY=com.telefonica.fiware:$SONAR_PROJECT_NAME
 
 # Change to project directory
 cd $PROJECT_BASE_DIR
@@ -104,11 +110,11 @@ build)
 
 	# Prepare properties file for SonarQube (awk to remove leading spaces)
 	awk '$1=$1' > $PROJECT_BASE_DIR/sonar-project.properties <<-EOF
-		product.area.name=iotplatform
-		product.name=fiware-monitoring
+		product.area.name=$PRODUCT_AREA
+		product.name=$PRODUCT_NAME
 		product.release=$PRODUCT_RELEASE
-		sonar.projectName=fiware-monitoring-ngsi-adapter
-		sonar.projectKey=com.telefonica.fiware:fiware-monitoring-ngsi-adapter
+		sonar.projectName=$SONAR_PROJECT_NAME
+		sonar.projectKey=$SONAR_PROJECT_KEY
 		sonar.projectVersion=$PROJECT_VERSION
 		sonar.language=js
 		sonar.sourceEncoding=UTF-8
