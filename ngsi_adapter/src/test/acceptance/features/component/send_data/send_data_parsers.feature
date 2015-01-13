@@ -106,7 +106,7 @@ Feature: Checking implemented parsers
 
 
   Scenario Outline: Probe sends valid raw data using an existing and well-formed parser with invalid Content-Type
-    Given the parser "check_disk"
+    Given the parser "qa_parser"
     And   the monitored resource with id "qa:1234567890" and type "host"
     And   the header Content-Type "<content_type>"
     When  I send valid raw data according to the selected parser

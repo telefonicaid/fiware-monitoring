@@ -60,3 +60,4 @@ def i_sed_raw_data_according_to_the_selected_parser(step):
 @step(u'the response status code is "(.*)"')
 def the_response_status_code_is(step, status_code):
     assert_equal(str(world.response.status_code), status_code)
+
