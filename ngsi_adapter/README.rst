@@ -9,7 +9,7 @@ attributes, and forward them through a NGSI Context Broker.
 Installation
 ============
 
-Adapter is distributed as a Debian (.deb) package. Assuming FI WARE package
+Adapter is distributed as a Debian (.deb) package. Assuming FIWARE package
 repositories are configured, just use the proper tool (such as ``apt-get``)
 to install ``fiware-monitoring-ngsi-adapter`` package. These distributions are
 currently supported:
@@ -87,6 +87,10 @@ an object *EntityData*.
 Changelog
 =========
 
+Version 1.2.1
+
+-  Minor bugs resolved
+
 Version 1.2.0
 
 -  Add new log format (issue #25)
@@ -112,4 +116,4 @@ Version 1.0.0
 License
 =======
 
-\(c) 2013-2014 Telefónica I+D, Apache License 2.0
+\(c) 2013-2015 Telefónica I+D, Apache License 2.0
