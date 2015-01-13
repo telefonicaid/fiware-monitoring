@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2014 Telefonica Investigación y Desarrollo, S.A.U
+# Copyright 2015 Telefonica Investigación y Desarrollo, S.A.U
 #
 # This file is part of FI-WARE project.
 #
@@ -24,6 +24,7 @@
 __author__ = 'jfernandez'
 
 import logging
+import logging.config
 import xml
 import json
 from constants import HEADER_CONTENT_TYPE, HEADER_REPRESENTATION_XML, HEADER_REPRESENTATION_JSON
@@ -33,35 +34,29 @@ Part of this code has been taken from:
  https://pdihub.hi.inet/fiware/fiware-iotqaUtils/raw/develop/iotqautils/iotqaLogger.py
 """
 
-LOG_PATTERN = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+LOG_CONSOLE_FORMATTER = "    %(asctime)s - %(name)s - %(levelname)s - %(message)s"
+LOG_FILE_FORMATTER = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# Console logging level. By default: ERROR
+logging.config.fileConfig("logging.conf")
+logging_level = logging.ERROR
 
 
-def configure_level_debug():
+def configure_logging(level):
     """
-    Configures global log level to DEBUG
+    Configures global log level to given one
+    :param level: Level (INFO | DEBUG | WARN | ERROR)
+    :return:
     """
-    logging.basicConfig(level=logging.DEBUG, format=LOG_PATTERN)
 
-
-def configure_level_info():
-    """
-    Configures global log level to INFO
-    """
-    logging.basicConfig(level=logging.INFO, format=LOG_PATTERN)
-
-
-def configure_level_warning():
-    """
-    Configures global log level to WARNING
-    """
-    logging.basicConfig(level=logging.WARNING, format=LOG_PATTERN)
-
-
-def configure_level_error():
-    """
-    Configures global log level to ERROR
-    """
-    logging.basicConfig(level=logging.ERROR, format=LOG_PATTERN)
+    global logging_level
+    logging_level = logging.ERROR
+    if "info" == level.lower():
+        logging_level = logging.INFO
+    elif "warn" == level.lower():
+        logging_level = logging.WARNING
+    elif "debug" == level.lower():
+        logging_level = logging.DEBUG
 
 
 def get_logger(name):
@@ -70,7 +65,25 @@ def get_logger(name):
     :param name: Name of the logger
     :return: Logger
     """
-    logger = logging.getLogger(name)
+
+    #logging.config.fileConfig("logging.conf")
+    logger = logging.getLogger("testingLogger")
+
+    # if not len(logger.handlers):
+    #     # File handler
+    #     file_hdlr = logging.FileHandler('logs/monitoring_tests.log')
+    #     formatter = logging.Formatter(LOG_FILE_FORMATTER)
+    #     file_hdlr.setFormatter(formatter)
+    #     logger.addHandler(file_hdlr)
+    #     logger.setLevel(logging.DEBUG)
+    #
+    #     # Console hadler
+    #     console_hdlr = logging.StreamHandler()
+    #     formatter = logging.Formatter(LOG_CONSOLE_FORMATTER)
+    #     console_hdlr.setFormatter(formatter)
+    #     logger.addHandler(console_hdlr)
+    #     logger.setLevel(logging_level)
+
     return logger
 
 
@@ -81,6 +94,7 @@ def _get_pretty_body(headers, body):
     :param body: Body to pretty print (string)
     :return: Body pretty printed (string)
     """
+
     if HEADER_CONTENT_TYPE in headers:
         if HEADER_REPRESENTATION_XML == headers[HEADER_CONTENT_TYPE]:
             xml_parsed = xml.dom.minidom.parseString(body)
@@ -107,6 +121,7 @@ def log_print_request(logger, method, url, query_params=None, headers=None, body
     :param body: Body (raw body, string)
     :return: None
     """
+
     log_msg = '>>>>>>>>>>>>>>>>>>>>> Request >>>>>>>>>>>>>>>>>>> \n'
     log_msg += '\t> Method: %s\n' % method
     log_msg += '\t> Url: %s\n' % url
@@ -127,6 +142,7 @@ def log_print_response(logger, response):
     :param response: HTTP response ('Requests' lib)
     :return: None
     """
+
     log_msg = '<<<<<<<<<<<<<<<<<<<<<< Response <<<<<<<<<<<<<<<<<<\n'
     log_msg += '\t< Response code: {}\n'.format(str(response.status_code))
     log_msg += '\t< Headers: {}\n'.format(str(dict(response.headers)))

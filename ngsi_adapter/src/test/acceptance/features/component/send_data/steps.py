@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2014 Telefonica Investigación y Desarrollo, S.A.U
+# Copyright 2015 Telefonica Investigación y Desarrollo, S.A.U
 #
 # This file is part of FI-WARE project.
 #
@@ -24,3 +24,39 @@
 __author__ = 'jfernandez'
 
 
+from lettuce import world, step
+
+from commons.utils import get_probe_data_from_resource_file
+from nose.tools import assert_equal
+from commons.dataset_utils import prepare_param
+from commons.constants import PROPERTIES_CONFIG_ENV, \
+    MONITORING_CONFIG_ENV_DEFAULT_PARSER, MONITORING_CONFIG_ENV_DEFAULT_PARSER_PARAMS, \
+    MONITORING_CONFIG_ENV_DEFAULT_PARSER_DATA
+
+
+@step(u'the parser "(.*)"')
+def the_parser(step, parser):
+    world.parser = prepare_param(parser)
+
+
+@step(u'the monitored resource with id "(.*)" and type "(.*)"')
+def the_monitored_resource_with_id_and_type(step, id, type):
+    world.probe_id = prepare_param(id)
+    world.probe_type = prepare_param(type)
+
+
+@step(u'I send raw data according to the selected parser')
+def i_sed_raw_data_according_to_the_selected_parser(step):
+    if world.raw_data_filename is None:
+        #default_parser = world.config[PROPERTIES_CONFIG_ENV][MONITORING_CONFIG_ENV_DEFAULT_PARSER]
+        world.raw_data_filename = world.config[PROPERTIES_CONFIG_ENV][MONITORING_CONFIG_ENV_DEFAULT_PARSER_DATA]
+        world.raw_data_params = world.config[PROPERTIES_CONFIG_ENV][MONITORING_CONFIG_ENV_DEFAULT_PARSER_PARAMS]
+
+    probe_data = get_probe_data_from_resource_file(world.raw_data_filename, world.raw_data_params)
+    world.response = world.ngsi_adapter_client.send_raw_data_custom(probe_data, world.parser,
+                                                                    world.probe_id, world.probe_type)
+
+
+@step(u'the response status code is "(.*)"')
+def the_response_status_code_is(step, status_code):
+    assert_equal(str(world.response.status_code), status_code)

@@ -1,6 +1,10 @@
 {
     "environment": {
-        "name": "experimentation"
+        "name": "experimentation",
+        "log_path": "./logs",
+        "default_parser": "check_disk",
+        "default_parser_data": "check_disk_grouping_valid_template",
+        "default_parser_parameters": [{"key":"FREE_SPACE_VALUE", "value":"40"}]
     },
     "monitoring_adapter_service": {
         "protocol": "http",

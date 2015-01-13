@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2014 Telefonica Investigación y Desarrollo, S.A.U
+# Copyright 2015 Telefonica Investigación y Desarrollo, S.A.U
 #
 # This file is part of FI-WARE project.
 #
@@ -28,8 +28,7 @@ from commons.rest_client_utils import RestClient, API_ROOT_URL_ARG_NAME
 from commons.constants import HEADER_REPRESENTATION_TEXTPLAIN, HEADER_CONTENT_TYPE, HEADER_TRANSACTION_ID, \
     HTTP_VERB_POST
 from commons.utils import generate_transaction_id
-from commons.logger_utils import get_logger, configure_level_debug
-from pkg_resources import resource_string
+from commons.logger_utils import get_logger
 
 NGSI_ADAPTER_URI_BASE = "{" + API_ROOT_URL_ARG_NAME + "}"
 NGSI_ADAPTER_URI_PARSER = NGSI_ADAPTER_URI_BASE + "/{parser_name}"
@@ -116,14 +115,3 @@ class NgsiAdapterClient:
         else:
             return self.rest_client.launch_request(uri_patter=NGSI_ADAPTER_URI_BASE, body=raw_data,
                                                    method=http_method, headers=self.headers, parameters=parameters)
-
-if __name__ == '__main__':
-    configure_level_debug()
-    logger.info("START TEST")
-
-    ngsi_adapter_client = NgsiAdapterClient("http", "130.206.81.245", "1337")
-    file_content = resource_string('resources.probe_sample_data', 'check_disk_grouping_invalid_malformed.txt')
-    #f = open('resources/probe_sample_data/check_disk_grouping_valid_template.txt', 'r')
-    #file_content = f.read()
-    logger.info("File content: " + file_content)
-    ngsi_adapter_client.send_raw_data_custom(file_content, 'check_disk', 'qa-probe', 'host')

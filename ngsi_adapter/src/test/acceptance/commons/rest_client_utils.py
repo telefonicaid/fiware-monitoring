@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2014 Telefonica Investigación y Desarrollo, S.A.U
+# Copyright 2015 Telefonica Investigación y Desarrollo, S.A.U
 #
 # This file is part of FI-WARE project.
 #
@@ -82,7 +82,7 @@ class RestClient(object):
         kwargs[API_ROOT_URL_ARG_NAME] = self.api_root_url
         url = uri_patter.format(**kwargs)
 
-        log_print_request(logger, method, url, parameters, headers)
+        log_print_request(logger, method, url, parameters, headers, body)
 
         try:
             response = requests.request(method=method, url=url, data=body, headers=headers, params=parameters, verify=False)
