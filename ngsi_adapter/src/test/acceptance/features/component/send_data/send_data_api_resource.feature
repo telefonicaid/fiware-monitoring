@@ -12,7 +12,7 @@ Feature: Sending probe data
     When  I send raw data according to the selected parser
     Then  the response status code is "200"
 
-
+  @test
   Scenario: Probe sends valid raw data using a not existing parser
     Given the parser "not_existing"
     And   the monitored resource with id "qa:1234567890" and type "host"
@@ -85,6 +85,7 @@ Feature: Sending probe data
     | qa_parser               |
     | qa@parser               |
 
+
   @skip @CLAUDIA-4468 @CLAUDIA-4469
   Scenario Outline: Probe sends valid raw data using an existing and well-formed parser, with invalid probe ID values.
     Given the parser "qa_parser"
@@ -99,6 +100,7 @@ Feature: Sending probe data
     | [MISSING_PARAM]           |
 
 
+  @skip @CLAUDIA-4468 @CLAUDIA-4469
   Scenario Outline: Probe sends valid raw data using an existing and well-formed parser, with invalid probe TYPE values.
     Given the parser "qa_parser"
     And   the monitored resource with id "qa:1234567890" and type "<probe_type>"
@@ -112,15 +114,14 @@ Feature: Sending probe data
     | [MISSING_PARAM]           |
 
 
-  Scenario Outline: Probe sends valid raw data using an existing and well-formed parser, with invalid parser name values.
+  Scenario Outline: Probe sends valid raw data with invalid parser name value.
     Given the parser "<parser_name>"
     And   the monitored resource with id "qa:1234567890" and type "host"
     When  I send raw data according to the selected parser
-    Then  the response status code is "400"
+    Then  the response status code is "404"
 
     Examples:
     | parser_name               |
-    | abc 1234                  |
     |                           |
     | [STRING_WITH_LENGTH_2000] |
     | [MISSING_PARAM]           |
@@ -129,16 +130,14 @@ Feature: Sending probe data
   Scenario Outline: Probe sends valid raw data using an unsupported HTTP method
     Given the parser "qa_parser"
     And   the monitored resource with id "qa:1234567890" and type "host"
-    And   http operation is "<http_verb>"
-    When  I send raw data according to the selected parser
-    Then  the response status code is "400"
+    When  I send raw data according to the selected parser with "<http_verb>" HTTP operation
+    Then  the response status code is "405"
 
     Examples:
     | http_verb |
     | get       |
     | put       |
     | delete    |
-    | update    |
 
 
   Scenario Outline: NGSI-Adapter reuse the transaction-id header value given in the request
