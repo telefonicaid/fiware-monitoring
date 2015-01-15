@@ -2,9 +2,10 @@
     "environment": {
         "name": "experimentation",
         "log_path": "./logs",
-        "default_parser": "check_disk",
-        "default_parser_data": "check_disk_grouping_valid_template",
-        "default_parser_parameters": [{"key":"FREE_SPACE_VALUE", "value":"40"}]
+        "local_path_remote_logs": "./logs/remote/",
+        "default_parser": "qa_probe_parser",
+        "default_parser_data": "qa_probe_parser_valid_template",
+        "default_parser_parameters": [{"key":"NUM_USERS_VALUE", "value":"5"}]
     },
     "monitoring_adapter_service": {
         "protocol": "http",
@@ -12,16 +13,19 @@
         "port": "1337",
         "resource": "",
         "host_user": "root",
-        "host_password": "2 b @bl3 2 3nt3r"
+        "host_password": "",
+        "private_key_location": "./fiware_cloud_dsa",
+        "service_log_path": "/var/log/ngsi_adapter/",
+        "service_log_file_name": "ngsi_adapter.log"
     },
     "monitoring_nagios": {
         "host": "130.206.81.243",
         "host_user": "root",
-        "host_password": "2 b @bl3 2 3nt3r"
+        "host_password": ""
     },
     "monitoring_remote_host": {
         "host": "130.206.81.246",
         "host_user": "root",
-        "host_password": "2 b @bl3 2 3nt3r"
+        "host_password": ""
     }
 }

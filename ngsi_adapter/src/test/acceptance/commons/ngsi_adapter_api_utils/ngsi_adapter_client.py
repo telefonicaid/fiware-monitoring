@@ -51,6 +51,7 @@ class NgsiAdapterClient:
         :param base_resource: base uri resource (if exists)
         :return: None
         """
+
         self.init_headers()
         self.rest_client = RestClient(protocol, host, port, base_resource)
 
@@ -61,7 +62,18 @@ class NgsiAdapterClient:
         :param transaction_id: txId header value. By default, generated value by Utils.generate_transaction_id()
         :return: None
         """
-        self.headers.update({HEADER_CONTENT_TYPE: content_type, HEADER_TRANSACTION_ID: transaction_id})
+
+        if content_type is None:
+            if HEADER_CONTENT_TYPE in self.headers:
+                del(self.headers[HEADER_CONTENT_TYPE])
+        else:
+            self.headers.update({HEADER_CONTENT_TYPE: content_type})
+
+        if transaction_id is None:
+            if HEADER_TRANSACTION_ID in self.headers:
+                del(self.headers[HEADER_TRANSACTION_ID])
+        else:
+            self.headers.update({HEADER_TRANSACTION_ID: transaction_id})
 
     def set_headers(self, headers):
         """
@@ -69,24 +81,28 @@ class NgsiAdapterClient:
         :param headers: Headers to be used by next request (dict)
         :return: None
         """
+
         self.headers = headers
 
-    def send_raw_data(self, raw_data, parser_name, probe_id, probe_type):
+    def send_raw_data(self, raw_data, parser_name, entity_id, entity_type):
         """
         Execute a well-formed POST request. All parameters are mandatory
         :param raw_data: Raw probe data to send (string, text/plain)
         :param parser_name: Parser to be used (string)
-        :param probe_id: Probe ID (string)
-        :param probe_type: Probe Type (string)
+        :param entity_id: Entity ID (string)
+        :param entity_type: Entity Type (string)
         :return: HTTP Request response ('Requests' lib)
         """
-        parameters = dict()
-        parameters.update({NGSI_ADAPTER_PARAMETER_ID: probe_id})
-        parameters.update({NGSI_ADAPTER_PARAMETER_TYPE: probe_type})
-        return self.rest_client.post(uri_patter=NGSI_ADAPTER_URI_PARSER, body=raw_data, headers=self.headers,
-                                     parameters=parameters, parser_name=parser_name)
 
-    def send_raw_data_custom(self, raw_data, parser_name=None, probe_id=None, probe_type=None,
+        logger.info("Sending raw data to NGSI-Adapter [Parser: %s, EntityId: %, EntityType: %s", parser_name,
+                    entity_id, entity_type)
+        parameters = dict()
+        parameters.update({NGSI_ADAPTER_PARAMETER_ID: entity_id})
+        parameters.update({NGSI_ADAPTER_PARAMETER_TYPE: entity_type})
+        return self.rest_client.post(uri_pattern=NGSI_ADAPTER_URI_PARSER, body=raw_data, headers=self.headers,
+                                     parametersn=parameters, parser_name=parser_name)
+
+    def send_raw_data_custom(self, raw_data, parser_name=None, entity_id=None, entity_type=None,
                              http_method=HTTP_VERB_POST):
         """
         Execute a 'send_data' request (POST request by default). Should support all testing cases.
@@ -94,24 +110,25 @@ class NgsiAdapterClient:
          Parameters with None value will not be in the generated request (missing parameter).
         :param raw_data: Raw probe data to send (string, text/plain)
         :param parser_name: Parser to be used (string)
-        :param probe_id: Probe ID (string)
-        :param probe_type: Probe Type (string)
+        :param entity_id: Entity ID (string)
+        :param entity_type: Entity Type (string)
         :param http_method: send raw data is a HTTP POST request but, for testing purposes could be interesting to use
          another HTTP verb. By default is defined to 'post'
         :return: HTTP Request response ('Requests' lib)
         """
 
+        logger.info("Sending raw data to NGSI-Adapter (custom operation for testing purpose)")
         parameters = dict()
-        if probe_id is not None:
-            parameters.update({NGSI_ADAPTER_PARAMETER_ID: probe_id})
+        if entity_id is not None:
+            parameters.update({NGSI_ADAPTER_PARAMETER_ID: entity_id})
 
-        if probe_type is not None:
-            parameters.update({NGSI_ADAPTER_PARAMETER_TYPE: probe_type})
+        if entity_type is not None:
+            parameters.update({NGSI_ADAPTER_PARAMETER_TYPE: entity_type})
 
         if parser_name is not None:
-            return self.rest_client.launch_request(uri_patter=NGSI_ADAPTER_URI_PARSER, body=raw_data,
+            return self.rest_client.launch_request(uri_pattern=NGSI_ADAPTER_URI_PARSER, body=raw_data,
                                                    method=http_method, headers=self.headers, parameters=parameters,
                                                    parser_name=parser_name)
         else:
-            return self.rest_client.launch_request(uri_patter=NGSI_ADAPTER_URI_BASE, body=raw_data,
+            return self.rest_client.launch_request(uri_pattern=NGSI_ADAPTER_URI_BASE, body=raw_data,
                                                    method=http_method, headers=self.headers, parameters=parameters)

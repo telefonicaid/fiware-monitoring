@@ -67,10 +67,10 @@ class RestClient(object):
         """
         return URL_ROOT_PATTERN.format(protocol=protocol, host=host, port=port)
 
-    def _call_api(self, uri_patter, method, body=None, headers=None, parameters=None, **kwargs):
+    def _call_api(self, uri_pattern, method, body=None, headers=None, parameters=None, **kwargs):
         """
         Launch HTTP request to the API with given arguments
-        :param uri_patter: string pattern of the full API url with keyword arguments (format string syntax)
+        :param uri_pattern: string pattern of the full API url with keyword arguments (format string syntax)
         :param method: HTTP method to execute (string) [get | post | put | delete | update]
         :param body: Raw Body content (string) (Plain/XML/JSON to be sent)
         :param headers: HTTP header request (dict)
@@ -79,13 +79,15 @@ class RestClient(object):
         :returns: REST API response ('Requests' response)
         """
 
+        logger.info("Executing API request [%s %s]", method, uri_pattern)
         kwargs[API_ROOT_URL_ARG_NAME] = self.api_root_url
-        url = uri_patter.format(**kwargs)
+        url = uri_pattern.format(**kwargs)
 
         log_print_request(logger, method, url, parameters, headers, body)
 
         try:
-            response = requests.request(method=method, url=url, data=body, headers=headers, params=parameters, verify=False)
+            response = requests.request(method=method, url=url, data=body, headers=headers, params=parameters,
+                                        verify=False)
         except Exception, e:
             logger.error("Request {} to {} crashed: {}".format(method, url, str(e)))
             raise e
@@ -94,10 +96,10 @@ class RestClient(object):
 
         return response
 
-    def launch_request(self, uri_patter, body, method, headers=None, parameters=None, **kwargs):
+    def launch_request(self, uri_pattern, body, method, headers=None, parameters=None, **kwargs):
         """
         Launch HTTP request to the API with given arguments
-        :param uri_patter: string pattern of the full API url with keyword arguments (format string syntax)
+        :param uri_pattern: string pattern of the full API url with keyword arguments (format string syntax)
         :param body: Raw Body content (string) (Plain/XML/JSON to be sent)
         :param method: HTTP ver to be used in the request [GET | POST | PUT | DELETE | UPDATE ]
         :param headers: HTTP header (dict)
@@ -105,65 +107,53 @@ class RestClient(object):
         :param **kwargs: URL parameters (without url_root) to fill the patters
         :returns: REST API response ('Requests' response)
         """
-        return self._call_api(uri_patter, method, body, headers, parameters, **kwargs)
+        return self._call_api(uri_pattern, method, body, headers, parameters, **kwargs)
 
-    def get(self, uri_patter, headers=None, parameters=None, **kwargs):
+    def get(self, uri_pattern, headers=None, parameters=None, **kwargs):
         """
         Launch HTTP GET request to the API with given arguments
-        :param uri_patter: string pattern of the full API url with keyword arguments (format string syntax)
+        :param uri_pattern: string pattern of the full API url with keyword arguments (format string syntax)
         :param headers: HTTP header (dict)
         :param parameters: Query parameters. i.e. {'key1': 'value1', 'key2': 'value2'}
         :param **kwargs: URL parameters (without url_root) to fill the patters
         :returns: REST API response ('Requests' response)
         """
-        return self._call_api(uri_patter, HTTP_VERB_GET, headers=headers, parameters=parameters, **kwargs)
+        return self._call_api(uri_pattern, HTTP_VERB_GET, headers=headers, parameters=parameters, **kwargs)
 
-    def post(self, uri_patter, body, headers=None, parameters=None, **kwargs):
+    def post(self, uri_pattern, body, headers=None, parameters=None, **kwargs):
         """
         Launch HTTP POST request to the API with given arguments
-        :param uri_patter: string pattern of the full API url with keyword arguments (format string syntax)
+        :param uri_pattern: string pattern of the full API url with keyword arguments (format string syntax)
         :param body: Raw Body content (string) (Plain/XML/JSON to be sent)
         :param headers: HTTP header (dict)
         :param parameters: Query parameters. i.e. {'key1': 'value1', 'key2': 'value2'}
         :param **kwargs: URL parameters (without url_root) to fill the patters
         :returns: REST API response ('Requests' response)
         """
-        return self._call_api(uri_patter, HTTP_VERB_POST, body, headers, parameters, **kwargs)
+        return self._call_api(uri_pattern, HTTP_VERB_POST, body, headers, parameters, **kwargs)
 
-    def put(self, uri_patter, body, headers=None, parameters=None, **kwargs):
+    def put(self, uri_pattern, body, headers=None, parameters=None, **kwargs):
         """
         Launch HTTP PUT request to the API with given arguments
-        :param uri_patter: string pattern of the full API url with keyword arguments (format string syntax)
+        :param uri_pattern: string pattern of the full API url with keyword arguments (format string syntax)
         :param body: Raw Body content (string) (Plain/XML/JSON to be sent)
         :param headers: HTTP header (dict)
         :param parameters: Query parameters. i.e. {'key1': 'value1', 'key2': 'value2'}
         :param **kwargs: URL parameters (without url_root) to fill the patters
         :returns: REST API response ('Requests' response)
         """
-        return self._call_api(uri_patter, HTTP_VERB_PUT, body, headers, parameters, **kwargs)
+        return self._call_api(uri_pattern, HTTP_VERB_PUT, body, headers, parameters, **kwargs)
 
-    def delete(self, uri_patter, headers=None, parameters=None, **kwargs):
+    def delete(self, uri_pattern, headers=None, parameters=None, **kwargs):
         """
         Launch HTTP DELETE request to the API with given arguments
-        :param uri_patter: string pattern of the full API url with keyword arguments (format string syntax)
+        :param uri_pattern: string pattern of the full API url with keyword arguments (format string syntax)
         :param headers: HTTP header (dict)
         :param parameters: Query parameters. i.e. {'key1': 'value1', 'key2': 'value2'}
         :param **kwargs: URL parameters (without url_root) to fill the patters
         :returns: REST API response ('Requests' response)
         """
-        return self._call_api(uri_patter, HTTP_VERB_DELETE, headers=headers, parameters=parameters, **kwargs)
-
-    def update(self, uri_patter, body, headers=None, parameters=None, **kwargs):
-        """
-        Launch HTTP UPDATE request to the API with given arguments
-        :param uri_patter: string pattern of the full API url with keyword arguments (format string syntax)
-        :param body: Raw Body content (string) (Plain/XML/JSON to be sent)
-        :param headers: HTTP header (dict)
-        :param parameters: Query parameters. i.e. {'key1': 'value1', 'key2': 'value2'}
-        :param **kwargs: URL parameters (without url_root) to fill the patters
-        :returns: REST API response ('Requests' response)
-        """
-        return self._call_api(uri_patter, HTTP_VERB_UPDATE, body, headers, parameters, **kwargs)
+        return self._call_api(uri_pattern, HTTP_VERB_DELETE, headers=headers, parameters=parameters, **kwargs)
 
 
 def _xml_to_dict(xml_to_convert):
@@ -173,6 +163,7 @@ def _xml_to_dict(xml_to_convert):
     :return: Python dict with all XML data
     """
 
+    logger.debug("Converting XML to Python dict")
     return xmltodict.parse(xml_to_convert, attr_prefix='')
 
 
@@ -183,6 +174,7 @@ def _dict_to_xml(dict_to_convert):
     :return: XML (string)
     """
 
+    logger.debug("Converting Python dict to XML")
     return xmldict.dict_to_xml(dict_to_convert)
 
 
@@ -196,6 +188,7 @@ def response_body_to_dict(http_requests_response, content_type, xml_root_element
     :return: Python dict with response.
     """
 
+    logger.info("Converting response body from API (XML or JSON) to Python dict")
     if HEADER_REPRESENTATION_JSON == content_type:
         try:
             return http_requests_response.json()
@@ -227,6 +220,7 @@ def model_to_request_body(body_model, content_type, body_model_root_element=None
     :return:
     """
 
+    logger.info("Converting body request model (Python dict) to JSON or XML")
     if HEADER_REPRESENTATION_XML == content_type:
         try:
             return _dict_to_xml(body_model)

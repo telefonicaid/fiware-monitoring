@@ -6,28 +6,28 @@ Feature: Sending probe data
 
 
   @happy_path
-  Scenario: Probe sends valid raw data using an existing and well-formed parser
-    Given the parser "qa_parser"
+  Scenario: Valid probe data is sent to CB using using an existing and well-formed parser
+    Given the probe "qa_probe" and its associated parser "qa_probe_parser"
     And   the monitored resource with id "qa:192.168.1.2" and type "host"
-    When  I send raw data according to the selected parser
+    When  I send raw data according to the selected probe
     Then  the response status code is "200"
 
-  @test
-  Scenario: Probe sends valid raw data using a not existing parser
-    Given the parser "not_existing"
+
+  Scenario: Valid probe data is sent to CB using a not existing parser
+    Given the probe "qa_probe" and its associated parser "not_existing_parser"
     And   the monitored resource with id "qa:1234567890" and type "host"
-    When  I send raw data according to the selected parser
+    When  I send raw data according to the selected probe
     Then  the response status code is "404"
 
 
-  Scenario Outline: Probe sends valid raw data using an existing and well-formed parser, with valid probe ID values.
-    Given the parser "qa_parser"
-    And   the monitored resource with id "<probe_id>" and type "host"
-    When  I send raw data according to the selected parser
+  Scenario Outline: Valid probe data is sent to CB using an existing and well-formed parser, with valid entity ID values.
+    Given the probe "qa_probe" and its associated parser "qa_probe_parser"
+    And   the monitored resource with id "<entity_id>" and type "host"
+    When  I send raw data according to the selected probe
     Then  the response status code is "200"
 
     Examples:
-    | probe_id                |
+    | entity_id               |
     | 1                       |
     | a                       |
     | A                       |
@@ -44,14 +44,14 @@ Feature: Sending probe data
     | [STRING_WITH_LENGTH_60] |
 
 
-  Scenario Outline: Probe sends valid raw data using an existing and well-formed parser, with valid probe TYPE values.
-    Given the parser "qa_parser"
-    And   the monitored resource with id "qa:1234567890" and type "<probe_type>"
-    When  I send raw data according to the selected parser
+  Scenario Outline: Valid probe data is sent to CB using an existing and well-formed parser, with valid entity TYPE values.
+    Given the probe "qa_probe" and its associated parser "qa_probe_parser"
+    And   the monitored resource with id "qa:1234567890" and type "<entity_type>"
+    When  I send raw data according to the selected probe
     Then  the response status code is "200"
 
     Examples:
-    | probe_type              |
+    | entity_type             |
     | 1                       |
     | a                       |
     | A                       |
@@ -68,69 +68,70 @@ Feature: Sending probe data
     | [STRING_WITH_LENGTH_60] |
 
 
-  Scenario Outline: Probe sends valid raw data using an existing and well-formed parser, with valid parser name values.
-    Given the parser "<parser_name>"
+  Scenario Outline: Valid probe data is sent to CB using an existing and well-formed parser, with valid parser name values.
+    Given the probe "qa_probe" and its associated parser "<parser_name>"
     And   the monitored resource with id "qa:1234567890" and type "host"
-    When  I send raw data according to the selected parser
+    When  I send raw data according to the selected probe
     Then  the response status code is "200"
 
     Examples:
-    | parser_name             |
-    | 1                       |
-    | a                       |
-    | B                       |
-    | 12345678                |
-    | qa.parser               |
-    | qa-parser               |
-    | qa_parser               |
-    | qa@parser               |
+    | parser_name     |
+    | 1               |
+    | a               |
+    | B               |
+    | 12345678        |
+    | qa.parser       |
+    | qa-parser       |
+    | qa_probe_parser |
+    | qa@parser       |
 
 
   @skip @CLAUDIA-4468 @CLAUDIA-4469
-  Scenario Outline: Probe sends valid raw data using an existing and well-formed parser, with invalid probe ID values.
-    Given the parser "qa_parser"
-    And   the monitored resource with id "<probe_id>" and type "host"
-    When  I send raw data according to the selected parser
+  Scenario Outline: Valid probe data is sent to CB using an existing and well-formed parser, with invalid entity ID values.
+    Given the probe "qa_probe" and its associated parser "qa_probe_parser"
+    And   the monitored resource with id "<entity_id>" and type "host"
+    When  I send raw data according to the selected probe
     Then  the response status code is "400"
 
     Examples:
-    | probe_id                  |
+    | entity_id                 |
     |                           |
     | [STRING_WITH_LENGTH_2000] |
     | [MISSING_PARAM]           |
 
 
   @skip @CLAUDIA-4468 @CLAUDIA-4469
-  Scenario Outline: Probe sends valid raw data using an existing and well-formed parser, with invalid probe TYPE values.
-    Given the parser "qa_parser"
-    And   the monitored resource with id "qa:1234567890" and type "<probe_type>"
-    When  I send raw data according to the selected parser
+  Scenario Outline: Valid probe data is sent to CB using an existing and well-formed parser, with invalid entity TYPE values.
+    Given the probe "qa_probe" and its associated parser "qa_probe_parser"
+    And   the monitored resource with id "qa:1234567890" and type "<entity_type>"
+    When  I send raw data according to the selected probe
     Then  the response status code is "400"
 
     Examples:
-    | probe_type                |
+    | entity_type               |
     |                           |
     | [STRING_WITH_LENGTH_2000] |
     | [MISSING_PARAM]           |
 
 
-  Scenario Outline: Probe sends valid raw data with invalid parser name value.
-    Given the parser "<parser_name>"
+  Scenario Outline: Valid probe data is sent to CB using an existing and well-formed parser, with invalid parser name values.
+    Given the probe "qa_probe" and its associated parser "<parser_name>"
     And   the monitored resource with id "qa:1234567890" and type "host"
-    When  I send raw data according to the selected parser
+    When  I send raw data according to the selected probe
     Then  the response status code is "404"
 
     Examples:
     | parser_name               |
+    | abc 1234                  |
     |                           |
     | [STRING_WITH_LENGTH_2000] |
     | [MISSING_PARAM]           |
 
 
-  Scenario Outline: Probe sends valid raw data using an unsupported HTTP method
-    Given the parser "qa_parser"
+  Scenario Outline: Valid probe data is sent to CB using an unsupported HTTP method
+    Given the probe "qa_probe" and its associated parser "qa_probe_parser"
     And   the monitored resource with id "qa:1234567890" and type "host"
-    When  I send raw data according to the selected parser with "<http_verb>" HTTP operation
+    When  I send raw data according to the selected probe with "<http_verb>" HTTP operation
     Then  the response status code is "405"
 
     Examples:
@@ -141,10 +142,10 @@ Feature: Sending probe data
 
 
   Scenario Outline: NGSI-Adapter reuse the transaction-id header value given in the request
-    Given the parser "qa_parser"
+    Given the probe "qa_probe" and its associated parser "qa_probe_parser"
     And   the monitored resource with id "qa:1234567890" and type "host"
     And   the header Transaction-Id "<transaction_id>"
-    When  I send valid raw data according to the selected parser
+    When  I send raw data according to the selected probe
     Then  the response status code is "200"
     And   the given Transaction-Id value is used in logs
 
@@ -157,19 +158,15 @@ Feature: Sending probe data
     | 123-456             |
     | ABC_1av             |
 
+  @test
   Scenario Outline: NGSI-Adapter generates new transaction-id value when header is missing or empty
-    Given the parser "qa_parser"
+    Given the probe "qa_probe" and its associated parser "<parser_name>"
     And   the monitored resource with id "qa:1234567890" and type "host"
     And   the header Transaction-Id "<transaction_id>"
-    When  I send valid raw data according to the selected parser
-    Then  the response status code is "200"
-    And   new Transaction-Id value is used in logs
+    When  I send raw data according to the selected probe
+    Then  an auto-generated Transaction-Id value is used in logs
 
     Examples:
-    | transaction_id      |
-    | 1                   |
-    | 1231asdfgasd        |
-    | a/12345.qa          |
-    | ABCDEFG#123         |
-    | 123-456             |
-    | ABC_1av             |
+    | transaction_id      | parser_name     |
+    |                     | no_transaction  |
+    | [MISSING_PARAM]     | no_transaction2 |

@@ -29,7 +29,11 @@ from logger_utils import get_logger
 import os
 import sys
 import json
-from constants import PROPERTIES_FILE, PROPERTIES_CONFIG_ENV, PROPERTIES_CONFIG_ENV_LOGS_PATH
+from remote_tail_utils import RemoteTail
+from constants import PROPERTIES_FILE, PROPERTIES_CONFIG_ENV, PROPERTIES_CONFIG_ENV_LOGS_PATH, \
+    PROPERTIES_CONFIG_ENV_LOCAL_PATH_REMOTE_LOGS, MONITORING_CONFIG_SERVICE_PRIVATEKEY, \
+    MONITORING_CONFIG_SERVICE_LOG_PATH, MONITORING_CONFIG_SERVICE_HOST, MONITORING_CONFIG_SERVICE_HOSTUSER, \
+    MONITORING_CONFIG_SERVICE_ADAPTER, MONITORING_CONFIG_SERVICE_LOG_FILE_NAME
 
 logger = get_logger("terrain_utils")
 
@@ -40,6 +44,7 @@ def _load_project_properties():
     store the resulting dictionary in the lettuce world global variable.
     """
 
+    logger.debug("Loading test properties")
     with open(PROPERTIES_FILE) as config_file:
         try:
             world.config = json.load(config_file)
@@ -51,12 +56,44 @@ def _load_project_properties():
 def set_up():
     """
     Setup execution and configure global test parameters and environment.
+    Init the capture from remote logs
     :return: None
     """
+
+    logger.info("Setting up test execution")
     _load_project_properties()
 
     """
     Make sure the logs path exists and create it otherwise.
     """
-    if not os.path.exists(world.config[PROPERTIES_CONFIG_ENV][PROPERTIES_CONFIG_ENV_LOGS_PATH]):
-        os.makedirs(world.config[PROPERTIES_CONFIG_ENV][PROPERTIES_CONFIG_ENV_LOGS_PATH])
+    logger.debug("Generating log directories if not exist")
+    log_path = world.config[PROPERTIES_CONFIG_ENV][PROPERTIES_CONFIG_ENV_LOGS_PATH]
+    if not os.path.exists(log_path):
+        os.makedirs(log_path)
+
+    log_path = world.config[PROPERTIES_CONFIG_ENV][PROPERTIES_CONFIG_ENV_LOCAL_PATH_REMOTE_LOGS]
+    if not os.path.exists(log_path):
+        os.makedirs(log_path)
+
+    # Init remote logs capturing
+    logger.info("Initiating remote log capture")
+    remote_host_ip = world.config[MONITORING_CONFIG_SERVICE_ADAPTER][MONITORING_CONFIG_SERVICE_HOST]
+    remote_host_user = world.config[MONITORING_CONFIG_SERVICE_ADAPTER][MONITORING_CONFIG_SERVICE_HOSTUSER]
+    service_log_path = world.config[MONITORING_CONFIG_SERVICE_ADAPTER][MONITORING_CONFIG_SERVICE_LOG_PATH]
+    service_log_file_name = world.config[MONITORING_CONFIG_SERVICE_ADAPTER][MONITORING_CONFIG_SERVICE_LOG_FILE_NAME]
+    private_key = world.config[MONITORING_CONFIG_SERVICE_ADAPTER][MONITORING_CONFIG_SERVICE_PRIVATEKEY]
+    world.remote_tail_client = RemoteTail(remote_host_ip, remote_host_user, service_log_path,
+                                          service_log_file_name, log_path, private_key)
+    world.remote_tail_client.init_tailer_connection()
+    world.remote_tail_client.start_tailer()
+
+
+def tear_down():
+    """
+    Tear down test execution process.
+    Stop the capture from remote logs
+    :return:
+    """
+
+    logger.info("Stopping remote log capture")
+    world.remote_tail_client.stop_tailer()

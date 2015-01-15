@@ -37,6 +37,7 @@ def generate_transaction_id():
     Generate a transaction ID value following defined pattern.
     :return: New transactionId
     """
+
     return TRANSACTION_ID_PATTERN.format(uuid=uuid.uuid4())
 
 
@@ -47,11 +48,15 @@ def get_probe_data_from_resource_file(filename, replacement_values=None):
     :param param_values: (key, value) pairs. (list of dict)
     :return: File content with param value replacements
     """
+
     filename = filename + ".txt" if ".txt" not in filename else filename
+    logger.debug("Getting resource file content [Filename: %s]", filename)
     file_content = resource_string(RESOURCES_SAMPLEDATA_MODULE, filename)
 
     if replacement_values is not None:
+        logger.debug("Configuring template [Params: %s]", str(replacement_values))
         for param in replacement_values:
-            file_content = file_content.replace(RESOURCES_PARAMETER_PATTERN.replace('param_name', param['key']), param['value'])
+            file_content = file_content.replace(RESOURCES_PARAMETER_PATTERN.replace('param_name', param['key']),
+                                                param['value'])
 
     return file_content
