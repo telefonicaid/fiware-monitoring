@@ -144,15 +144,15 @@ int init_module_variables(char* args, context_t* context)
 					break;
 				}
 				case MISSING_VALUE: {
-					logging(LOG_WARN, context, "Missing value for option -%c", (char) opts[i].err);
+					logging(LOG_ERROR, context, "Missing value for option -%c", (char) opts[i].err);
 					break;
 				}
 				case UNKNOWN_OPTION: {
-					logging(LOG_WARN, context, "Unrecognized option -%c", (char) opts[i].err);
+					logging(LOG_ERROR, context, "Unrecognized option -%c", (char) opts[i].err);
 					break;
 				}
 				default: {
-					logging(LOG_WARN, context, "Unhandled option -%c", (char) opts[i].opt);
+					logging(LOG_ERROR, context, "Unhandled option -%c", (char) opts[i].opt);
 				}
 			}
 		}
@@ -309,7 +309,7 @@ int callback_service_check(int callback_type, void* data)
 
 	#define HDRLEN			MAXBUFLEN
 	#define HDRSTRING		TXID_HTTP_HEADER ": " "n/a"
-	#define HDRTXOFFSET		TXID_HTTP_HEADER_LEN + 2	/* includes length of ": " separator */
+	#define HDRTXOFFSET		(TXID_HTTP_HEADER_LEN + 2)	/* includes length of ": " separator */
 	#define TXID_PREFIX		"......"			/* six chars for the l64a prefix     */
 	#define TXID_PATTERN		"XXXXXX"			/* six chars for the mktemp pattern  */
 
@@ -359,7 +359,7 @@ int callback_service_check(int callback_type, void* data)
 			logging(LOG_INFO, &context, "Request sent to %s",
 			        request_url);
 		} else {
-			logging(LOG_ERROR, &context, "Request to %s failed: %s",
+			logging(LOG_WARN, &context, "Request to %s failed: %s",
 			        request_url, curl_easy_strerror(curl_result));
 		}
 		curl_slist_free_all(curl_headers);

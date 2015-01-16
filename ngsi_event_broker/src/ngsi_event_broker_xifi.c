@@ -90,10 +90,10 @@ char* get_adapter_request(nebstruct_service_check_data* data, context_t* context
 	/* Build request according to plugin details */
 	const service* serv;
 	if ((name = find_plugin_command_name(data, &args, &nrpe, &serv)) == NULL) {
-		logging(LOG_ERROR, context, "Cannot get plugin command name");
+		logging(LOG_WARN, context, "Cannot get plugin command name");
 		result = ADAPTER_REQUEST_INVALID;
 	} else if (serv == NULL) {
-		logging(LOG_ERROR, context, "Cannot get plugin service details");
+		logging(LOG_WARN, context, "Cannot get plugin service details");
 		result = ADAPTER_REQUEST_INVALID;
 	} else {
 		const char*		type = NULL;
@@ -141,7 +141,7 @@ char* npm_get_adapter_request(context_t* context, char* name, char* args, const 
 
 	/* Take adapter query fields from plugin arguments */
 	if ((opts = parse_args(args, ":H:C:o:m:")) == NULL) {
-		logging(LOG_ERROR, context, "Cannot get plugin options");
+		logging(LOG_WARN, context, "Cannot get plugin options");
 		result = ADAPTER_REQUEST_INVALID;
 	} else {
 		char*	host = NULL;
@@ -165,7 +165,7 @@ char* npm_get_adapter_request(context_t* context, char* name, char* args, const 
 			}
 		}
 		if ((host == NULL) || (port == -1)) {
-			logging(LOG_ERROR, context, "Missing plugin options");
+			logging(LOG_WARN, context, "Missing plugin options");
 			result = ADAPTER_REQUEST_INVALID;
 		} else {
 			char buffer[MAXBUFLEN];
@@ -199,7 +199,7 @@ char* dem_get_adapter_request(context_t* context, char* name, char* args, const 
 		buffer[sizeof(buffer)-1] = '\0';
 		result = strdup(buffer);
 	} else if ((opts = parse_args(args, ":H:nup:t:c:a:")) == NULL) {
-		logging(LOG_ERROR, context, "Cannot get NRPE plugin options");
+		logging(LOG_WARN, context, "Cannot get NRPE plugin options");
 		result = ADAPTER_REQUEST_INVALID;
 	} else {
 		char        addr[INET_ADDRSTRLEN];
@@ -215,10 +215,10 @@ char* dem_get_adapter_request(context_t* context, char* name, char* args, const 
 			}
 		}
 		if (host == NULL) {
-			logging(LOG_ERROR, context, "Missing NRPE plugin options");
+			logging(LOG_WARN, context, "Missing NRPE plugin options");
 			result = ADAPTER_REQUEST_INVALID;
 		} else if (resolve_address(host, addr, INET_ADDRSTRLEN) == NEB_ERROR) {
-			logging(LOG_ERROR, context, "Cannot resolve remote address for %s", host);
+			logging(LOG_WARN, context, "Cannot resolve remote address for %s", host);
 			result = ADAPTER_REQUEST_INVALID;
 		} else {
 			snprintf(buffer, sizeof(buffer)-1, DEM_ADAPTER_REQUEST_FORMAT,
