@@ -1,0 +1,23 @@
+{
+    "environment": {
+        "name": "experimentation"
+    },
+    "monitoring_adapter_service": {
+        "protocol": "http",
+        "host": "130.206.81.245",
+        "port": "1337",
+        "resource": "",
+        "host_user": "",
+        "host_password": ""
+    },
+    "monitoring_nagios": {
+        "host": "130.206.81.243",
+        "host_user": "",
+        "host_password": ""
+    },
+    "monitoring_remote_host": {
+        "host": "130.206.81.246",
+        "host_user": "",
+        "host_password": ""
+    }
+}
