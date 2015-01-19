@@ -38,7 +38,7 @@ LOG_CONSOLE_FORMATTER = "    %(asctime)s - %(name)s - %(levelname)s - %(message)
 LOG_FILE_FORMATTER = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
 # Console logging level. By default: ERROR
-logging.config.fileConfig("logging.conf")
+logging.config.fileConfig("./settings/logging.conf")
 logging_level = logging.ERROR
 
 

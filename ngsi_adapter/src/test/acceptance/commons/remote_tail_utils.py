@@ -141,12 +141,3 @@ def _read_tailer(tailer, local_capture_file_descriptor):
     logger.debug("Remote Tailer: Closing connections and file descriptors")
     tailer.disconnect()
     local_capture_file_descriptor.close()
-
-
-if __name__ == '__main__':
-    remote_tail = RemoteTail("130.206.81.245", "root", "/var/log/ngsi_adapter/ngsi_adapter.log",
-                             "../logs/remote", "../fiware_cloud_dsa")
-    remote_tail.init_tailer_connection()
-    remote_tail.start_tailer()
-    time.sleep(TIMER_GRACE_PERIOD)
-    remote_tail.stop_tailer()

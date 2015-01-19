@@ -31,7 +31,7 @@ from commons.utils import generate_transaction_id
 from commons.logger_utils import get_logger
 
 NGSI_ADAPTER_URI_BASE = "{" + API_ROOT_URL_ARG_NAME + "}"
-NGSI_ADAPTER_URI_PARSER = NGSI_ADAPTER_URI_BASE + "/{parser_name}"
+NGSI_ADAPTER_URI_PARSER = NGSI_ADAPTER_URI_BASE + "/{probe_name}"
 NGSI_ADAPTER_PARAMETER_ID = "id"
 NGSI_ADAPTER_PARAMETER_TYPE = "type"
 
@@ -84,32 +84,32 @@ class NgsiAdapterClient:
 
         self.headers = headers
 
-    def send_raw_data(self, raw_data, parser_name, entity_id, entity_type):
+    def send_raw_data(self, raw_data, probe_name, entity_id, entity_type):
         """
         Execute a well-formed POST request. All parameters are mandatory
         :param raw_data: Raw probe data to send (string, text/plain)
-        :param parser_name: Parser to be used (string)
+        :param probe_name: Parser to be used (string)
         :param entity_id: Entity ID (string)
         :param entity_type: Entity Type (string)
         :return: HTTP Request response ('Requests' lib)
         """
 
-        logger.info("Sending raw data to NGSI-Adapter [Parser: %s, EntityId: %, EntityType: %s", parser_name,
+        logger.info("Sending raw data to NGSI-Adapter [Probe: %s, EntityId: %, EntityType: %s", probe_name,
                     entity_id, entity_type)
         parameters = dict()
         parameters.update({NGSI_ADAPTER_PARAMETER_ID: entity_id})
         parameters.update({NGSI_ADAPTER_PARAMETER_TYPE: entity_type})
         return self.rest_client.post(uri_pattern=NGSI_ADAPTER_URI_PARSER, body=raw_data, headers=self.headers,
-                                     parametersn=parameters, parser_name=parser_name)
+                                     parametersn=parameters, probe_name=probe_name)
 
-    def send_raw_data_custom(self, raw_data, parser_name=None, entity_id=None, entity_type=None,
+    def send_raw_data_custom(self, raw_data, probe_name=None, entity_id=None, entity_type=None,
                              http_method=HTTP_VERB_POST):
         """
         Execute a 'send_data' request (POST request by default). Should support all testing cases.
          The generated request could be malformed (Testing purpose)
          Parameters with None value will not be in the generated request (missing parameter).
         :param raw_data: Raw probe data to send (string, text/plain)
-        :param parser_name: Parser to be used (string)
+        :param probe_name: Parser to be used (string)
         :param entity_id: Entity ID (string)
         :param entity_type: Entity Type (string)
         :param http_method: send raw data is a HTTP POST request but, for testing purposes could be interesting to use
@@ -125,10 +125,10 @@ class NgsiAdapterClient:
         if entity_type is not None:
             parameters.update({NGSI_ADAPTER_PARAMETER_TYPE: entity_type})
 
-        if parser_name is not None:
+        if probe_name is not None:
             return self.rest_client.launch_request(uri_pattern=NGSI_ADAPTER_URI_PARSER, body=raw_data,
                                                    method=http_method, headers=self.headers, parameters=parameters,
-                                                   parser_name=parser_name)
+                                                   probe_name=probe_name)
         else:
             return self.rest_client.launch_request(uri_pattern=NGSI_ADAPTER_URI_BASE, body=raw_data,
                                                    method=http_method, headers=self.headers, parameters=parameters)

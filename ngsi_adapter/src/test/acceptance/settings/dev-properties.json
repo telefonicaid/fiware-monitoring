@@ -3,8 +3,8 @@
         "name": "experimentation",
         "log_path": "./logs",
         "local_path_remote_logs": "./logs/remote/",
-        "default_parser": "qa_probe_parser",
-        "default_parser_data": "qa_probe_parser_valid_template",
+        "default_parser": "qa_probe",
+        "default_parser_data": "qa_probe_valid_template",
         "default_parser_parameters": [{"key":"NUM_USERS_VALUE", "value":"5"}]
     },
     "monitoring_adapter_service": {

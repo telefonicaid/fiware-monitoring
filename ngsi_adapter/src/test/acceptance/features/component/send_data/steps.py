@@ -56,6 +56,11 @@ def the_parser(step, probe_name, parser_name):
     world.parser = prepare_param(parser_name)
 
 
+@step(u'the probe name "(.*)"')
+def the_probe_name(step, probe_name):
+    world.probe = prepare_param(probe_name)
+
+
 @step(u'the monitored resource with id "(.*)" and type "(.*)"$')
 def the_monitored_resource_with_id_and_type(step, id, type):
     world.entity_id = prepare_param(id)
@@ -68,7 +73,7 @@ def i_sed_raw_data_according_to_the_selected_parser(step):
         _set_default_dataset()
 
     probe_data = get_probe_data_from_resource_file(world.raw_data_filename, world.raw_data_params)
-    world.response = world.ngsi_adapter_client.send_raw_data_custom(probe_data, world.parser,
+    world.response = world.ngsi_adapter_client.send_raw_data_custom(probe_data, world.probe,
                                                                     world.entity_id, world.entity_type)
 
 
@@ -78,7 +83,7 @@ def i_sed_raw_data_according_to_the_selected_parser_with_http_verb(step, http_ve
         _set_default_dataset()
 
     probe_data = get_probe_data_from_resource_file(world.raw_data_filename, world.raw_data_params)
-    world.response = world.ngsi_adapter_client.send_raw_data_custom(probe_data, world.parser,
+    world.response = world.ngsi_adapter_client.send_raw_data_custom(probe_data, world.probe,
                                                                     world.entity_id, world.entity_type,
                                                                     http_method=http_verb)
 
@@ -110,7 +115,7 @@ def the_given_transaction_id_value_is_used_in_logs(step):
             transaction_id=world.transaction_id)}
         log_utils.search_in_log(remote_log_local_path, service_log_file_name, log_value_transaction_id)
     else:
-        log_value_message = {"MESSAGE": "msg={parser}".format(parser=world.parser)}
+        log_value_message = {"MESSAGE": "msg={probe}".format(probe=world.probe)}
         log_line = log_utils.search_in_log(remote_log_local_path, service_log_file_name, log_value_message)
 
         transaction_id = log_line[log_utils.LOG_TAG["TRANSACTION_ID"].replace("=", "")]
