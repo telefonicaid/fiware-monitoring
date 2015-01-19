@@ -198,7 +198,7 @@ char* dem_get_adapter_request(context_t* context, char* name, char* args, const 
 		         adapter_url, name, region_id, addr, type);
 		buffer[sizeof(buffer)-1] = '\0';
 		result = strdup(buffer);
-	} else if ((opts = parse_args(args, ":H:c:t:")) == NULL) {
+	} else if ((opts = parse_args(args, ":H:nup:t:c:a:")) == NULL) {
 		logging(LOG_WARN, context, "Cannot get NRPE plugin options");
 		result = ADAPTER_REQUEST_INVALID;
 	} else {
