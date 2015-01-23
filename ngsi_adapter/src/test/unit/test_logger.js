@@ -45,9 +45,9 @@ var util = require('util'),
 suite('logger', function() {
 
     suiteSetup(function() {
-        this.level = 'info';
+        this.level = 'INFO';
         logger.setLevel(this.level);
-        logger.stream = require('dev-null');
+        logger.stream = require('dev-null')();
     });
 
     suiteTeardown(function() {
