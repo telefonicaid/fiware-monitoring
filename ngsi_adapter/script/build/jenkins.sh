@@ -120,8 +120,6 @@ build)
 		sonar.sourceEncoding=UTF-8
 		sonar.sources=lib/
 		sonar.tests=test/
-		# exclusions (to be covered by integration tests instead of unit tests)
-		sonar.exclusions=adapter.js
 		# coverage
 		sonar.dynamicAnalysis=reuseReports
 		sonar.cobertura.reportPath=report/coverage/cobertura-coverage.xml

@@ -147,9 +147,17 @@ function asyncRequestListener(request, response) {
         logger.info('Request on resource %s', request.url.split('?').join(' with params '));
         var status = 405;  // not allowed
         if (request.method === 'POST') {
+            var query = url.parse(request.url, true).query;
+            var entityId = query.id;
+            var entityType = query.type;
             try {
-                status = 200;  // ok
+                status = 400;  // bad request
+                if (!entityId || !entityType) {
+                    throw new Error('Missing entityId and/or entityType');
+                }
+                status = 404;  // not found
                 request.parser = parser.getParser(request);
+                status = 200;  // ok
                 request.timestamp = Date.now();
                 request.body = '';
                 request.on('data', function(chunk) {
@@ -157,11 +165,10 @@ function asyncRequestListener(request, response) {
                 });
                 request.on('end', function() {
                     process.nextTick(function() {
-                        doPost(request, callback);
+                        doPost(request, exports.requestCallback);
                     });
                 });
             } catch (err) {
-                status = 404;  // not found
                 logger.error(err.message);
             }
         }
@@ -175,7 +182,7 @@ function asyncRequestListener(request, response) {
 /**
  * Server main.
  */
-exports.main = function() {
+function main() {
     process.on('uncaughtException', function(err) {
         logger.error({op: 'Exit'}, err.message);
         process.exit(1);
@@ -192,9 +199,16 @@ exports.main = function() {
     http.createServer(asyncRequestListener).listen(opts.listenPort, opts.listenHost, function() {
         logger.info({op: 'Init'}, 'Server listening at http://%s:%d/', this.address().address, this.address().port);
     });
-};
+}
+
+
+/** @export */
+exports.main = main;
+
+/** @export */
+exports.requestCallback = callback;
 
 
 if (require.main === module) {
-    exports.main();
+    main();
 }
