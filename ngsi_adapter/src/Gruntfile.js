@@ -123,8 +123,8 @@ module.exports = function(grunt) {
         },
 
         env: {
-            dev: {
-                NODE_ENV: 'development',
+            testReport: {
+                NODE_ENV: 'production',
                 XUNIT_FILE: '<%= dirs.reportTest[0] %>/TEST-xunit.xml'
             }
         },

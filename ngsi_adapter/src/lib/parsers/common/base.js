@@ -70,9 +70,6 @@ baseParser.updateContextRequest = function(request) {
     var query = url.parse(request.url, true).query;
     var entityId = query.id;
     var entityType = query.type;
-    if (!entityId || !entityType) {
-        throw new Error('Missing entityId and/or entityType');
-    }
     var entityData = this.parseRequest(request);
     var entityAttrs = this.getContextAttrs(entityData);
     if (Object.keys(entityAttrs).length === 0) {

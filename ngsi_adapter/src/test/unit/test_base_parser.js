@@ -85,32 +85,6 @@ suite('base_parser', function() {
         );
     });
 
-    test('get_update_request_fails_missing_entity_id', function() {
-        var self = this;
-        parser.parseRequest = sinon.spy(function() { return {}; });
-        parser.getContextAttrs = sinon.spy(function() { return {}; });
-        self.request.url = self.baseurl + '?type=type&another=another';
-        assert.throws(
-            function() {
-                return parser.updateContextRequest(self.request);
-            },
-            /entityId/
-        );
-    });
-
-    test('get_update_request_fails_missing_entity_type', function() {
-        var self = this;
-        parser.parseRequest = sinon.spy(function() { return {}; });
-        parser.getContextAttrs = sinon.spy(function() { return {}; });
-        self.request.url = self.baseurl + '?id=id&another=another';
-        assert.throws(
-            function() {
-                return parser.updateContextRequest(self.request);
-            },
-            /entityType/
-        );
-    });
-
     test('get_update_request_fails_missing_entity_attributes', function() {
         var self = this;
         parser.parseRequest = sinon.spy(function() { return {}; });
