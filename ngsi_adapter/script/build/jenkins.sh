@@ -93,7 +93,7 @@ PRODUCT_RELEASE=$(echo "$PRODUCT_INFO" | sed -n '/"release"/ {s/.*:.*"\(.*\)".*/
 PROJECT_NAME=$(sed -n '/"name"/ {s/.*:.*"\(.*\)".*/\1/; p; q}' $PROJECT_BASE_DIR/package.json)
 PROJECT_VERSION=$(sed -n '/"version"/ {s/.*:.*"\(.*\)".*/\1/; p; q}' $PROJECT_BASE_DIR/package.json)
 SONAR_PROJECT_NAME=$(echo "$PRODUCT_NAME-$PROJECT_NAME" | tr '_' '-')
-SONAR_PROJECT_KEY=com.telefonica.fiware:$SONAR_PROJECT_NAME
+SONAR_PROJECT_KEY=com.telefonica.IoT:$SONAR_PROJECT_NAME
 
 # Change to project directory
 cd $PROJECT_BASE_DIR
