@@ -91,8 +91,8 @@ PRODUCT_NAME=$(sed -n '/\[PRODUCT_NAME\]/ {s/.*\[.*\].*\[\(.*\)\].*/\1/; p}' $PR
 PRODUCT_RELEASE=$(sed -n '/\[PRODUCT_RELEASE\]/ {s/.*\[.*\].*\[\(.*\)\].*/\1/; p}' $PROJECT_DIR/configure.ac)
 PROJECT_NAME=$(sed -n '/AC_INIT/ {s/.*\[PRODUCT_NAME-\(.*\)].*/\1/; p}' $PROJECT_DIR/configure.ac)
 PROJECT_VERSION=$(sed -n '/AC_INIT/ {s/.*,[ \t]*\(.*\))/\1/; p}' $PROJECT_DIR/configure.ac)
-SONAR_PROJECT_NAME=$(echo "$PRODUCT_NAME-$PROJECT_NAME" | tr '_' '-')
-SONAR_PROJECT_KEY=com.telefonica.fiware:$SONAR_PROJECT_NAME
+SONAR_PROJECT_NAME="Monitoring NGSI Event Broker"
+SONAR_PROJECT_KEY=com.telefonica.iot:monitoring-ngsi-event-broker
 
 # Dependencies
 RPM_DEPENDENCIES="wget gcc-c++ make autoconf automake libtool cppunit-devel libcurl-devel"
@@ -172,7 +172,7 @@ build)
 	chmod a+x ./metrics_runner.sh
 
 	# Generate metrics in SonarQube
-	export DEBUG_METRICS="FALSE"
+	export DEBUG_METRICS=FALSE
 	./metrics_runner.sh
 	;;
 

@@ -75,15 +75,15 @@ create_debian_package() {
 get_linux_distro() {
 	local retvar=${1:-OS_DISTRO}
 	local distro
-	if [ -r /etc/lsb-release -a -r /etc/issue.net ]; then
+	if [ -r /etc/redhat-release ]; then
+		# RedHat/CentOS/Fedora
+		distro=$(cat /etc/redhat-release)
+	elif [ -r /etc/lsb-release -a -r /etc/issue.net ]; then
 		# Ubuntu
 		distro=$(cat /etc/issue.net)
 	elif [ -r /etc/debian_version -a -r /etc/issue.net ]; then
 		# Debian
 		distro=$(cat /etc/issue.net)
-	elif [ -r /etc/redhat-release ]; then
-		# RedHat/CentOS/Fedora
-		distro=$(cat /etc/redhat-release)
 	fi
 	[ -z "$distro" ] && return 1
 	eval $retvar=\"$distro\"
