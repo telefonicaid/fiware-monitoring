@@ -2,7 +2,7 @@
 
 # Copyright 2015 Telefonica Investigación y Desarrollo, S.A.U
 #
-# This file is part of FI-WARE project.
+# This file is part of FIWARE project.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -44,7 +44,8 @@ _tail_terminate_flag = False
 
 class RemoteTail:
 
-    def __init__(self, remote_host_ip, remote_host_user, remote_log_path, remote_log_file_name, local_log_target, private_key):
+    def __init__(self, remote_host_ip, remote_host_user, remote_log_path, remote_log_file_name, local_log_target,
+                 private_key):
         """
         Inits RemoteTail class
         :param remote_host_ip: Remote Host IP

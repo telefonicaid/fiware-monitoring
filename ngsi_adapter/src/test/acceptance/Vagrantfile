@@ -3,7 +3,7 @@
 
 # Copyright 2015 Telefonica Investigación y Desarrollo, S.A.U
 #
-# This file is part of FI-WARE project.
+# This file is part of FIWARE project.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Every Vagrant virtual environment requires a box to build off of.
+  # Box: https://atlas.hashicorp.com/hashicorp/boxes/precise32
   config.vm.box = "hashicorp/precise32"
 
   # Provision

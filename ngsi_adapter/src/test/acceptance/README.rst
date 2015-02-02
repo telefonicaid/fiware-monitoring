@@ -68,8 +68,8 @@ With this command, you will execute:
 
 **Test case execution using virtualenv**
 
-1. Create a virtual environment somewhere *(virtualenv ~/venv)*
-#. Activate the virtual environment *(source ~/venv/bin/activate)*
+1. Create a virtual environment somewhere *(virtualenv $WORKON_HOME/venv)*
+#. Activate the virtual environment *(source $WORKON_HOME/venv/bin/activate)*
 #. Go to *ngsi_adapter/src/test/acceptance* folder in the project
 #. Install the requirements for the acceptance tests in the virtual environment *(pip install -r requirements.txt --allow-all-external)*
 

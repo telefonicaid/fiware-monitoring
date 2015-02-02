@@ -2,7 +2,7 @@
 
 # Copyright 2015 Telefonica Investigación y Desarrollo, S.A.U
 #
-# This file is part of FI-WARE project.
+# This file is part of FIWARE project.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
