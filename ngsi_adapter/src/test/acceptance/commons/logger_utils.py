@@ -27,6 +27,7 @@ import logging
 import logging.config
 import xml
 import json
+import os
 from constants import HEADER_CONTENT_TYPE, HEADER_REPRESENTATION_XML, HEADER_REPRESENTATION_JSON
 
 """
@@ -37,8 +38,14 @@ Part of this code has been taken from:
 LOG_CONSOLE_FORMATTER = "    %(asctime)s - %(name)s - %(levelname)s - %(message)s"
 LOG_FILE_FORMATTER = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
-# Console logging level. By default: ERROR
+
+# By default, create the ./logs directory to store logs
+if not os.path.exists("./logs"):
+    os.makedirs("./logs")
+
 logging.config.fileConfig("./settings/logging.conf")
+
+# Console logging level. By default: ERROR
 logging_level = logging.ERROR
 
 
