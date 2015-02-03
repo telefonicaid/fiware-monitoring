@@ -1,2 +1,8 @@
 lettuce==0.2.19
-git+https://github.com/telefonicaid/lettuce-tools.git@v0.1#egg=lettuce_tools
+git+https://github.com/telefonicaid/lettuce-tools.git#egg=lettuce_tools
+setuptools
+nose
+xmldict
+xmltodict
+python-sshtail
+requests

@@ -14,7 +14,7 @@ Feature: Sending probe data
 
 
   Scenario: Valid probe data is sent to CB using a not existing parser
-    Given the probe name "qa_probe"
+    Given the probe name "qa_probe_not_existing"
     And   the monitored resource with id "qa:1234567890" and type "host"
     When  I send raw data according to the selected probe
     Then  the response status code is "404"
@@ -80,10 +80,11 @@ Feature: Sending probe data
     | a           |
     | B           |
     | 12345678    |
-    | qa.parser   |
-    | qa-parser   |
-    | qa_parser   |
-    | qa@parser   |
+    | qa.probe    |
+    | qa-probe    |
+    | qa_probe    |
+    | qa@probe    |
+
 
   @skip @CLAUDIA-4468 @CLAUDIA-4469
   Scenario Outline: Valid probe data is sent to CB using an existing parser, with invalid entity ID values.
@@ -99,6 +100,7 @@ Feature: Sending probe data
     | [MISSING_PARAM]           |
 
 
+  @skip @CLAUDIA-4468 @CLAUDIA-4469
   Scenario Outline: Valid probe data is sent to CB using an existing parser, with invalid entity TYPE values.
     Given the probe name "qa_probe"
     And   the monitored resource with id "qa:1234567890" and type "<entity_type>"
@@ -122,9 +124,8 @@ Feature: Sending probe data
   Scenario Outline: Valid probe data is sent to CB using an unsupported HTTP method
     Given the probe name "qa_probe"
     And   the monitored resource with id "qa:1234567890" and type "host"
-    And   http operation is "<http_verb>"
-    When  I send raw data according to the selected probe
-    Then  the response status code is "400"
+    When  I send raw data according to the selected probe with "<http_verb>" HTTP operation
+    Then  the response status code is "405"
 
     Examples:
     | http_verb |
@@ -137,7 +138,7 @@ Feature: Sending probe data
     Given the probe name "qa_probe"
     And   the monitored resource with id "qa:1234567890" and type "host"
     And   the header Transaction-Id "<transaction_id>"
-    When  I send valid raw data according to the selected probe
+    When  I send raw data according to the selected probe
     Then  the response status code is "200"
     And   the given Transaction-Id value is used in logs
 
@@ -150,19 +151,15 @@ Feature: Sending probe data
     | 123-456             |
     | ABC_1av             |
 
+
   Scenario Outline: NGSI-Adapter generates new transaction-id value when header is missing or empty
-    Given the probe name "qa_probe"
+    Given the probe name "<probe_name>"
     And   the monitored resource with id "qa:1234567890" and type "host"
     And   the header Transaction-Id "<transaction_id>"
-    When  I send valid raw data according to the selected probe
-    Then  the response status code is "200"
-    And   new Transaction-Id value is used in logs
+    When  I send raw data according to the selected probe
+    Then  an auto-generated Transaction-Id value is used in logs
 
     Examples:
-    | transaction_id      |
-    | 1                   |
-    | 1231asdfgasd        |
-    | a/12345.qa          |
-    | ABCDEFG#123         |
-    | 123-456             |
-    | ABC_1av             |
+    | transaction_id      | probe_name      |
+    |                     | no_transaction  |
+    | [MISSING_PARAM]     | no_transaction2 |

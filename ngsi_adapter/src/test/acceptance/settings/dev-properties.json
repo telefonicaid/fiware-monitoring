@@ -1,23 +1,31 @@
 {
     "environment": {
-        "name": "experimentation"
+        "name": "experimentation",
+        "log_path": "./logs",
+        "local_path_remote_logs": "./logs/remote/",
+        "default_parser": "qa_probe",
+        "default_parser_data": "qa_probe_valid_template",
+        "default_parser_parameters": [{"key":"NUM_USERS_VALUE", "value":"5"}]
     },
     "monitoring_adapter_service": {
         "protocol": "http",
         "host": "130.206.81.245",
         "port": "1337",
         "resource": "",
-        "host_user": "",
-        "host_password": ""
+        "host_user": "root",
+        "host_password": "",
+        "private_key_location": "./fiware_cloud_dsa",
+        "service_log_path": "/var/log/ngsi_adapter/",
+        "service_log_file_name": "ngsi_adapter.log"
     },
     "monitoring_nagios": {
         "host": "130.206.81.243",
-        "host_user": "",
+        "host_user": "root",
         "host_password": ""
     },
     "monitoring_remote_host": {
         "host": "130.206.81.246",
-        "host_user": "",
+        "host_user": "root",
         "host_password": ""
     }
 }
