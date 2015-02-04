@@ -126,7 +126,7 @@ component, whose API is described in `Monitoring Open RESTful API Specification
 
 .. REFERENCES
 
-.. _Cloud Hosting Chapter: https://forge.fi-ware.org/plugins/mediawiki/wiki/fiware/index.php/Cloud_Hosting_Architecture
-.. _Open Specification: https://forge.fi-ware.org/plugins/mediawiki/wiki/fiware/index.php/FIWARE.OpenSpecification.Cloud.Monitoring
-.. _Context Broker Programmers Guide: https://forge.fi-ware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Programmers_Guide
-.. _Monitoring Open RESTful API Specification (PRELIMINARY): https://forge.fi-ware.org/plugins/mediawiki/wiki/fiware/index.php/Monitoring_Open_RESTful_API_Specification_(PRELIMINARY)
+.. _Cloud Hosting Chapter: https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Cloud_Hosting_Architecture
+.. _Open Specification: https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/FIWARE.OpenSpecification.Cloud.Monitoring
+.. _Context Broker Programmers Guide: https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Programmers_Guide
+.. _Monitoring Open RESTful API Specification (PRELIMINARY): https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Monitoring_Open_RESTful_API_Specification_(PRELIMINARY)

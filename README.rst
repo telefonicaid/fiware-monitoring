@@ -38,6 +38,11 @@ Components
 Releases
 ========
 
+`FIWARE 4.2.1`_
+
+-  NGSI Event Broker version 1.4.1
+-  NGSI Adapter version 1.2.1
+
 `FIWARE 4.1.1`_
 
 -  NGSI Event Broker version 1.4.0
@@ -67,7 +72,7 @@ Releases
 License
 =======
 
-\(c) 2013-2014 Telefónica I+D, Apache License 2.0
+\(c) 2013-2015 Telefónica I+D, Apache License 2.0
 
 
 .. IMAGES
@@ -80,9 +85,10 @@ License
 
 .. REFERENCES
 
-.. _FIWARE Catalogue - Monitoring GE: http://catalogue.fi-ware.org/enablers/monitoring-ge-tid-implementation
-.. _FIWARE 4.1.1: https://forge.fi-ware.org/frs/?group_id=7&release_id=544#cloud-monitoring-4-1-1-title-content
-.. _FIWARE 3.5.2: https://forge.fi-ware.org/frs/?group_id=7&release_id=529#cloud-monitoring-3-5-2-title-content
-.. _FIWARE 3.5.1: https://forge.fi-ware.org/frs/?group_id=7&release_id=506#cloud-monitoring-3-5-1-title-content
-.. _FIWARE 3.3.3: https://forge.fi-ware.org/frs/?group_id=7&release_id=419#cloud-monitoring-3-3-3-title-content
-.. _FIWARE 3.3.2: https://forge.fi-ware.org/frs/?group_id=23&release_id=399#cloud-monitoring-3-3-2-title-content
+.. _FIWARE Catalogue - Monitoring GE: http://catalogue.fiware.org/enablers/monitoring-ge-tid-implementation
+.. _FIWARE 4.2.1: https://forge.fiware.org/frs/?group_id=7&release_id=563#cloud-monitoring-4-2-1-title-content
+.. _FIWARE 4.1.1: https://forge.fiware.org/frs/?group_id=7&release_id=544#cloud-monitoring-4-1-1-title-content
+.. _FIWARE 3.5.2: https://forge.fiware.org/frs/?group_id=7&release_id=529#cloud-monitoring-3-5-2-title-content
+.. _FIWARE 3.5.1: https://forge.fiware.org/frs/?group_id=7&release_id=506#cloud-monitoring-3-5-1-title-content
+.. _FIWARE 3.3.3: https://forge.fiware.org/frs/?group_id=7&release_id=419#cloud-monitoring-3-3-3-title-content
+.. _FIWARE 3.3.2: https://forge.fiware.org/frs/?group_id=23&release_id=399#cloud-monitoring-3-3-2-title-content

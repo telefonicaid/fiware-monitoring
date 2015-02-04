@@ -155,6 +155,10 @@ definition the aforementioned custom variable ``_entity_type``.
 Changelog
 =========
 
+Version 1.4.1
+
+-  Minor bugs resolved
+
 Version 1.4.0
 
 -  Included new log format (issue #25)
@@ -192,7 +196,7 @@ Version 1.0.0
 License
 =======
 
-\(c) 2013-2014 Telefónica I+D, Apache License 2.0
+\(c) 2013-2015 Telefónica I+D, Apache License 2.0
 
 
 .. REFERENCES
