@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright 2013-2014 Telefónica I+D
+# Copyright 2013-2015 Telefónica I+D
 # All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -20,7 +20,7 @@
 # Support script for this component within a Jenkins CI job
 #
 # Usage:
-#     $0 build|release
+#     $0 build|package
 #     $0 --help
 #
 # Options:
@@ -28,7 +28,7 @@
 #
 # Actions:
 #     build		build, generate reports and publish to SonarQube
-#     release		generate distribution package
+#     package		generate distribution package
 #
 
 OPTS='h(help)'
@@ -58,8 +58,8 @@ case $OPT in
 	continue;;
 esac; break; done; done
 shift $(expr $OPTIND - 1)
-ACTION=$(expr "$1" : "^\(build\|release\)$") && shift
-[ -z "$OPTERR" -a -z "$ACTION" ] && OPTERR="Missing or invalid action"
+ACTION=$(expr "$1" : "^\(build\|package\)$") && shift
+[ -z "$OPTERR" -a -z "$ACTION" ] && OPTERR="Valid action required as argument"
 [ -z "$OPTERR" -a -n "$*" ] && OPTERR="Too many arguments"
 [ -n "$OPTERR" ] && {
 	[ "$OPTERR" != "$OPTHLP" ] && OPTERR="${OPTERR}\nTry \`$NAME --help'"
@@ -89,6 +89,7 @@ COVERAGE_SITE_DIR=$PROJECT_DIR/site/coverage/lcov-report
 PRODUCT_AREA=$(sed -n '/\[PRODUCT_AREA\]/ {s/.*\[.*\].*\[\(.*\)\].*/\1/; p}' $PROJECT_DIR/configure.ac)
 PRODUCT_NAME=$(sed -n '/\[PRODUCT_NAME\]/ {s/.*\[.*\].*\[\(.*\)\].*/\1/; p}' $PROJECT_DIR/configure.ac)
 PRODUCT_RELEASE=$(sed -n '/\[PRODUCT_RELEASE\]/ {s/.*\[.*\].*\[\(.*\)\].*/\1/; p}' $PROJECT_DIR/configure.ac)
+PROJECT_DESC=$(sed -n '/\[DESCRIPTION\]/ {s/.*\[.*\].*\[\(.*\)\].*/\1/; p}' $PROJECT_DIR/configure.ac)
 PROJECT_NAME=$(sed -n '/AC_INIT/ {s/.*\[PRODUCT_NAME-\(.*\)].*/\1/; p}' $PROJECT_DIR/configure.ac)
 PROJECT_VERSION=$(sed -n '/AC_INIT/ {s/.*,[ \t]*\(.*\))/\1/; p}' $PROJECT_DIR/configure.ac)
 SONAR_PROJECT_NAME="Monitoring NGSI Event Broker"
@@ -147,6 +148,7 @@ build)
 		sonar.projectName=$SONAR_PROJECT_NAME
 		sonar.projectKey=$SONAR_PROJECT_KEY
 		sonar.projectVersion=$PROJECT_VERSION
+		sonar.projectDescription=$PROJECT_DESC
 		sonar.language=c++
 		sonar.sourceEncoding=UTF-8
 		sonar.sources=src/
@@ -176,14 +178,14 @@ build)
 	./metrics_runner.sh
 	;;
 
-release)
+package)
 	# Install development and package generation dependencies
 	if test -r /etc/redhat-release; then
 		# CentOS
 		sudo yum -y -q install $RPM_DEPENDENCIES redhat-rpm-config
 	else
 		# Ubuntu
-		sudo apt-get -y -q install $DEB_DEPENDENCIES dpkg-dev debhelper
+		sudo apt-get -y -q install $DEB_DEPENDENCIES dpkg-dev debhelper devscripts
 	fi
 	if ! test -d $NAGIOS_SRC_DIR; then
 		wget $NAGIOS_URL -q -O nagios-${NAGIOS_VERSION}.tar.gz
@@ -197,6 +199,6 @@ release)
 
 	# Generate source distribution and package
 	make clean dist
-	script/build/release.sh
+	script/build/package.sh -v $PROJECT_VERSION
 	;;
 esac

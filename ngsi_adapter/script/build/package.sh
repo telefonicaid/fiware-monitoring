@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright 2013-2014 Telefónica I+D
+# Copyright 2013-2015 Telefónica I+D
 # All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -17,17 +17,24 @@
 #
 
 #
-# Release a version of this component and generate .deb or .rpm package
+# Generate a package (.deb or .rpm) for this component
 #
 # Usage:
+#     $0 [--version=spec [--changelog=text]]
 #     $0 [--help]
 #
 # Options:
+#     -v, --version	version of the generated package
+#     -c, --changelog	changelog entry for new version
 #     -h, --help	show this help message
 #
 
-OPTS='h(help)'
+OPTS='v(version):c(changelog):h(help)'
 NAME=$(basename $0)
+
+# Command line options
+CHANGELOG="New release"
+VERSION=
 
 # Process command line
 OPTERR=
@@ -35,6 +42,9 @@ OPTSTR=$(echo :-:$OPTS | sed 's/([a-zA-Z0-9]*)//g')
 OPTHLP=$(sed -n '20,/^$/ { s/$0/'$NAME'/; s/^#[ ]\?//p }' $0)
 while getopts $OPTSTR OPT; do while [ -z "$OPTERR" ]; do
 case $OPT in
+'v')	VERSION="$OPTARG";;
+'c')	CHANGELOG="$OPTARG";
+	[ -z "$VERSION" ] && OPTERR="Missing option --version";;
 'h')	OPTERR="$OPTHLP";;
 '?')	OPTERR="Unknown option -$OPTARG";;
 ':')	OPTERR="Missing value for option -$OPTARG";;
@@ -53,7 +63,7 @@ shift $(expr $OPTIND - 1)
 [ -z "$OPTERR" -a -n "$*" ] && OPTERR="Too many arguments"
 [ -n "$OPTERR" ] && {
 	[ "$OPTERR" != "$OPTHLP" ] && OPTERR="${OPTERR}\nTry \`$NAME --help'"
-	TAB=4; LEN=$(echo "$OPTERR" | awk -F'\t' '/\t.+\t/ {print $2}' | wc -L)
+	TAB=4; LEN=$(echo "$OPTERR" | awk -F'\t' '/ .+\t/ {print $1}' | wc -L)
 	TABSTOPS=$TAB,$(((2+LEN/TAB)*TAB)); WIDTH=${COLUMNS:-$(tput cols)}
 	printf "$OPTERR" | tr -s '\t' | expand -t$TABSTOPS | fmt -$WIDTH -s 1>&2
 	exit 1
@@ -63,6 +73,7 @@ shift $(expr $OPTIND - 1)
 create_debian_package() {
 	local package dpkg_files dpkg_dir=$BASEDIR/..
 	cd $BASEDIR && cp -r $PROGDIR/files/debian .
+	[ -n "$VERSION" ] && debchange -M -v "$VERSION" "$CHANGELOG"
 	dpkg-buildpackage -b -rfakeroot -D -us -uc \
 	&& dpkg_files=$(ls -t ../*.deb ../*.changes 2>/dev/null | head -2) \
 	&& package=$(expr "$dpkg_files" : ".*/\(.*\.deb\)") \

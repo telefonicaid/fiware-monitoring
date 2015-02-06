@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright 2013-2014 Telefónica I+D
+# Copyright 2013-2015 Telefónica I+D
 # All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -20,7 +20,7 @@
 # Support script for this component within a Jenkins CI job
 #
 # Usage:
-#     $0 build|release
+#     $0 build|package
 #     $0 --help
 #
 # Options:
@@ -28,7 +28,7 @@
 #
 # Actions:
 #     build		build, generate reports and publish to SonarQube
-#     release		generate distribution package
+#     package		generate distribution package
 #
 
 OPTS='h(help)'
@@ -58,8 +58,8 @@ case $OPT in
 	continue;;
 esac; break; done; done
 shift $(expr $OPTIND - 1)
-ACTION=$(expr "$1" : "^\(build\|release\)$") && shift
-[ -z "$OPTERR" -a -z "$ACTION" ] && OPTERR="Missing or invalid action"
+ACTION=$(expr "$1" : "^\(build\|package\)$") && shift
+[ -z "$OPTERR" -a -z "$ACTION" ] && OPTERR="Valid action required as argument"
 [ -z "$OPTERR" -a -n "$*" ] && OPTERR="Too many arguments"
 [ -n "$OPTERR" ] && {
 	[ "$OPTERR" != "$OPTHLP" ] && OPTERR="${OPTERR}\nTry \`$NAME --help'"
@@ -91,6 +91,7 @@ PRODUCT_AREA=$(echo "$PRODUCT_INFO" | sed -n '/"area"/ {s/.*:.*"\(.*\)".*/\1/; p
 PRODUCT_NAME=$(echo "$PRODUCT_INFO" | sed -n '/"name"/ {s/.*:.*"\(.*\)".*/\1/; p; q}')
 PRODUCT_RELEASE=$(echo "$PRODUCT_INFO" | sed -n '/"release"/ {s/.*:.*"\(.*\)".*/\1/; p; q}')
 PROJECT_NAME=$(sed -n '/"name"/ {s/.*:.*"\(.*\)".*/\1/; p; q}' $PROJECT_BASE_DIR/package.json)
+PROJECT_DESC=$(sed -n '/"description"/ {s/.*:.*"\(.*\)".*/\1/; p; q}' $PROJECT_BASE_DIR/package.json)
 PROJECT_VERSION=$(sed -n '/"version"/ {s/.*:.*"\(.*\)".*/\1/; p; q}' $PROJECT_BASE_DIR/package.json)
 SONAR_PROJECT_NAME="Monitoring NGSI Adapter"
 SONAR_PROJECT_KEY=com.telefonica.iot:monitoring-ngsi-adapter
@@ -116,6 +117,7 @@ build)
 		sonar.projectName=$SONAR_PROJECT_NAME
 		sonar.projectKey=$SONAR_PROJECT_KEY
 		sonar.projectVersion=$PROJECT_VERSION
+		sonar.projectDescription=$PROJECT_DESC
 		sonar.language=js
 		sonar.sourceEncoding=UTF-8
 		sonar.sources=lib/
@@ -144,15 +146,15 @@ build)
 	./metrics_runner.sh
 	;;
 
-release)
+package)
 	# install development dependencies
 	if test -r /etc/redhat-release; then
 		sudo yum -y -q install redhat-rpm-config
 	else
-		sudo apt-get -y -q install dpkg-dev debhelper
+		sudo apt-get -y -q install dpkg-dev debhelper devscripts
 	fi
 
 	# Generate package
-	$PROJECT_DIR/script/build/release.sh
+	$PROJECT_DIR/script/build/package.sh -v $PROJECT_VERSION
 	;;
 esac
