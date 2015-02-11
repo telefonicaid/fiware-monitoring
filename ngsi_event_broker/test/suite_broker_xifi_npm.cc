@@ -111,23 +111,10 @@ using namespace std;
 #define REMOTEHOST_NAME		"my_remote_host"
 
 
-///
-/// @name Mocks for system calls
-/// @{
-///
+// Forward declarations for friend members
 extern "C" {
 	int			__wrap_gethostname(char*, size_t);
 	struct hostent*		__wrap_gethostbyname(const char*);
-}
-
-/// @}
-
-
-///
-/// @name Mocks for Nagios functions
-/// @{
-///
-extern "C" {
 	host*			__wrap_find_host(char*);
 	service*		__wrap_find_service(char*, char*);
 	command*		__wrap_find_command(char*);
@@ -136,8 +123,6 @@ extern "C" {
 	int			__wrap_get_raw_command_line_r(nagios_macros*, command*, char*, char**, int);
 	int			__wrap_process_macros_r(nagios_macros*, char*, char**, int);
 }
-
-/// @}
 
 
 /// XIFI Broker (NPM features) test suite
@@ -209,30 +194,19 @@ int main(int argc, char* argv[])
 }
 
 
-///
-/// @name Mock for gethostname()
-/// @{
-///
-
-/// Return value
+/// Return value from ::__wrap_gethostname
 int BrokerXifiNpmTest::__retval_gethostname = EXIT_SUCCESS;
 
-/// Mock function
+
+/// Mock for ::gethostname
 int __wrap_gethostname(char* name, size_t len)
 {
 	memcpy(name, LOCALHOST_NAME, len);
 	return BrokerXifiNpmTest::__retval_gethostname;
 }
 
-/// @}
 
-
-///
-/// @name Mock for gethostbyname()
-/// @{
-///
-
-/// Mock function
+/// Mock for ::gethostbyname
 struct hostent* __wrap_gethostbyname(const char* name)
 {
 	static struct hostent	host;
@@ -255,106 +229,71 @@ struct hostent* __wrap_gethostbyname(const char* name)
 	return &host;
 }
 
-/// @}
 
-
-///
-/// @name Mock for find_host()
-/// @{
-///
-
-/// Return value
+/// Return value from ::__wrap_find_host
 host* BrokerXifiNpmTest::__retval_find_host = NULL;
 
-/// Mock function
+
+/// Mock for ::find_host
 host* __wrap_find_host(char* name)
 {
 	return BrokerXifiNpmTest::__retval_find_host;
 }
 
-/// @}
 
-
-///
-/// @name Mock for find_service()
-/// @{
-///
-
-/// Return value
+/// Return value from ::__wrap_find_service
 service* BrokerXifiNpmTest::__retval_find_service = NULL;
 
-/// Mock function
+
+/// Mock for ::find_service
 service* __wrap_find_service(char* name, char* svc_desc)
 {
 	return BrokerXifiNpmTest::__retval_find_service;
 }
 
-/// @}
 
-
-///
-/// @name Mock for find_command()
-/// @{
-///
-
-/// Return value
+/// Return value from ::__wrap_find_command
 command* BrokerXifiNpmTest::__retval_find_command = NULL;
 
-/// Mock function
+
+/// Mock for ::find_command
 command* __wrap_find_command(char* name)
 {
 	return BrokerXifiNpmTest::__retval_find_command;
 }
 
-/// @}
 
-
-///
-/// @name Mock for grab_host_macros_r()
-/// @{
-///
-
-/// Return value
+/// Return value from ::__wrap_grab_host_macros_r
 int BrokerXifiNpmTest::__retval_grab_host_macros_r = EXIT_SUCCESS;
 
-/// Mock function
+
+/// Mock for ::grab_host_macros_r
 int __wrap_grab_host_macros_r(nagios_macros* mac, host* hst)
 {
 	return BrokerXifiNpmTest::__retval_grab_host_macros_r;
 }
 
-/// @}
 
-
-///
-/// @name Mock for grab_service_macros_r()
-/// @{
-///
-
-/// Return value
+/// Return value from ::__wrap_grab_service_macros_r
 int BrokerXifiNpmTest::__retval_grab_service_macros_r = EXIT_SUCCESS;
 
-/// Mock function
+
+/// Mock for ::grab_service_macros_r
 int __wrap_grab_service_macros_r(nagios_macros* mac, service* svc)
 {
 	return BrokerXifiNpmTest::__retval_grab_service_macros_r;
 }
 
-/// @}
 
-
-///
-/// @name Mock for get_raw_command_line_r()
-/// @{
-///
-
-/// Output value for `full_command`
+/// Output value for `full_command` from ::__wrap_get_raw_command_line_r
 char* BrokerXifiNpmTest::__output_get_raw_command_line_r = NULL;
 
-/// Return value
+
+/// Return value from ::__wrap_get_raw_command_line_r
 int BrokerXifiNpmTest::__retval_get_raw_command_line_r = EXIT_SUCCESS;
 
-/// Mock function
+
+/// Mock for ::get_raw_command_line_r
 int __wrap_get_raw_command_line_r(nagios_macros* mac, command* ptr, char* cmd, char** full_command, int macro_options)
 {
 	if (full_command) {
@@ -365,21 +304,16 @@ int __wrap_get_raw_command_line_r(nagios_macros* mac, command* ptr, char* cmd, c
 	return BrokerXifiNpmTest::__retval_get_raw_command_line_r;
 }
 
-/// @}
 
-
-///
-/// @name Mock for process_macros_r()
-/// @{
-///
-
-/// Output value for `output_buffer`
+/// Output value for `output_buffer` from ::__wrap_process_macros_r
 char* BrokerXifiNpmTest::__output_process_macros_r = NULL;
 
-/// Return value
+
+/// Return value from ::__wrap_process_macros_r
 int BrokerXifiNpmTest::__retval_process_macros_r = EXIT_SUCCESS;
 
-/// Mock function
+
+/// Mock for ::process_macros_r
 int __wrap_process_macros_r(nagios_macros* mac, char* input_buffer, char** output_buffer, int options)
 {
 	if (output_buffer) {
@@ -390,7 +324,7 @@ int __wrap_process_macros_r(nagios_macros* mac, char* input_buffer, char** outpu
 
 
 ///
-/// Static method for C function ::init_module_variables()
+/// Static method wrapping C function ::init_module_variables from module
 ///
 /// @param[in] args			The module arguments as a space-separated string.
 ///
@@ -407,7 +341,7 @@ int BrokerXifiNpmTest::init_module_variables(const string& args)
 
 
 ///
-/// Static method for C function ::free_module_variables()
+/// Static method wrapping C function ::free_module_variables from module
 ///
 /// @retval NEB_OK			Success.
 ///
@@ -418,9 +352,9 @@ int BrokerXifiNpmTest::free_module_variables()
 
 
 ///
-/// Static method for C function ::get_adapter_request()
+/// Static method wrapping C function ::get_adapter_request from module
 ///
-/// @param[in]  data			The plugin data passed by Nagios to the registered callback_service_check().
+/// @param[in]  data			The plugin data passed by Nagios to the registered ::callback_service_check.
 /// @param[out] request			String storing the request URL to invoke NGSI Adapter (including query string).
 ///
 /// @return				Pointer to the string storing the request.

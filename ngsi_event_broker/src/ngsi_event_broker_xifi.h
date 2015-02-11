@@ -46,7 +46,7 @@ extern "C" {
 /** Name of custom variable in service description. A custom variable "_entity_type" may
  *  be included in Nagios configuration file when [defining a service](@NagiosCustomVars_ref);
  *  such variable is renamed to be accesible from this module (converted to uppercase and
- *  underscore removed). See [customvariablesmember](@NagiosCustomVarsStruct_ref) for details. */
+ *  underscore removed). See ::customvariablesmember for details. */
 #define CUSTOM_VAR_ENTITY_TYPE		"ENTITY_TYPE"
 
 /**@}*/
@@ -118,8 +118,8 @@ extern "C" {
  * Composes the request to NGSI Adapter according to DEM-specific plugin data
  *
  * @param[in] context	The operations context (may be null).
- * @param[in] name	The name of the command for the plugin (result of find_plugin_command_name()).
- * @param[in] args	The command line arguments for the plugin (result of find_plugin_command_name()).
+ * @param[in] name	The name of the command for the plugin (result of ::find_plugin_command_name).
+ * @param[in] args	The command line arguments for the plugin (result of ::find_plugin_command_name).
  * @param[in] type	The entity type associated to the resource being monitored.
  * @param[in] nrpe	True (non-zero) when plugin is remotely executed via NRPE.
  *
@@ -132,8 +132,8 @@ char* dem_get_adapter_request(context_t* context, char* name, char* args, const 
  * Composes the request to NGSI Adapter according to NPM-specific plugin data
  *
  * @param[in] context	The operations context (may be null).
- * @param[in] name	The name of the command for the plugin (result of find_plugin_command_name()).
- * @param[in] args	The command line arguments for the plugin (result of find_plugin_command_name()).
+ * @param[in] name	The name of the command for the plugin (result of ::find_plugin_command_name).
+ * @param[in] args	The command line arguments for the plugin (result of ::find_plugin_command_name).
  * @param[in] type	The entity type associated to the resource being monitored.
  *
  * @return		The request URL to invoke NGSI Adapter (including query string).
@@ -145,8 +145,8 @@ char* npm_get_adapter_request(context_t* context, char* name, char* args, const 
  * Composes the request to NGSI Adapter according to Host service-specific plugin data
  *
  * @param[in] context	The operations context (may be null).
- * @param[in] name	The name of the command for the plugin (result of find_plugin_command_name()).
- * @param[in] args	The command line arguments for the plugin (result of find_plugin_command_name()).
+ * @param[in] name	The name of the command for the plugin (result of ::find_plugin_command_name).
+ * @param[in] args	The command line arguments for the plugin (result of ::find_plugin_command_name).
  * @param[in] type	The entity type associated to the resource being monitored.
  * @param[in] serv	The details of service definition associated to the plugin.
  *

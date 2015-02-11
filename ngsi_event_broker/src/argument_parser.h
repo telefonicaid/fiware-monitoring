@@ -65,7 +65,7 @@ typedef struct option_value {
  * Parses module arguments given in configuration file
  *
  * @param[in] args		The module arguments as a space-separated string (may be null).
- * @param[in] optstr		The option string as defined for [getopt()](@getopt_ref).
+ * @param[in] optstr		The option string as defined for ::getopt.
  *
  * @return			The module arguments as options list.
  */

@@ -70,23 +70,15 @@ using namespace std;
 #define LOCALHOST_NAME			"my_local_host"
 
 
-///
-/// @name Stubs for global module constants and variables
-/// @{
-///
+// Stubs for global module constants and variables
 extern "C" {
 	char* const module_name		= PACKAGE_NAME;
 	char* const module_version	= PACKAGE_VERSION;
 	void*       module_handle	= NULL;
 }
 
-/// @}
 
-
-///
-/// @name Stubs for module functions
-/// @{
-///
+// Stubs for module functions
 extern "C" {
 	int init_module_handle_info(void* handle, context_t* context)
 	{
@@ -98,43 +90,16 @@ extern "C" {
 	}
 }
 
-/// @}
 
-
-///
-/// @name Mocks for system calls
-/// @{
-///
+// Forward declarations for friend members
 extern "C" {
 	int				__wrap_gethostname(char*, size_t);
 	struct hostent*			__wrap_gethostbyname(const char*);
-}
-
-/// @}
-
-
-///
-/// @name Mocks for Nagios functions
-/// @{
-///
-extern "C" {
 	int				__wrap_neb_set_module_info(void*, int, char*);
 	int				__wrap_neb_register_callback(int, void*, int, int (*)(int, void*));
-}
-
-/// @}
-
-
-///
-/// @name Mocks for cURL functions
-/// @{
-///
-extern "C" {
 	CURLcode			__wrap_curl_global_init(long);
 	void				__wrap_curl_global_cleanup(void);
 }
-
-/// @}
 
 
 /// Broker common features test suite
@@ -209,33 +174,23 @@ int main(int argc, char* argv[])
 }
 
 
-///
-/// @name Mock for gethostname()
-/// @{
-///
-
-/// Return value
+/// Return value from ::__wrap_gethostname
 int BrokerCommonTest::__retval_gethostname = EXIT_SUCCESS;
 
-/// Mock function
+
+/// Mock for ::gethostname
 int __wrap_gethostname(char* name, size_t len)
 {
 	memcpy(name, LOCALHOST_NAME, len);
 	return BrokerCommonTest::__retval_gethostname;
 }
 
-/// @}
 
-
-///
-/// @name Mock for gethostbyname()
-/// @{
-///
-
-// Return value
+/// Return value from ::__wrap_gethostbyname
 bool BrokerCommonTest::__retval_gethostbyname_is_null = false;
 
-/// Mock function
+
+/// Mock for ::gethostbyname
 struct hostent* __wrap_gethostbyname(const char* name)
 {
 	static struct hostent	host;
@@ -256,75 +211,48 @@ struct hostent* __wrap_gethostbyname(const char* name)
 	return (BrokerCommonTest::__retval_gethostbyname_is_null) ? NULL : &host;
 }
 
-/// @}
 
-
-///
-/// @name Mock for neb_set_module_info()
-/// @{
-///
-
-/// Return value
+/// Return value from ::__wrap_neb_set_module_info
 int BrokerCommonTest::__retval_neb_set_module_info = NEB_OK;
 
-/// Mock function
+
+/// Mock for ::neb_set_module_info
 int __wrap_neb_set_module_info(void* handle, int type, char* data)
 {
 	return BrokerCommonTest::__retval_neb_set_module_info;
 }
 
-/// @}
 
-
-///
-/// @name Mock for neb_register_callback()
-/// @{
-///
-
-/// Return value
+/// Return value from ::__wrap_neb_register_callback
 int BrokerCommonTest::__retval_neb_register_callback = NEB_OK;
 
-/// Mock function
+
+/// Mock for ::neb_register_callback
 int __wrap_neb_register_callback(int type, void* handle, int priority, int (*func)(int, void*))
 {
 	return BrokerCommonTest::__retval_neb_register_callback;
 }
 
-/// @}
 
-
-///
-/// @name Mock for curl_global_init()
-/// @{
-///
-
-/// Return value
+/// Return value from ::__wrap_curl_global_init
 CURLcode BrokerCommonTest::__retval_curl_global_init = CURLE_OK;
 
-/// Mock function
+
+/// Mock for ::curl_global_init
 CURLcode __wrap_curl_global_init(long flags)
 {
 	return BrokerCommonTest::__retval_curl_global_init;
 }
 
-/// @}
 
-
-///
-/// @name Mock for curl_global_cleanup()
-/// @{
-///
-
-/// Mock function
+/// Mock for ::curl_global_cleanup
 void __wrap_curl_global_cleanup(void)
 {
 }
 
-/// @}
-
 
 ///
-/// Static method for C function ::nebmodule_init()
+/// Static method wrapping C function ::nebmodule_init from Nagios
 ///
 /// @param[in] flags	The initialization flags (ignored).
 /// @param[in] args	The module arguments as a space-separated string.
@@ -342,7 +270,7 @@ int BrokerCommonTest::nebmodule_init(int flags, const string& args, void* handle
 
 
 ///
-/// Static method for C function ::nebmodule_deinit()
+/// Static method wrapping C function ::nebmodule_deinit from Nagios
 ///
 /// @param[in] flags	The deinitialization flags (ignored).
 /// @param[in] reason	The reason why this module is being deinitialized.
