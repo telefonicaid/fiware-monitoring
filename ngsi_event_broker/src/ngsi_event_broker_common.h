@@ -51,12 +51,6 @@ extern "C" {
 /**@}*/
 
 
-/**
- * @name Logging definitions
- * @{
- */
-
-/** Logging levels */
 #define FOREACH_LEVEL(LEVEL) \
 	LEVEL(LOG_ERROR) \
 	LEVEL(LOG_WARN) \
@@ -66,6 +60,7 @@ extern "C" {
 #define GENERATE_ENUM(ENUM)		ENUM,
 #define GENERATE_STRING(STRING)		#STRING + 4,	/* skip "LOG_" */
 
+/** Logging levels */
 typedef enum {
 	FOREACH_LEVEL(GENERATE_ENUM)
 } loglevel_t;
@@ -75,8 +70,6 @@ static const char* loglevel_names[] = {
 	FOREACH_LEVEL(GENERATE_STRING)
 	NULL
 };
-
-/**@}*/
 
 
 /**
@@ -92,6 +85,8 @@ typedef struct {
 
 /** HTTP header for transaction id */
 #define TXID_HTTP_HEADER		"txId"
+
+/** Length of ::TXID_HTTP_HEADER */
 #define TXID_HTTP_HEADER_LEN		4
 
 /**@}*/
@@ -227,7 +222,7 @@ int nebmodule_deinit(int flags, int reason);
 /**
  * Initializes global module handle and info (name and version)
  *
- * @param[in] handle			The module handle passed by Nagios to nebmodule_init().
+ * @param[in] handle			The module handle passed by Nagios to ::nebmodule_init.
  * @param[in] context			The operations context (may be null).
  *
  * @retval NEB_OK			Successfully initialized.
@@ -239,7 +234,7 @@ int init_module_handle_info(void* handle, context_t* context);
 /**
  * Composes the request to NGSI Adapter according to plugin data
  *
- * @param[in] data			The plugin data passed by Nagios to the registered callback_service_check().
+ * @param[in] data			The plugin data passed by Nagios to the registered ::callback_service_check.
  * @param[in] context			The operations context (may be null).
  *
  * @return				The request URL to invoke NGSI Adapter (including query string).
@@ -253,7 +248,7 @@ char* get_adapter_request(nebstruct_service_check_data* data, context_t* context
 
 
 /**
- * @name Rest of functions implemented in ngsi_event_broker_commmon.c
+ * @name Rest of functions implemented in ngsi_event_broker_common.c
  * @{
  */
 
@@ -290,10 +285,10 @@ int check_nagios_object_version(context_t* context);
 
 
 /**
- * Callback function invoked on `NEBCALLBACK_SERVICE_CHECK_DATA` events
+ * Callback function invoked on ::NEBCALLBACK_SERVICE_CHECK_DATA events
  *
- * @param[in] callback_type		The event type (always `NEBCALLBACK_SERVICE_CHECK_DATA`).
- * @param[in] data			The event data (`nebstruct_service_check_data*`).
+ * @param[in] callback_type		The event type (always ::NEBCALLBACK_SERVICE_CHECK_DATA).
+ * @param[in] data			The event data (::nebstruct_service_check_data*).
  *
  * @retval NEB_OK			Regardless event processing result, NEB_OK is returned.
  */
@@ -301,7 +296,7 @@ int callback_service_check(int callback_type, void* data);
 
 
 /**
- * Gets command details of executed plugin from event data passed to callback_service_check()
+ * Gets command details of executed plugin from event data passed to ::callback_service_check
  *
  * @param[in]  data			The event data.
  * @param[out] args			The command line arguments of executed plugin.

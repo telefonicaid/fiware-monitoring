@@ -107,23 +107,10 @@ using namespace std;
 #define MODULE_HANDLE		((void*) 2)
 
 
-///
-/// @name Mocks for system calls
-/// @{
-///
+// Forward declarations for friend members
 extern "C" {
 	int			__wrap_gethostname(char*, size_t);
 	struct hostent*		__wrap_gethostbyname(const char*);
-}
-
-/// @}
-
-
-///
-/// @name Mocks for Nagios functions
-/// @{
-///
-extern "C" {
 	int			__wrap_neb_set_module_info(void*, int, char*);
 	int			__wrap_neb_register_callback(int, void*, int, int (*)(int, void*));
 	host*			__wrap_find_host(char*);
@@ -133,16 +120,6 @@ extern "C" {
 	int			__wrap_grab_service_macros_r(nagios_macros*, service*);
 	int			__wrap_get_raw_command_line_r(nagios_macros*, command*, char*, char**, int);
 	int			__wrap_process_macros_r(nagios_macros*, char*, char**, int);
-}
-
-/// @}
-
-
-///
-/// @name Mocks for cURL functions
-/// @{
-///
-extern "C" {
 	CURLcode		__wrap_curl_global_init(long);
 	void			__wrap_curl_global_cleanup(void);
 	CURL*			__wrap_curl_easy_init(void);
@@ -151,8 +128,6 @@ extern "C" {
 	void			__wrap_curl_easy_cleanup(CURL*);
 	const char*		__wrap_curl_easy_strerror(CURLcode);
 }
-
-/// @}
 
 
 /// XIFI Broker test suite
@@ -249,30 +224,19 @@ int main(int argc, char* argv[])
 }
 
 
-///
-/// @name Mock for gethostname()
-/// @{
-///
-
-/// Return value
+/// Return value from ::__wrap_gethostname
 int BrokerXifiTest::__retval_gethostname = EXIT_SUCCESS;
 
-/// Mock function
+
+/// Mock for ::gethostname
 int __wrap_gethostname(char* name, size_t len)
 {
 	memcpy(name, LOCALHOST_NAME, len);
 	return BrokerXifiTest::__retval_gethostname;
 }
 
-/// @}
 
-
-///
-/// @name Mock for gethostbyname()
-/// @{
-///
-
-/// Mock function
+/// Mock for ::gethostbyname
 struct hostent* __wrap_gethostbyname(const char* name)
 {
 	static struct hostent	host;
@@ -295,140 +259,93 @@ struct hostent* __wrap_gethostbyname(const char* name)
 	return &host;
 }
 
-/// @}
 
-
-///
-/// @name Mock for neb_set_module_info()
-/// @{
-///
-
-/// Return value
+/// Return value from ::__wrap_neb_set_module_info
 int BrokerXifiTest::__retval_neb_set_module_info = NEB_OK;
 
-/// Mock function
+
+/// Mock for ::neb_set_module_info
 int __wrap_neb_set_module_info(void* handle, int type, char* data)
 {
 	return BrokerXifiTest::__retval_neb_set_module_info;
 }
 
-/// @}
 
-
-///
-/// @name Mock for neb_register_callback()
-/// @{
-///
-
-/// Return value
+/// Return value from ::__wrap_neb_register_callback
 int BrokerXifiTest::__retval_neb_register_callback = NEB_OK;
 
-/// Mock function
+
+/// Mock for ::neb_register_callback
 int __wrap_neb_register_callback(int type, void* handle, int priority, int (*func)(int, void*))
 {
 	return BrokerXifiTest::__retval_neb_register_callback;
 }
 
-/// @}
 
-
-///
-/// @name Mock for find_host()
-/// @{
-///
-
-/// Return value
+/// Return value from ::__wrap_find_host
 host* BrokerXifiTest::__retval_find_host = NULL;
 
-/// Mock function
+
+/// Mock for ::find_host
 host* __wrap_find_host(char* name)
 {
 	return BrokerXifiTest::__retval_find_host;
 }
 
-/// @}
 
-
-///
-/// @name Mock for find_service()
-/// @{
-///
-
-/// Return value
+/// Return value from ::__wrap_find_service
 service* BrokerXifiTest::__retval_find_service = NULL;
 
-/// Mock function
+
+/// Mock for ::find_service
 service* __wrap_find_service(char* name, char* svc_desc)
 {
 	return BrokerXifiTest::__retval_find_service;
 }
 
-/// @}
 
-
-///
-/// @name Mock for find_command()
-/// @{
-///
-
-/// Return value
+/// Return value from ::__wrap_find_command
 command* BrokerXifiTest::__retval_find_command = NULL;
 
-/// Mock function
+
+/// Mock for ::find_command
 command* __wrap_find_command(char* name)
 {
 	return BrokerXifiTest::__retval_find_command;
 }
 
-/// @}
 
-
-///
-/// @name Mock for grab_host_macros_r()
-/// @{
-///
-
-/// Return value
+/// Return value from ::__wrap_grab_host_macros_r
 int BrokerXifiTest::__retval_grab_host_macros_r = EXIT_SUCCESS;
 
-/// Mock function
+
+/// Mock for ::grab_host_macros_r
 int __wrap_grab_host_macros_r(nagios_macros* mac, host* hst)
 {
 	return BrokerXifiTest::__retval_grab_host_macros_r;
 }
 
-/// @}
 
-
-///
-/// @name Mock for grab_service_macros_r()
-/// @{
-///
-
-/// Return value
+/// Return value from ::__wrap_grab_service_macros_r
 int BrokerXifiTest::__retval_grab_service_macros_r = EXIT_SUCCESS;
 
-/// Mock function
+
+/// Mock for ::grab_service_macros_r
 int __wrap_grab_service_macros_r(nagios_macros* mac, service* svc)
 {
 	return BrokerXifiTest::__retval_grab_service_macros_r;
 }
 
-/// @}
 
-
-///
-/// @name Mock for get_raw_command_line_r()
-/// @{
-///
-
-/// Output value for `full_command`
+/// Output value for `full_command` from ::__wrap_get_raw_command_line_r
 char* BrokerXifiTest::__output_get_raw_command_line_r = NULL;
 
-/// Return value
+
+/// Return value from ::__wrap_get_raw_command_line_r
 int BrokerXifiTest::__retval_get_raw_command_line_r = EXIT_SUCCESS;
 
-/// Mock function
+
+/// Mock for ::get_raw_command_line_r
 int __wrap_get_raw_command_line_r(nagios_macros* mac, command* ptr, char* cmd, char** full_command, int macro_options)
 {
 	if (full_command) {
@@ -439,21 +356,16 @@ int __wrap_get_raw_command_line_r(nagios_macros* mac, command* ptr, char* cmd, c
 	return BrokerXifiTest::__retval_get_raw_command_line_r;
 }
 
-/// @}
 
-
-///
-/// @name Mock for process_macros_r()
-/// @{
-///
-
-/// Output value for `output_buffer`
+/// Output value for `output_buffer` from ::__wrap_process_macros_r
 char* BrokerXifiTest::__output_process_macros_r = NULL;
 
-/// Return value
+
+/// Return value from ::__wrap_process_macros_r
 int BrokerXifiTest::__retval_process_macros_r = EXIT_SUCCESS;
 
-/// Mock function
+
+/// Mock for ::process_macros_r
 int __wrap_process_macros_r(nagios_macros* mac, char* input_buffer, char** output_buffer, int options)
 {
 	if (output_buffer) {
@@ -463,65 +375,44 @@ int __wrap_process_macros_r(nagios_macros* mac, char* input_buffer, char** outpu
 }
 
 
-///
-/// @name Mock for curl_global_init()
-/// @{
-///
-
-/// Return value
+/// Return value from ::__wrap_curl_global_init
 CURLcode BrokerXifiTest::__retval_curl_global_init = CURLE_OK;
 
-/// Mock function
+
+/// Mock for ::curl_global_init
 CURLcode __wrap_curl_global_init(long flags)
 {
 	return BrokerXifiTest::__retval_curl_global_init;
 }
 
-/// @}
 
-
-///
-/// @name Mock for curl_global_cleanup()
-/// @{
-///
-
-/// Mock function
+/// Mock for ::curl_global_cleanup
 void __wrap_curl_global_cleanup(void)
 {
 }
 
-/// @}
 
-
-///
-/// @name Mock for curl_easy_init()
-/// @{
-///
-
-/// Return value
+/// Return value from ::__wrap_curl_easy_init
 CURL* BrokerXifiTest::__retval_curl_easy_init = NULL;
 
-/// Mock function
+
+/// Mock for ::curl_easy_init
 CURL* __wrap_curl_easy_init(void)
 {
 	return BrokerXifiTest::__retval_curl_easy_init;
 }
 
-/// @}
 
-
-///
-/// @name Mock for curl_easy_setopt()
-/// @{
-///
-
-/// True if required HTTP headers (`Content-Type` and TXID_HTTP_HEADER) are set
+/// Flag variable for ::__wrap_curl_easy_setopt
+/// @brief True if required HTTP headers (`Content-Type` and ::TXID_HTTP_HEADER) are set
 bool BrokerXifiTest::__header_curl_easy_setopt = false;
 
-/// Return value
+
+/// Return value from ::__wrap_curl_easy_setopt
 CURLcode BrokerXifiTest::__retval_curl_easy_setopt = CURLE_OK;
 
-/// Mock function
+
+/// Mock for ::curl_easy_setopt
 CURLcode __wrap_curl_easy_setopt(CURL* handle, CURLoption option, ...)
 {
 	if ((BrokerXifiTest::__retval_curl_easy_setopt == CURLE_OK) && (option == CURLOPT_HTTPHEADER)) {
@@ -548,21 +439,16 @@ CURLcode __wrap_curl_easy_setopt(CURL* handle, CURLoption option, ...)
 	return BrokerXifiTest::__retval_curl_easy_setopt;
 }
 
-/// @}
 
-
-///
-/// @name Mock for curl_easy_perform()
-/// @{
-///
-
-/// Hit counter
+/// Hit counter for ::__wrap_curl_easy_perform
 size_t BrokerXifiTest::__hitcnt_curl_easy_perform = 0;
 
-/// Return value
+
+/// Return value from ::__wrap_curl_easy_perform
 CURLcode BrokerXifiTest::__retval_curl_easy_perform = CURLE_OK;
 
-/// Mock function
+
+/// Mock for ::curl_easy_perform
 CURLcode __wrap_curl_easy_perform(CURL* handle)
 {
 	if (BrokerXifiTest::__retval_curl_easy_perform == CURLE_OK) {
@@ -571,41 +457,26 @@ CURLcode __wrap_curl_easy_perform(CURL* handle)
 	return BrokerXifiTest::__retval_curl_easy_perform;
 }
 
-/// @}
 
-
-///
-/// @name Mock for curl_easy_cleanup()
-/// @{
-///
-
-/// Mock function
+/// Mock for ::curl_easy_cleanup
 void __wrap_curl_easy_cleanup(CURL* handle)
 {
 }
 
-/// @}
 
-
-///
-/// @name Mock for curl_easy_strerror()
-/// @{
-///
-
-/// Return value
+/// Return value from ::__wrap_curl_easy_strerror
 const char* BrokerXifiTest::__retval_curl_easy_strerror = NULL;
 
-/// Mock function
+
+/// Mock for ::curl_easy_strerror
 const char* __wrap_curl_easy_strerror(CURLcode errornum)
 {
 	return BrokerXifiTest::__retval_curl_easy_strerror;
 }
 
-/// @}
-
 
 ///
-/// Static method for C function ::nebmodule_init()
+/// Static method wrapping C function ::nebmodule_init from Nagios
 ///
 /// @param[in] flags	The initialization flags (ignored).
 /// @param[in] args	The module arguments as a space-separated string.
@@ -623,7 +494,7 @@ int BrokerXifiTest::nebmodule_init(int flags, const string& args, void* handle)
 
 
 ///
-/// Static method for C function ::nebmodule_deinit()
+/// Static method wrapping C function ::nebmodule_deinit from Nagios
 ///
 /// @param[in] flags	The deinitialization flags (ignored).
 /// @param[in] reason	The reason why this module is being deinitialized.

@@ -68,7 +68,7 @@ struct OptionValue
 /// Argument parsing test suite
 class ArgumentParserTest: public TestFixture
 {
-	// C function wrappers
+	// static methods equivalent to external C functions
 	static void parse_args(const string& args, const string& optstr, list<OptionValue>& optlist);
 
 	// internal methods
@@ -117,10 +117,10 @@ int main(int argc, char* argv[])
 
 
 ///
-/// C++ wrapper for function ::parse_args()
+/// Static method wrapping C function ::parse_args from module
 ///
 /// @param[in]  args		The module arguments as a space-separated string.
-/// @param[in]  optstr		The option string as defined for [getopt()](@getopt_ref).
+/// @param[in]  optstr		The option string as defined for ::getopt.
 /// @param[out] optlist		The module arguments as options list.
 ///
 void ArgumentParserTest::parse_args(const string& args, const string& optstr, list<OptionValue>& optlist)
