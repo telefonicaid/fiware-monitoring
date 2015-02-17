@@ -133,8 +133,8 @@ build)
 	make clean lint-report test-report coverage-report
 
 	# Copy reports with paths relative to $WORKSPACE root
-	sed 's#\./src/#ngsi_event_broker/src/#' $COVERAGE_REPORT_DIR/lcov.info > $PROJECT_DIR/jenkins-lcov.info
-	sed 's#filename="src/#filename="ngsi_event_broker/src/#' $COVERAGE_REPORT_DIR/cobertura-coverage.xml > $PROJECT_DIR/jenkins-cobertura-coverage.xml
+	#sed 's#\./src/#ngsi_event_broker/src/#' $COVERAGE_REPORT_DIR/lcov.info > $PROJECT_DIR/jenkins-lcov.info
+	sed 's#filename="src/#filename="/var/develenv/jenkins/jobs/metrics-queue-consumer/workspace/workspace/ngsi_event_broker/src/#' $COVERAGE_REPORT_DIR/cobertura-coverage.xml > $PROJECT_DIR/jenkins-cobertura-coverage.xml
 
 	# Get include directories for sonar-cxx plugin
 	C_CXX_INCLUDE_DIRS=$(cpp -x c++ -v 2>&1 /dev/null | sed -n '/include <\.\.\.>/,/End/ { p;}' | tail -n +2 | head -n -1 | tr -d ' ' | tr '\n ' ',')
@@ -157,7 +157,7 @@ build)
 		sonar.cxx.includeDirectories=$SONAR_INCLUDE_DIRS
 		sonar.cxx.cppcheck.reportPath=report/cppcheck/cppcheck-result.xml
 		sonar.cxx.xunit.reportPath=report/test/TEST-xunit-*.xml
-		sonar.cxx.coverage.reportPath=report/coverage/cobertura-coverage.xml
+		sonar.cxx.coverage.reportPath=jenkins-cobertura-coverage.xml
 	EOF
 
 	# Workaround if using sonar-cxx plugin version <=0.9
