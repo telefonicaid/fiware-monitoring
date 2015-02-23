@@ -86,7 +86,6 @@ Feature: Sending probe data
     | qa@probe    |
 
 
-  @skip @CLAUDIA-4468 @CLAUDIA-4469
   Scenario Outline: Valid probe data is sent to CB using an existing parser, with invalid entity ID values.
     Given the probe name "qa_probe"
     And   the monitored resource with id "<entity_id>" and type "host"
@@ -96,11 +95,9 @@ Feature: Sending probe data
     Examples:
     | entity_id                 |
     |                           |
-    | [STRING_WITH_LENGTH_2000] |
     | [MISSING_PARAM]           |
 
 
-  @skip @CLAUDIA-4468 @CLAUDIA-4469
   Scenario Outline: Valid probe data is sent to CB using an existing parser, with invalid entity TYPE values.
     Given the probe name "qa_probe"
     And   the monitored resource with id "qa:1234567890" and type "<entity_type>"
@@ -110,7 +107,6 @@ Feature: Sending probe data
     Examples:
     | entity_type               |
     |                           |
-    | [STRING_WITH_LENGTH_2000] |
     | [MISSING_PARAM]           |
 
 
