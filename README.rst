@@ -27,16 +27,21 @@ __ `FIWARE Catalogue - Monitoring GE`_
 Components
 ==========
 
-`NGSI Adapter <ngsi_adapter/README.rst>`__
+`NGSI Adapter <ngsi_adapter/README.rst>`_
    Generic adapter to transform monitoring data from probes to NGSI context
    attributes.
 
-`NGSI Event Broker <ngsi_event_broker/README.rst>`__
+`NGSI Event Broker <ngsi_event_broker/README.rst>`_
    Nagios module to forward plugin data to NGSI Adapter.
 
 
 Releases
 ========
+
+`FIWARE 4.2.2`_
+
+-  NGSI Event Broker version 1.4.2
+-  NGSI Adapter version 1.2.2
 
 `FIWARE 4.2.1`_
 
@@ -86,6 +91,7 @@ License
 .. REFERENCES
 
 .. _FIWARE Catalogue - Monitoring GE: http://catalogue.fiware.org/enablers/monitoring-ge-tid-implementation
+.. _FIWARE 4.2.2: https://forge.fiware.org/frs/?group_id=7&release_id=571#cloud-monitoring-4-2-2-title-content
 .. _FIWARE 4.2.1: https://forge.fiware.org/frs/?group_id=7&release_id=563#cloud-monitoring-4-2-1-title-content
 .. _FIWARE 4.1.1: https://forge.fiware.org/frs/?group_id=7&release_id=544#cloud-monitoring-4-1-1-title-content
 .. _FIWARE 3.5.2: https://forge.fiware.org/frs/?group_id=7&release_id=529#cloud-monitoring-3-5-2-title-content
