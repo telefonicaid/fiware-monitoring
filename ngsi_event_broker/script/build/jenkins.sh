@@ -96,8 +96,8 @@ SONAR_PROJECT_NAME="Monitoring NGSI Event Broker"
 SONAR_PROJECT_KEY=com.telefonica.iot:monitoring-ngsi-event-broker
 
 # Dependencies
-RPM_DEPENDENCIES="wget gcc-c++ make autoconf automake libtool cppunit-devel libcurl-devel"
-DEB_DEPENDENCIES="wget g++ build-essential autoconf automake autotools-dev libtool libcppunit-dev libcurl4-openssl-dev"
+RPM_BUILD_DEPENDENCIES="wget gcc-c++ make autoconf automake libtool cppunit-devel libcurl-devel"
+DEB_BUILD_DEPENDENCIES="wget g++ build-essential autoconf automake autotools-dev libtool libcppunit-dev libcurl4-openssl-dev"
 NAGIOS_SRC_DIR=$PROJECT_DIR/nagios
 NAGIOS_INC_DIR=$PROJECT_DIR/$(awk -F= '/nagios_incdir=/ { print $2 }' $PROJECT_DIR/configure.ac)
 NAGIOS_VERSION=$(awk -F= '/nagios_reqver=/ { print $2 }' $PROJECT_DIR/configure.ac)
@@ -113,10 +113,10 @@ build)
 	# Install development dependencies
 	if test -r /etc/redhat-release; then
 		# CentOS
-		sudo yum -y -q install $RPM_DEPENDENCIES lcov libxslt cppcheck
+		sudo yum -y -q install $RPM_BUILD_DEPENDENCIES lcov libxslt cppcheck
 	else
 		# Ubuntu
-		sudo apt-get -y -q install $DEB_DEPENDENCIES lcov xsltproc cppcheck
+		sudo apt-get -y -q install $DEB_BUILD_DEPENDENCIES lcov xsltproc cppcheck
 	fi
 	sudo pip install -q gcovr
 	if ! test -d $NAGIOS_SRC_DIR; then
@@ -160,32 +160,19 @@ build)
 		sonar.cxx.coverage.reportPath=report/coverage/cobertura-coverage.xml
 	EOF
 
-	# Workaround if using sonar-cxx plugin version <=0.9
-	# sed -i 's#includeDirectories#include_directories#' $PROJECT_DIR/sonar-project.properties
-
-	# Workaround for metrics_runner.sh to detect current pwd as metrics dir
-	sed '/function getMetricsDir/,/}/ c\
-	function getMetricsDir() { \
-		local currDir=$(readlink -f "$PWD")/ \
-		local workDir=$(readlink -f "$WORKSPACE")/ \
-		local metricsDir=${currDir#$workDir} \
-		echo $metricsDir \
-	}' $(which metrics_runner.sh) > ./metrics_runner.sh
-	chmod a+x ./metrics_runner.sh
-
 	# Generate metrics in SonarQube
 	export DEBUG_METRICS=FALSE
-	./metrics_runner.sh
+	metrics_runner.sh
 	;;
 
 package)
 	# Install development and package generation dependencies
 	if test -r /etc/redhat-release; then
 		# CentOS
-		sudo yum -y -q install $RPM_DEPENDENCIES rpm-build redhat-rpm-config
+		sudo yum -y -q install $RPM_BUILD_DEPENDENCIES rpm-build redhat-rpm-config
 	else
 		# Ubuntu
-		sudo apt-get -y -q install $DEB_DEPENDENCIES dpkg-dev debhelper devscripts
+		sudo apt-get -y -q install $DEB_BUILD_DEPENDENCIES dpkg-dev debhelper devscripts
 	fi
 	if ! test -d $NAGIOS_SRC_DIR; then
 		wget $NAGIOS_URL -q -O nagios-${NAGIOS_VERSION}.tar.gz

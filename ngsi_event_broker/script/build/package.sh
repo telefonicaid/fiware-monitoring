@@ -70,7 +70,7 @@ shift $(expr $OPTIND - 1)
 }
 
 # Function to create a DEB package
-create_debian_package() {
+create_deb_package() {
 	local package dpkg_files
 	cp -r $PROGDIR/files/debian $BASEDIR
 	cd $BASEDIR
@@ -86,7 +86,8 @@ create_debian_package() {
 # Function to create a RPM package
 create_rpm_package() {
 	local package rpmbuild_file
-	local pkgversion=$(sed -n '/AC_INIT/ {s/.*,[ \t]*\(.*\))/\1/; p}' $BASEDIR/configure.ac)
+	local conf=$BASEDIR/configure.ac
+	local pkgversion=$(sed -n '/AC_INIT/ {s/.*,[ \t]*\(.*\))/\1/; p}' $conf)
 	local topdir=$BASEDIR/redhat
 	cp -r $PROGDIR/files/redhat $BASEDIR
 	cd $topdir

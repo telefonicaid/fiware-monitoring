@@ -131,19 +131,9 @@ build)
 	# Workaround to use relative paths in coverage info
 	sed -i s:"$(readlink -f $PWD)":".":g report/coverage/lcov.info
 
-	# Workaround for metrics_runner.sh to detect current pwd as metrics dir
-	sed '/function getMetricsDir/,/}/ c\
-	function getMetricsDir() { \
-		local currDir=$(readlink -f "$PWD")/ \
-		local workDir=$(readlink -f "$WORKSPACE")/ \
-		local metricsDir=${currDir#$workDir} \
-		echo $metricsDir \
-	}' $(which metrics_runner.sh) > ./metrics_runner.sh
-	chmod a+x ./metrics_runner.sh
-
 	# Generate metrics in SonarQube
 	export DEBUG_METRICS=FALSE
-	./metrics_runner.sh
+	metrics_runner.sh
 	;;
 
 package)
