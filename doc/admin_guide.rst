@@ -27,8 +27,8 @@ different hosts, as depicted in the following figure:
       generate monitoring data.
    #. **Context Broker GE**, where monitoring data (expressed as "NGSI
       context updates") will be published.
-   #. **BigData GE**, for analysis of historical context data.
-   #. **BigData Connector** between Context Broker and BigData GEs.
+   #. **Hadoop**, for storing historical context data.
+   #. **Connector** between Context Broker and data storage.
 
 
 Installation of probes
@@ -38,8 +38,8 @@ Monitoring GE is agnostic to the framework used to gather monitoring data. It
 just assumes there are several probes collecting such data, which somehow will
 be forwarded to the adaptation layer (NGSI Adapter).
 
-It is up to the infrastructure owner which tool (like `Nagios`_, `Zabbix`_,
-`openNMS`_, `perfSONAR`_, etc.) is installed for this purpose.
+It is up to the infrastructure owner which tool (like Nagios_, Zabbix_,
+openNMS_, perfSONAR_, etc.) is installed for this purpose.
 
 Probes must "publish" their data to NGSI Adapter. Depending on the exact
 monitoring tool installed, a kind of *collector* has to be deployed in
@@ -47,7 +47,7 @@ order to send data to the adapter:
 
 -  **NGSI Event Broker** is an example specific for Nagios, implemented as
    a loadable module. Description and installation details can be found
-   `here <../ngsi_event_broker/README.rst>`__.
+   `here <../ngsi_event_broker/README.rst>`_.
 
 
 Installation of NGSI Adapter
@@ -77,7 +77,7 @@ automatically checked when installing the ``fiware-monitoring-ngsi-adapter``
 package. However, for manual installation please check
 \ https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager\ :
 
--  Installation in Ubuntu
+-  Manual installation of Node.js in Ubuntu
 
 .. code::
 
@@ -85,7 +85,7 @@ package. However, for manual installation please check
    $ sudo apt-get install nodejs
 
 
--  Installation in Debian (as root)
+-  Manual installation of Node.js in Debian (as root)
 
 .. code::
 
@@ -94,7 +94,8 @@ package. However, for manual installation please check
    # apt-get install nodejs nodejs-legacy
 
 
--  Installation in CentOS (requires EPEL: Extra Packages for Enterprise Linux)
+-  Manual installation of Node.js in CentOS (requires EPEL: Extra Packages
+   for Enterprise Linux)
 
 .. code::
 
@@ -105,15 +106,16 @@ package. However, for manual installation please check
 Downloads
 ~~~~~~~~~
 
-Package for Ubuntu 12.04 LTS is available for download. Please refer to the
-`download`__ section of FIWARE Catalogue. You can use tools such as ``gdebi``
-to install the package:
+Packages for Ubuntu 12.04 LTS and CentOS 6.3 are available for download. Please
+refer to the download__ section of FIWARE Catalogue. You can use tools such as
+``gdebi`` or ``rpm`` to install the downloaded files:
 
 __ `Catalogue - Monitoring download`_
 
 .. code::
 
-   $ sudo gdebi fiware-monitoring-ngsi-adapter_X.Y.Z_all.deb
+   ubuntu$ sudo gdebi fiware-monitoring-ngsi-adapter_X.Y.Z_all.deb
+   centos$ sudo rpm -i fiware-monitoring-ngsi-adapter-X.Y.Z-N.noarch.rpm
 
 For the latest version, please download zip from
 \ https://github.com/telefonicaid/fiware-monitoring/archive/master.zip\ .
@@ -122,7 +124,8 @@ component.
 
 .. code::
 
-   $ unzip master.zip
+   $ unzip fiware-monitoring-master.zip
+   $ cd fiware-monitoring-master/
 
 
 Dependencies
@@ -154,23 +157,14 @@ for installation details.
 __ `Orion - Admin guide`_
 
 
-Installation of BigData GE
---------------------------
-
-Please refer to `BigData Analysis - Installation and Administration Guide`__
-for installation details.
-
-__ `Cosmos - Admin guide`_
-
-
 Installation of the connector
 -----------------------------
 
-This component subscribes to changes at Context Broker and writes them into
-BigData GE storage. Historically the **ngsi2cosmos** connector implementation
-has been used (installation details `here`__), although from March 2014 this
-component is deprecated and a brand new **Cygnus** implementation (installation
-details `here`__) is available.
+This component subscribes to changes at Context Broker and writes data into a
+distributed filesystem storage (usually HDFS from Hadoop_). Historically the
+**ngsi2cosmos** connector implementation has been used (installation details
+here__), although from March 2014 this component is deprecated and a brand new
+**Cygnus** implementation (installation details here__) is available.
 
 __ `ngsi2cosmos`_
 __ `Cygnus`_
@@ -181,7 +175,7 @@ Running the monitoring components
 
 As stated before, there are a number of distributed components involved in the
 monitoring. Please refer to their respective installation manuals for execution
-details (this applies to probes & monitoring software, Context Broker, BigData,
+details (this applies to probes & monitoring software, Context Broker, Hadoop,
 etc.). This section focuses on NGSI Adapter specific instructions.
 
 
@@ -290,7 +284,7 @@ End to End testing
    time=... | lvl=INFO | trans=ci2627bx00000b42g8m2pxw3z | op=UpdateContext | msg=Request to ContextBroker at http://cbhost:1026/...
 
 
--  Finally, query Context Broker for new data (see details `here`__)
+-  Finally, query Context Broker for new data (see details here__)
 
 __ `Orion - queryContext`_
 
@@ -364,17 +358,15 @@ Remote Service Access
 Resource consumption
 --------------------
 
-Please refer to `Context Broker`__ and `BigData`__ resource consumption
-sections.
+Please refer to `Context Broker`__ resource consumption sections.
 
 __ `Resource consumption - Orion`_
-__ `Resource consumption - Cosmos`_
 
 
 I/O flows
 ---------
 
-Figure at `installation section <#Installation>`__ shows the I/O flows among
+Figure at `installation section <#Installation>`_ shows the I/O flows among
 the different monitoring components:
 
 -  Probes send requests to NGSI Adapter with raw monitoring data
@@ -384,20 +376,19 @@ the different monitoring components:
 
 -  Context Broker notifies Connector with every context change
 
--  Connector writes changes to BigData storage
+-  Connector writes changes to storage
 
 
 .. REFERENCES
 
 .. _Catalogue - Monitoring download: http://catalogue.fiware.org/enablers/monitoring-ge-tid-implementation/downloads
 .. _Resource consumption - Orion: https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_Installation_and_Administration_Guide#Resource_consumption
-.. _Resource consumption - Cosmos: https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/BigData_Analysis_-_Installation_and_Administration_Guide#Resource_consumption
 .. _Orion - queryContext: https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Query_Context_operation
 .. _Orion - Admin guide: https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_Installation_and_Administration_Guide
-.. _Cosmos - Admin guide: https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/BigData_Analysis_-_Installation_and_Administration_Guide
 .. _ngsi2cosmos: https://github.com/telefonicaid/fiware-livedemoapp#ngsi2cosmos
 .. _Cygnus: https://github.com/telefonicaid/fiware-connectors/tree/develop/flume
 .. _Nagios: http://www.nagios.org/
 .. _Zabbix: http://www.zabbix.com/
 .. _openNMS: http://www.opennms.org/
 .. _perfSONAR: http://www.perfsonar.net/
+.. _Hadoop: http://hadoop.apache.org/

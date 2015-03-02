@@ -64,7 +64,10 @@ the resources being monitored) using a pair <*entityId*,\ *entityType*>. This
 identification of the monitored resource has to be provided as the query
 parameters ``id`` and ``type``, respectively. The probe name included in
 the URL lets NGSI Adapter know the originating monitoring probe, therefore
-selecting the proper parser for it.
+selecting the proper parser for it. This API is fully described in
+`docs.fiwaremonitoring.apiary.io`__
+
+__ `Monitoring NGSI Adapter API`_
 
 Monitoring framework is expected to schedule the execution of probes and send
 the raw data been gathered to the NGSI Adapter. Depending on the tool that has
@@ -119,9 +122,9 @@ to the last updates of monitoring data available, but not to historic data.
 Monitoring API
 --------------
 
-Retrieval of data stored at the BigData GE is handled by the Query Manager
-component, whose API is described in `Monitoring Open RESTful API Specification
-(PRELIMINARY)`_ section.
+Retrieval of historical data stored at a distributed filesystem (e.g. Hadoop)
+is handled by the Query Manager component, whose API is described in
+`Monitoring Open RESTful API Specification (PRELIMINARY)`_ section.
 
 
 .. REFERENCES
@@ -130,3 +133,4 @@ component, whose API is described in `Monitoring Open RESTful API Specification
 .. _Open Specification: https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/FIWARE.OpenSpecification.Cloud.Monitoring
 .. _Context Broker Programmers Guide: https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Programmers_Guide
 .. _Monitoring Open RESTful API Specification (PRELIMINARY): https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Monitoring_Open_RESTful_API_Specification_(PRELIMINARY)
+.. _Monitoring NGSI Adapter API: http://docs.fiwaremonitoring.apiary.io/
