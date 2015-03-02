@@ -109,11 +109,20 @@ case "$1" in
 			2)   [ "$VERBOSE" != no ] && log_end_msg 1 ;;
 		esac
 		;;
+	restart)
+		[ "$VERBOSE" != no ] && log_daemon_msg "Restarting $DESC" "$NAME"
+		do_stop
+		do_start
+		case "$?" in
+			0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+			2)   [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+		esac
+		;;
 	status)
 		status_of_proc -p"$PIDFILE" "$DAEMON" "$NAME" && exit 0 || exit $?
 		;;
 	*)
-		echo "Usage: $SCRIPTNAME {start|stop|status}" >&2
+		echo "Usage: $SCRIPTNAME {start|stop|restart|status}" >&2
 		exit 3
 		;;
 esac

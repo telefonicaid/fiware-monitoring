@@ -10,7 +10,7 @@ NODE_REQ_VERSION=#DH_NODE_REQ_VERSION#
 valid_version() {
 	local CUR=$1
 	local REQ=$2
-	echo "$CUR\n$REQ" \
+	printf "$CUR\n$REQ" \
 	| awk '{split($0,v,"."); for (i in v) printf "%05d ", v[i]; print}' \
 	| sort | tail -1 | cat -E | fgrep -q $CUR'$'
 }
@@ -30,7 +30,7 @@ setup_nodesource() {
 	| bash - >/dev/null
 	if [ $? -eq 0 ]; then fmt --width=${COLUMNS:-$(tput cols)} 1>&2 <<-EOF
 
-		Please run \`sudo apt-get update && sudo apt-get install nodejs'
+		Please run \`sudo apt-get update && sudo apt-get -y install nodejs'
 		to upgrade version prior reinstalling the package.
 
 		EOF

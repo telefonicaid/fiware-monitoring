@@ -149,7 +149,7 @@ build)
 package)
 	# install development dependencies
 	if test -r /etc/redhat-release; then
-		sudo yum -y -q install redhat-rpm-config
+		sudo yum -y -q install rpm-build redhat-rpm-config
 	else
 		sudo apt-get -y -q install dpkg-dev debhelper devscripts
 	fi

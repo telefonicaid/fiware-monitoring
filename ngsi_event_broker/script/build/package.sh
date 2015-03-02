@@ -24,8 +24,8 @@
 #     $0 [--help]
 #
 # Options:
-#     -v, --version	version of the generated package
-#     -c, --changelog	changelog entry for new version
+#     -v, --version	optional version of the generated package
+#     -c, --changelog	optional changelog entry for new version
 #     -h, --help	show this help message
 #
 
@@ -69,10 +69,11 @@ shift $(expr $OPTIND - 1)
 	exit 1
 }
 
-# Function to create a Debian package
+# Function to create a DEB package
 create_debian_package() {
-	local package dpkg_files dpkg_dir=$BASEDIR/..
-	cd $BASEDIR && cp -r $PROGDIR/files/debian .
+	local package dpkg_files
+	cp -r $PROGDIR/files/debian $BASEDIR
+	cd $BASEDIR
 	[ -n "$VERSION" ] && debchange -M -v "$VERSION" "$CHANGELOG"
 	dpkg-buildpackage -b -rfakeroot -D -us -uc \
 	&& dpkg_files=$(ls -t ../*.deb ../*.changes 2>/dev/null | head -2) \
@@ -80,6 +81,27 @@ create_debian_package() {
 	&& mv -f $dpkg_files $BASEDIR \
 	&& printf "\n%s successfully created.\n\n" $(readlink -f $package)
 	[ -d ./debian ] && rm -rf ./debian
+}
+
+# Function to create a RPM package
+create_rpm_package() {
+	local package rpmbuild_file
+	local pkgversion=$(sed -n '/AC_INIT/ {s/.*,[ \t]*\(.*\))/\1/; p}' $BASEDIR/configure.ac)
+	local topdir=$BASEDIR/redhat
+	cp -r $PROGDIR/files/redhat $BASEDIR
+	cd $topdir
+	rpmbuild -bb SPECS/*.spec \
+	         --define "_topdir $topdir" \
+	         --define "_basedir $BASEDIR" \
+	         --define "_builddir $BASEDIR" \
+	         --define "_version ${VERSION:-$pkgversion}" \
+	         --define "_release 1" \
+	&& rpmbuild_file=$(find RPMS/ -name *.rpm) \
+	&& package=$(basename $rpmbuild_file) \
+	&& mv -f $rpmbuild_file $BASEDIR \
+	&& printf "\n%s successfully created.\n\n" $BASEDIR/$package
+	cd $BASEDIR
+	[ -d $topdir ] && rm -rf $topdir
 }
 
 # Function to obtain GNU/Linux distro (set variable $1; OS_DISTRO if not given)
@@ -107,7 +129,9 @@ if ! get_linux_distro OS_DISTRO; then
 	echo "Could not get GNU/Linux distribution" 1>&2
 	exit 2
 elif [ $(expr "$OS_DISTRO" : 'Ubuntu.*\|Debian.*') -ne 0 ]; then
-	create_debian_package
+	create_deb_package
+elif [ $(expr "$OS_DISTRO" : 'CentOS.*\|RedHat.*') -ne 0 ]; then
+	create_rpm_package
 else
 	echo "Unsupported GNU/Linux distribution" 1>&2
 	exit 3

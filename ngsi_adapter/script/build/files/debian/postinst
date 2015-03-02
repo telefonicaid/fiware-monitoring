@@ -20,6 +20,7 @@ if [ "$1" = configure ]; then
 	cd $ADAPTER_DIR
 	npm config set ca=""
 	npm install --production || STATUS=1
+
 	# check FIWARE user
 	if ! getent passwd $FIWARE_USR >/dev/null; then
 		addgroup --quiet $FIWARE_GRP 2>/dev/null || true
@@ -28,6 +29,7 @@ if [ "$1" = configure ]; then
 		        --disabled-password --shell /bin/false \
 		        --gecos "FIWARE" $FIWARE_USR
 	fi
+
 	# check ADAPTER user
 	if ! getent passwd $ADAPTER_USR >/dev/null; then
 		addgroup --quiet $ADAPTER_GRP 2>/dev/null || true
@@ -36,13 +38,19 @@ if [ "$1" = configure ]; then
 		        --disabled-password --shell /bin/false \
 		        --gecos "FIWARE NGSI Adapter" $ADAPTER_USR
 	fi
+
+	# create directories
+	mkdir -p $FIWARE_DIR $ADAPTER_DIR $LOGGING_DIR
+
 	# change directory ownership
 	chown -R $FIWARE_USR:$FIWARE_GRP $FIWARE_DIR
 	chown -R $ADAPTER_USR:$ADAPTER_GRP $ADAPTER_DIR
 	chown -R $ADAPTER_USR:$ADAPTER_GRP $LOGGING_DIR
+
 	# change file permissions
 	chmod -R g+w $ADAPTER_DIR
 	chmod a+x $ADAPTER_DIR/adapter
+
 	# postinstall message
 	if [ $STATUS -eq 0 ]; then fmt --width=${COLUMNS:-$(tput cols)} <<-EOF
 
@@ -50,8 +58,10 @@ if [ "$1" = configure ]; then
 
 		WARNING: Check configuration file $ADAPTER_DIR/config/options.js
 		and logging parameters at /etc/init.d/$ADAPTER_SRV before
-		starting \`$ADAPTER_SRV' service. Please read Usage section
-		at README.rst for more details.
+		starting \`$ADAPTER_SRV' service. This component DOES NOT
+		rotate logging files, so consider configuring \`logrotate'
+		or similar. Please read Usage section at README.rst for more
+		details.
 
 		EOF
 	else fmt --width=${COLUMNS:-$(tput cols)} 1>&2 <<-EOF
@@ -64,6 +74,9 @@ if [ "$1" = configure ]; then
 
 		EOF
 	fi
+
+	# finalization
+	exit $STATUS
 fi
 
 # dh_installdeb will replace this with shell code automatically

@@ -1,23 +1,19 @@
 #!/bin/sh
-# postrm script for fiware-monitoring-ngsi-adapter
+# postrm script for fiware-monitoring-ngsi-event-broker
 
 set -e
 
 # actual values of these variables will be replaced after dh_install (see rules)
 FIWARE_DIR=#DH_FIWARE_DIR#
-ADAPTER_DIR=#DH_ADAPTER_DIR#
-LOGGING_DIR=#DH_LOGGING_DIR#
+BROKER_DIR=#DH_BROKER_DIR#
 
 case "$1" in
 purge|remove)
 	# remove installation directory
-	rm -rf $ADAPTER_DIR
+	rm -rf $BROKER_DIR
 
 	# remove FIWARE parent directory (if empty)
 	rmdir --ignore-fail-on-non-empty $FIWARE_DIR
-
-	# remove log files (only for purge)
-	[ "$1" = "purge" ] && rm -rf $LOGGING_DIR
 	;;
 esac
 

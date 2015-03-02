@@ -182,7 +182,7 @@ package)
 	# Install development and package generation dependencies
 	if test -r /etc/redhat-release; then
 		# CentOS
-		sudo yum -y -q install $RPM_DEPENDENCIES redhat-rpm-config
+		sudo yum -y -q install $RPM_DEPENDENCIES rpm-build redhat-rpm-config
 	else
 		# Ubuntu
 		sudo apt-get -y -q install $DEB_DEPENDENCIES dpkg-dev debhelper devscripts
