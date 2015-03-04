@@ -1,5 +1,5 @@
 {
-  "version": "1.2.2",
+  "version": "1.2.3",
   "name": "ngsi_adapter",
   "description": "Generic NGSI Probe Adapter",
   "product": {
