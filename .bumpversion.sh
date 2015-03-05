@@ -48,7 +48,7 @@ which bumpversion >/dev/null || {
 CUR_RELEASE=$(awk -F'[ :]' '/_FIWARE.*release/ {print $3; exit}' README.rst)
 PROMPT="Please specify new FIWARE release (current is $CUR_RELEASE): "
 read -p "$PROMPT" NEW_RELEASE
-test -n "$NEW_RELEASE" || {
+test -n "$(expr "$NEW_RELEASE" : '\([0-9]\+\.[0-9]\+\.[0-9]\+\)$')" || {
 	printf "ERROR: A release number x.y.z must be supplied\n\n" 1>&2
 	exit 2
 }
@@ -57,7 +57,7 @@ test -n "$NEW_RELEASE" || {
 CUR_ADAPTER_VER=$(awk -F'"' '/"version"/ {print $4}' $ADAPTER_CONF)
 PROMPT="Please specify new NGSI Adapter version (current is $CUR_ADAPTER_VER): "
 read -p "$PROMPT" NEW_ADAPTER_VER
-test -n "$NEW_ADAPTER_VER" || {
+test -n "$(expr "$NEW_ADAPTER_VER" : '\([0-9]\+\.[0-9]\+\.[0-9]\+\)$')" || {
 	printf "ERROR: A version number x.y.z must be supplied\n\n" 1>&2
 	exit 2
 }
@@ -66,7 +66,7 @@ test -n "$NEW_ADAPTER_VER" || {
 CUR_BROKER_VER=$(sed -n '/AC_INIT/ {s/.*,[ \t]*\(.*\))/\1/; p}' $BROKER_CONF)
 PROMPT="Please specify new Event Broker version (current is $CUR_BROKER_VER): "
 read -p "$PROMPT" NEW_BROKER_VER
-test -n "$NEW_BROKER_VER" || {
+test -n "$(expr "$NEW_BROKER_VER" : '\([0-9]\+\.[0-9]\+\.[0-9]\+\)$')" || {
 	printf "ERROR: A version number x.y.z must be supplied\n\n" 1>&2
 	exit 2
 }
@@ -77,29 +77,29 @@ set -e
 # Update release and version in NGSI Adapter configuration files
 bumpversion --commit --no-tag \
 	--current-version=$CUR_RELEASE --new-version=$NEW_RELEASE \
+	--message='Bump product release: {current_version} -> {new_version}' \
 	--search='"release": "{current_version}"' \
 	--replace='"release": "{new_version}"' \
-	--message='Bump product release: {current_version} -> {new_version}' \
 	$BUMPVERSION_OPTS patch $ADAPTER_CONF
 
 bumpversion --commit --no-tag \
 	--current-version=$CUR_ADAPTER_VER --new-version=$NEW_ADAPTER_VER \
+	--message='Bump component version: {current_version} -> {new_version}' \
 	--search='"version": "{current_version}"' \
 	--replace='"version": "{new_version}"' \
-	--message='Bump component version: {current_version} -> {new_version}' \
 	$BUMPVERSION_OPTS patch $ADAPTER_CONF
 
 # Update release and version in Event Broker configuration files
 bumpversion --commit --no-tag \
 	--current-version=$CUR_RELEASE --new-version=$NEW_RELEASE \
+	--message='Bump product release: {current_version} -> {new_version}' \
 	--search='[PRODUCT_RELEASE], [{current_version}]' \
 	--replace='[PRODUCT_RELEASE], [{new_version}]' \
-	--message='Bump product release: {current_version} -> {new_version}' \
 	$BUMPVERSION_OPTS patch $BROKER_CONF
 
 bumpversion --commit --no-tag \
 	--current-version=$CUR_BROKER_VER --new-version=$NEW_BROKER_VER \
+	--message='Bump component version: {current_version} -> {new_version}' \
 	--search='AC_INIT([PRODUCT_NAME-ngsi-event-broker], {current_version})'\
 	--replace='AC_INIT([PRODUCT_NAME-ngsi-event-broker], {new_version})' \
-	--message='Bump component version: {current_version} -> {new_version}' \
 	$BUMPVERSION_OPTS patch $BROKER_CONF
