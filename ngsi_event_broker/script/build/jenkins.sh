@@ -30,6 +30,10 @@
 #     build		build, generate reports and publish to SonarQube
 #     package		generate distribution package
 #
+# Environment:
+#     JOB_URL		full URL for this build job
+#     WORKSPACE		absolute path for build job's workspace
+#
 
 OPTS='h(help)'
 NAME=$(basename $0)
@@ -70,10 +74,13 @@ ACTION=$(expr "$1" : "^\(build\|package\)$") && shift
 }
 
 # Main
-if [ -z "$WORKSPACE" ]; then
-	printf "Variable WORKSPACE not set\n" 1>&2
+if [ -z "$JOB_URL" -o -z "$WORKSPACE" ]; then
+	printf "Jenkins variables JOB_URL and WORKSPACE are required\n" 1>&2
 	exit 2
 fi
+
+# Absolute path of metrics-queue-consumer's workspace
+METRICS_WORKSPACE=$(readlink -f $WORKSPACE/../../metrics-queue-consumer/workspace/workspace)
 
 # Project root at Jenkins workspace
 PROJECT_DIR=$WORKSPACE/ngsi_event_broker
@@ -132,9 +139,24 @@ build)
 	# Compile and generate reports
 	make clean lint-report test-report coverage-report
 
-	# Copy reports with paths relative to $WORKSPACE root
-	sed 's#\./src/#ngsi_event_broker/src/#' $COVERAGE_REPORT_DIR/lcov.info > $PROJECT_DIR/jenkins-lcov.info
-	sed 's#filename="src/#filename="ngsi_event_broker/src/#' $COVERAGE_REPORT_DIR/cobertura-coverage.xml > $PROJECT_DIR/jenkins-cobertura-coverage.xml
+	# Fix reports with paths relative to $WORKSPACE root
+	sed -i 's#\./src/#ngsi_event_broker/src/#' $COVERAGE_REPORT_DIR/lcov.info
+	sed -i 's#filename="src/#filename="ngsi_event_broker/src/#' $COVERAGE_REPORT_DIR/cobertura-coverage.xml
+
+	# SonarQube lint report with absolute metrics-queue-consumer paths
+	SONAR_LINT_REPORT_PATH=$LINT_REPORT_DIR/sonar-cppcheck-result.xml
+	SONAR_LINT_REPORT_RELATIVE_PATH=${SONAR_LINT_REPORT_PATH#$PROJECT_DIR/}
+	sed 's#file="#&'$METRICS_WORKSPACE/ngsi_event_broker/'#' $LINT_REPORT_DIR/cppcheck-result.xml \
+	> $SONAR_LINT_REPORT_PATH
+
+	# SonarQube test reports (no need to change paths)
+	SONAR_TEST_REPORT_RELATIVE_PATH="${TEST_REPORT_DIR#$PROJECT_DIR/}/TEST-xunit-*.xml"
+
+	# SonarQube coverage report with absolute metrics-queue-consumer paths
+	SONAR_COVERAGE_REPORT_PATH=$COVERAGE_REPORT_DIR/sonar-cobertura-coverage.xml
+	SONAR_COVERAGE_REPORT_RELATIVE_PATH=${SONAR_COVERAGE_REPORT_PATH#$PROJECT_DIR/}
+	sed 's#filename="#&'$METRICS_WORKSPACE/'#' $COVERAGE_REPORT_DIR/cobertura-coverage.xml \
+	> $SONAR_COVERAGE_REPORT_PATH
 
 	# Get include directories for sonar-cxx plugin
 	C_CXX_INCLUDE_DIRS=$(cpp -x c++ -v 2>&1 /dev/null | sed -n '/include <\.\.\.>/,/End/ { p;}' | tail -n +2 | head -n -1 | tr -d ' ' | tr '\n ' ',')
@@ -155,9 +177,9 @@ build)
 		sonar.tests=test/
 		sonar.test.exclusions=**/*.c
 		sonar.cxx.includeDirectories=$SONAR_INCLUDE_DIRS
-		sonar.cxx.cppcheck.reportPath=report/cppcheck/cppcheck-result.xml
-		sonar.cxx.xunit.reportPath=report/test/TEST-xunit-*.xml
-		sonar.cxx.coverage.reportPath=report/coverage/cobertura-coverage.xml
+		sonar.cxx.cppcheck.reportPath=$SONAR_LINT_REPORT_RELATIVE_PATH
+		sonar.cxx.xunit.reportPath=$SONAR_TEST_REPORT_RELATIVE_PATH
+		sonar.cxx.coverage.reportPath=$SONAR_COVERAGE_REPORT_RELATIVE_PATH
 	EOF
 
 	# Generate metrics in SonarQube

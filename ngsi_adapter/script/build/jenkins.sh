@@ -30,6 +30,10 @@
 #     build		build, generate reports and publish to SonarQube
 #     package		generate distribution package
 #
+# Environment:
+#     JOB_URL		full URL for this build job
+#     WORKSPACE		absolute path for build job's workspace
+#
 
 OPTS='h(help)'
 NAME=$(basename $0)
@@ -70,8 +74,8 @@ ACTION=$(expr "$1" : "^\(build\|package\)$") && shift
 }
 
 # Main
-if [ -z "$WORKSPACE" ]; then
-	printf "Variable WORKSPACE not set\n" 1>&2
+if [ -z "$JOB_URL" -o -z "$WORKSPACE" ]; then
+	printf "Jenkins variables JOB_URL and WORKSPACE are required\n" 1>&2
 	exit 2
 fi
 
@@ -109,6 +113,13 @@ build)
 	# Generate reports
 	grunt lint-report test-report coverage-report
 
+	# Fix reports with paths relative to $WORKSPACE root
+	sed -i s:"$(readlink -f $PWD)":".":g $COVERAGE_REPORT_DIR/lcov.info
+
+	# SonarQube coverage reports
+	SONAR_COVERAGE_REPORT_RELATIVE_PATH=${COVERAGE_REPORT_DIR#$PROJECT_BASE_DIR/}/cobertura-coverage.xml
+	SONAR_LCOV_REPORT_RELATIVE_PATH=${COVERAGE_REPORT_DIR#$PROJECT_BASE_DIR/}/lcov.info
+
 	# Prepare properties file for SonarQube (awk to remove leading spaces)
 	awk '$1=$1' > $PROJECT_BASE_DIR/sonar-project.properties <<-EOF
 		product.area.name=$PRODUCT_AREA
@@ -124,12 +135,9 @@ build)
 		sonar.tests=test/
 		# coverage
 		sonar.dynamicAnalysis=reuseReports
-		sonar.cobertura.reportPath=report/coverage/cobertura-coverage.xml
-		sonar.javascript.lcov.reportPath=report/coverage/lcov.info
+		sonar.cobertura.reportPath=$SONAR_COVERAGE_REPORT_RELATIVE_PATH
+		sonar.javascript.lcov.reportPath=$SONAR_LCOV_REPORT_RELATIVE_PATH
 	EOF
-
-	# Workaround to use relative paths in coverage info
-	sed -i s:"$(readlink -f $PWD)":".":g report/coverage/lcov.info
 
 	# Generate metrics in SonarQube
 	export DEBUG_METRICS=FALSE
