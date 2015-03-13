@@ -84,9 +84,6 @@ if [ "$1" = configure ]; then
 
 		EOF
 	fi
-
-	# finalization
-	exit $STATUS
 fi
 
 # dh_installdeb will replace this with shell code automatically
