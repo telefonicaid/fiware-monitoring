@@ -1,3 +1,10 @@
+fiware-monitoring-ngsi-adapter (1.1.2) precise; urgency=low
+
+  * Added .rpm package generation
+  * Added XIFI custom parsers
+
+ -- Telefónica I+D <opensource@tid.es>  Fri, 13 Mar 2015 15:00:00 +0200
+
 fiware-monitoring-ngsi-adapter (1.1.1) precise; urgency=low
 
   * Included Debian package generation (issue #16)

@@ -4,7 +4,7 @@ Priority: extra
 Maintainer: Telefónica I+D <opensource@tid.es>
 Build-Depends: debhelper (>= 8.0.0), autotools-dev
 Standards-Version: 3.9.2
-Homepage: https://github.com/telefonicaid/fiware-monitoring/tree/master/ngsi_event_broker
+Homepage: https://github.com/telefonicaid/fiware-monitoring/tree/custom/xifi/ngsi_event_broker
 Vcs-Git: git@github.com:telefonicaid/fiware-monitoring.git
 
 Package: fiware-monitoring-ngsi-event-broker

@@ -53,16 +53,17 @@ shift $(expr $OPTIND - 1)
 [ -z "$OPTERR" -a -n "$*" ] && OPTERR="Too many arguments"
 [ -n "$OPTERR" ] && {
 	[ "$OPTERR" != "$OPTHLP" ] && OPTERR="${OPTERR}\nTry \`$NAME --help'"
-	TAB=4; LEN=$(echo "$OPTERR" | awk -F'\t' '/\t.+\t/ {print $2}' | wc -L)
+	TAB=4; LEN=$(echo "$OPTERR" | awk -F'\t' '/ .+\t/ {print $1}' | wc -L)
 	TABSTOPS=$TAB,$(((2+LEN/TAB)*TAB)); WIDTH=${COLUMNS:-$(tput cols)}
 	printf "$OPTERR" | tr -s '\t' | expand -t$TABSTOPS | fmt -$WIDTH -s 1>&2
 	exit 1
 }
 
-# Function to create a Debian package
-create_debian_package() {
-	local package dpkg_files dpkg_dir=$BASEDIR/..
-	cd $BASEDIR && cp -r $PROGDIR/files/debian .
+# Function to create a DEB package
+create_deb_package() {
+	local package dpkg_files
+	cp -r $PROGDIR/files/debian $BASEDIR
+	cd $BASEDIR
 	dpkg-buildpackage -b -rfakeroot -D -us -uc \
 	&& dpkg_files=$(ls -t ../*.deb ../*.changes 2>/dev/null | head -2) \
 	&& package=$(expr "$dpkg_files" : ".*/\(.*\.deb\)") \
@@ -71,19 +72,40 @@ create_debian_package() {
 	[ -d ./debian ] && rm -rf ./debian
 }
 
+# Function to create a RPM package
+create_rpm_package() {
+	local package rpmbuild_file
+	local pkgversion=$(sed -n '/AC_INIT/ {s/.*,[ \t]*\(.*\))/\1/; p}' $BASEDIR/configure.ac)
+	local topdir=$BASEDIR/redhat
+	cp -r $PROGDIR/files/redhat $BASEDIR
+	cd $topdir
+	rpmbuild -bb SPECS/*.spec \
+	         --define "_topdir $topdir" \
+	         --define "_basedir $BASEDIR" \
+	         --define "_builddir $BASEDIR" \
+	         --define "_version $pkgversion" \
+	         --define "_release 1" \
+	&& rpmbuild_file=$(find RPMS/ -name *.rpm) \
+	&& package=$(basename $rpmbuild_file) \
+	&& mv -f $rpmbuild_file $BASEDIR \
+	&& printf "\n%s successfully created.\n\n" $BASEDIR/$package
+	cd $BASEDIR
+	[ -d $topdir ] && rm -rf $topdir
+}
+
 # Function to obtain GNU/Linux distro (set variable $1; OS_DISTRO if not given)
 get_linux_distro() {
 	local retvar=${1:-OS_DISTRO}
 	local distro
-	if [ -r /etc/lsb-release -a -r /etc/issue.net ]; then
+	if [ -r /etc/redhat-release ]; then
+		# RedHat/CentOS/Fedora
+		distro=$(cat /etc/redhat-release)
+	elif [ -r /etc/lsb-release -a -r /etc/issue.net ]; then
 		# Ubuntu
 		distro=$(cat /etc/issue.net)
 	elif [ -r /etc/debian_version -a -r /etc/issue.net ]; then
 		# Debian
 		distro=$(cat /etc/issue.net)
-	elif [ -r /etc/redhat-release ]; then
-		# RedHat/CentOS/Fedora
-		distro=$(cat /etc/redhat-release)
 	fi
 	[ -z "$distro" ] && return 1
 	eval $retvar=\"$distro\"
@@ -96,7 +118,9 @@ if ! get_linux_distro OS_DISTRO; then
 	echo "Could not get GNU/Linux distribution" 1>&2
 	exit 2
 elif [ $(expr "$OS_DISTRO" : 'Ubuntu.*\|Debian.*') -ne 0 ]; then
-	create_debian_package
+	create_deb_package
+elif [ $(expr "$OS_DISTRO" : 'CentOS.*\|RedHat.*') -ne 0 ]; then
+	create_rpm_package
 else
 	echo "Unsupported GNU/Linux distribution" 1>&2
 	exit 3

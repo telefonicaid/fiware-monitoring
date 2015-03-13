@@ -4,7 +4,7 @@ Priority: extra
 Maintainer: Telefónica I+D <opensource@tid.es>
 Build-Depends: debhelper (>= 8.0.0)
 Standards-Version: 3.9.2
-Homepage: https://github.com/telefonicaid/fiware-monitoring/tree/master/ngsi_adapter
+Homepage: https://github.com/telefonicaid/fiware-monitoring/tree/custom/xifi/ngsi_adapter
 Vcs-Git: git@github.com:telefonicaid/fiware-monitoring.git
 
 Package: fiware-monitoring-ngsi-adapter

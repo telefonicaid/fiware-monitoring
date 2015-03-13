@@ -5,12 +5,13 @@ attributes, and forward them through a NGSI Context Broker.
 
 ## Installation
 
-Adapter is distributed as a Debian (.deb) package. Assuming FI-WARE package
-repositories are configured, just use the proper tool (such as `apt-get`) to
-install `fiware-monitoring-ngsi-adapter` package. These distributions are
-currently supported:
+Adapter is distributed as a Ubuntu (.deb) or CentOS (.rpm) package. Assuming
+FIWARE package repositories are configured, just use the proper tool (such as
+`apt-get` or `yum`) to install `fiware-monitoring-ngsi-adapter` package. These
+distributions are currently supported:
 
 * Ubuntu 12.04 LTS
+* CentOS 6.3
 
 During installation process, Node.js engine version is checked and package
 dependencies are resolved using `npm` tool. Upon successful installation, Linux
@@ -67,6 +68,11 @@ its *getContextAttrs()* method, passing probe raw data splitted into
 two components: probe data and optional performance data.
 
 ## Changelog
+
+Version 1.1.2
+
+* Add .rpm package generation
+* Add XIFI custom parsers
 
 Version 1.1.1
 
