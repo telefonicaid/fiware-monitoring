@@ -9,12 +9,13 @@ Nagios event broker ([NEB][NEB_ref]) module to forward plugin data to
 ## Installation
 
 The module is an architecture-dependent compiled shared object distributed as
-a single library bundled in a Debian (.deb) or RedHat (.rpm) package. Assuming
-FI-WARE package repositories are configured, just use the proper tool (such as
-`apt-get` or `rpm`) to install `fiware-monitoring-ngsi-event-broker` package.
+a single library bundled in a Ubuntu (.deb) or CentOS (.rpm) package. Assuming
+FIWARE package repositories are configured, just use the proper tool (such as
+`apt-get` or `yum`) to install `fiware-monitoring-ngsi-event-broker` package.
 Currently, packages for these distributions are released:
 
 * Ubuntu 12.04 LTS
+* CentOS 6.3
 
 As an alternative, module can be compiled from sources, either downloaded from
 sources repository or as [source code tarball][fiware_monitoring_releases_ref].
@@ -128,9 +129,13 @@ definition the aforementioned custom variable `_entity_type`.
 
 ## Changelog
 
+Version 1.3.2
+
+* Included .rpm package generation
+
 Version 1.3.1
 
-* Included Debian package generation
+* Included .deb package generation
 * Fixed error in argument parser
 
 Version 1.3.0

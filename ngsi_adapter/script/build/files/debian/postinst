@@ -15,37 +15,54 @@ LOGGING_DIR=#DH_LOGGING_DIR#
 STATUS=0
 
 if [ "$1" = configure ]; then
+	# create directories
+	mkdir -p $FIWARE_DIR $ADAPTER_DIR $LOGGING_DIR
+
+	# Ubuntu is not FHS compliant and considers "/opt" (usually, the parent
+	# of $FIWARE_DIR) as non-standard. This prevents dpkg from removing it,
+	# even when empty
+	if [ "$(dirname $FIWARE_DIR)" = "/opt" ]; then
+		grep -q '^/opt$' /var/lib/dpkg/info/base-files.list \
+		|| echo '/opt' >> /var/lib/dpkg/info/base-files.list
+	fi
+
 	# install npm dependencies
 	echo "Installing npm dependencies ..."
 	cd $ADAPTER_DIR
 	npm config set ca=""
 	npm install --production || STATUS=1
+
 	# check FIWARE user
 	if ! getent passwd $FIWARE_USR >/dev/null; then
 		addgroup --quiet $FIWARE_GRP 2>/dev/null || true
 		adduser --quiet --ingroup $FIWARE_GRP \
 		        --home /nonexistent --no-create-home \
 		        --disabled-password --shell /bin/false \
-		        --gecos "FI-WARE" $FIWARE_USR
+		        --gecos "FIWARE" $FIWARE_USR
 	fi
+
 	# check ADAPTER user
 	if ! getent passwd $ADAPTER_USR >/dev/null; then
 		addgroup --quiet $ADAPTER_GRP 2>/dev/null || true
 		adduser --quiet --ingroup $ADAPTER_GRP \
 		        --home /nonexistent --no-create-home \
 		        --disabled-password --shell /bin/false \
-		        --gecos "FI-WARE NGSI Adapter" $ADAPTER_USR
+		        --gecos "FIWARE NGSI Adapter" $ADAPTER_USR
 	fi
-	# change directory ownership
+
+	# change ownership
 	chown -R $FIWARE_USR:$FIWARE_GRP $FIWARE_DIR
 	chown -R $ADAPTER_USR:$ADAPTER_GRP $ADAPTER_DIR
 	chown -R $ADAPTER_USR:$ADAPTER_GRP $LOGGING_DIR
+
 	# change file permissions
 	chmod -R g+w $ADAPTER_DIR
 	chmod a+x $ADAPTER_DIR/adapter
+
 	# change logging directory at config files
 	LOGGING_CONFIG=$ADAPTER_DIR/config/logger.js
 	sed -i "/logFile/ s:process.cwd():'$LOGGING_DIR':" $LOGGING_CONFIG
+
 	# postinstall message
 	if [ $STATUS -eq 0 ]; then fmt --width=${COLUMNS:-$(tput cols)} <<-EOF
 
@@ -67,6 +84,9 @@ if [ "$1" = configure ]; then
 
 		EOF
 	fi
+
+	# finalization
+	exit $STATUS
 fi
 
 # dh_installdeb will replace this with shell code automatically

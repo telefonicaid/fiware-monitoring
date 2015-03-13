@@ -2,7 +2,7 @@
 #
 # Init script for starting up NGSI Adapter service
 #
-# chkconfig:   345 91 10
+# chkconfig:   2345 91 10
 # description: NGSI Adapter is a generic component to transform monitoring \
 #              data from probes to NGSI context attributes, and forward \
 #              them through a NGSI Context Broker.
@@ -11,8 +11,8 @@
 # Provides:          ngsi_adapter
 # Required-Start:    $local_fs $remote_fs $network $syslog
 # Required-Stop:     $local_fs $remote_fs $network $syslog
-# Default-Start:     3 4 5
-# Default-Stop:      0 1 2 6
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
 # Short-Description: Init script for starting up NGSI Adapter service
 # Description:       NGSI Adapter is a generic component to transform monitoring
 #                    data from probes to NGSI context attributes, and forward
@@ -22,7 +22,7 @@
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="NGSI Adapter Service"
 NAME=ngsi_adapter
-DAEMON=/home/fiware/NGSI/adapter
+DAEMON=/opt/fiware/$NAME/adapter
 DAEMON_ARGS=""
 DAEMON_USER=fiware
 PIDFILE=/var/run/$NAME.pid
@@ -90,11 +90,15 @@ case "$1" in
 	stop)
 		do_stop
 		;;
+	restart)
+		do_stop
+		do_start
+		;;
 	status)
 		status -p $PIDFILE $NAME
 		;;
 	*)
-		echo $"Usage: $NAME {start|stop|status}" >&2
+		echo $"Usage: $NAME {start|stop|restart|status}" >&2
 		exit 3
 		;;
 esac
