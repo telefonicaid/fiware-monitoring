@@ -15,8 +15,8 @@ LOGGING_DIR=#DH_LOGGING_DIR#
 STATUS=0
 
 if [ "$1" = configure ]; then
-	# create directories
-	mkdir -p $FIWARE_DIR $ADAPTER_DIR $LOGGING_DIR
+	# create additional directories
+	mkdir -p $LOGGING_DIR
 
 	# Ubuntu is not FHS compliant and considers "/opt" (usually, the parent
 	# of $FIWARE_DIR) as non-standard. This prevents dpkg from removing it,

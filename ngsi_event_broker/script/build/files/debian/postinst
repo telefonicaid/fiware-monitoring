@@ -12,9 +12,6 @@ BROKER_GRP=#DH_BROKER_GRP#
 BROKER_DIR=#DH_BROKER_DIR#
 
 if [ "$1" = configure ]; then
-	# create directories
-	mkdir -p $FIWARE_DIR $BROKER_DIR
-
 	# Ubuntu is not FHS compliant and considers "/opt" (usually, the parent
 	# of $FIWARE_DIR) as non-standard. This prevents dpkg from removing it,
 	# even when empty

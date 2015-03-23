@@ -110,8 +110,8 @@ if [ $1 -eq 1 ]; then
 	LOGGING_DIR=%{_logging_dir}
 	STATUS=0
 
-	# create directories
-	mkdir -p $FIWARE_DIR $ADAPTER_DIR $LOGGING_DIR
+	# create additional directories
+	mkdir -p $LOGGING_DIR
 
 	# install npm dependencies
 	echo "Installing npm dependencies ..."

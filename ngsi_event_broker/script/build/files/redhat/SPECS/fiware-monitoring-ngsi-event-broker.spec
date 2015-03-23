@@ -66,9 +66,6 @@ if [ $1 -eq 1 ]; then
 	BROKER_GRP=%{_broker_grp}
 	BROKER_DIR=%{_broker_dir}
 
-	# create directories
-	mkdir -p $FIWARE_DIR $BROKER_DIR
-
 	# check FIWARE user
 	if ! getent passwd $FIWARE_USR >/dev/null; then
 		groupadd --force $FIWARE_GRP
