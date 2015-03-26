@@ -48,8 +48,8 @@ For more information, please refer to the description of Monitoring GE in
 (c) 2013-2014 Telefónica I+D, Apache License 2.0
 
 [fiware_catalogue_monitoring_ref]:
-http://catalogue.fi-ware.org/enablers/monitoring-ge-tid-implementation
-"Monitoring GE - TID Implementation"
+http://catalogue.fiware.org/enablers/monitoring-ge-fiware-implementation
+"Monitoring GE - FIWARE Implementation"
 
 [release_3_5_2_ref]:
 https://forge.fi-ware.org/frs/?group_id=7&release_id=529#cloud-monitoring-3-5-2-title-content
