@@ -12,24 +12,21 @@ var nagios = require('./common/nagios');
 var parser = Object.create(nagios.parser);
 parser.getContextAttrs = function(probeEntityData) {
     var data  = probeEntityData.data.split('\n')[0];
-    var attrs = { freeSpacePct : 0};
+    var attrs = { nova_scheduler: 0};
     var items = data.split(':');
     if ((items.length)>0 ) {
-       var groups = items[1].split('/');
-       if(groups[1].trim()){
-          var tmp_grp=groups[1].trim();
-          var groupvals = tmp_grp.split(' ');
-          var percDisk = groupvals[2].trim();
-          attrs.freeSpacePct=percDisk.substring(1,3);
-       }
-       else{
-          attrs.freeSpacePct=0
-       }
-   }
+	if (items[1].indexOf("nova-scheduler") != -1){
+		if(items[0].indexOf("PROCS OK") !=-1){
+			attrs.nova_scheduler=1
+		}
+		else{
+	        	attrs.nova_scheduler=0
+		}
+	}
+    }
     else{
-        throw new Error('No valid freeSpacePct found');
+        throw new Error('No valid nova-scheduler data found');
     }
     return attrs;
 };
 exports.parser = parser;
-
