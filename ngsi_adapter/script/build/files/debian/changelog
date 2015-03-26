@@ -1,5 +1,6 @@
 fiware-monitoring-ngsi-adapter (1.1.2) precise; urgency=low
 
+  * Fixed log rotation problems
   * Added .rpm package generation
   * Added XIFI custom parsers
 

@@ -71,6 +71,7 @@ two components: probe data and optional performance data.
 
 Version 1.1.2
 
+* Fix log rotation problems
 * Add .rpm package generation
 * Add XIFI custom parsers
 

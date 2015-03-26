@@ -190,6 +190,7 @@ fi
 
 %changelog
 * Fri Mar 13 2015 Telefónica I+D <opensource@tid.es> 1.1.2-1
+- Fix log rotation problems
 - Add .rpm package generation
 - Add XIFI custom parsers
 

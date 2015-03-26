@@ -26,7 +26,7 @@
 'use strict';
 
 
-var winston    = require('winston'),
+var winston    = require('winston-reloaded'),
     dateformat = require('dateformat');
 
 

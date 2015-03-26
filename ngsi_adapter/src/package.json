@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "retry": ">=0.6.0",
-    "winston": ">=0.7.2",
+    "winston-reloaded": ">=0.1.0",
     "dateformat": "1.0.6-1.2.3",
     "optimist": ">=0.6.0"
   },
