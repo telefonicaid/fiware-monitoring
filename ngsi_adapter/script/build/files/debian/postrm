@@ -4,20 +4,26 @@
 set -e
 
 # actual values of these variables will be replaced after dh_install (see rules)
-FIWARE_DIR=#DH_FIWARE_DIR#
+ADAPTER_SRV=#DH_ADAPTER_SRV#
 ADAPTER_DIR=#DH_ADAPTER_DIR#
 LOGGING_DIR=#DH_LOGGING_DIR#
+FIWARE_DIR=#DH_FIWARE_DIR#
 
 case "$1" in
-purge|remove)
+remove)
+	# remove Linux service
+	update-rc.d -f $ADAPTER_SRV remove
+
 	# remove installation directory
 	rm -rf $ADAPTER_DIR
 
-	# remove FIWARE parent directory (if empty)
-	rmdir --ignore-fail-on-non-empty $FIWARE_DIR
+	# remove FIWARE parent directory, if empty
+	[ -d $FIWARE_DIR ] && rmdir --ignore-fail-on-non-empty $FIWARE_DIR
+	;;
 
-	# remove log files (only for purge)
-	[ "$1" = "purge" ] && rm -rf $LOGGING_DIR
+purge)
+	# remove log files
+	rm -rf $LOGGING_DIR
 	;;
 esac
 

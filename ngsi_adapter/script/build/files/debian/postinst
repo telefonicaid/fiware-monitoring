@@ -15,6 +15,17 @@ LOGGING_DIR=#DH_LOGGING_DIR#
 STATUS=0
 
 if [ "$1" = configure ]; then
+	# create additional directories
+	mkdir -p $LOGGING_DIR
+
+	# Ubuntu is not FHS compliant and considers "/opt" (usually, the parent
+	# of $FIWARE_DIR) as non-standard. This prevents dpkg from removing it,
+	# even when empty
+	if [ "$(dirname $FIWARE_DIR)" = "/opt" ]; then
+		grep -q '^/opt$' /var/lib/dpkg/info/base-files.list \
+		|| echo '/opt' >> /var/lib/dpkg/info/base-files.list
+	fi
+
 	# install npm dependencies
 	echo "Installing npm dependencies ..."
 	cd $ADAPTER_DIR
@@ -39,10 +50,7 @@ if [ "$1" = configure ]; then
 		        --gecos "FIWARE NGSI Adapter" $ADAPTER_USR
 	fi
 
-	# create directories
-	mkdir -p $FIWARE_DIR $ADAPTER_DIR $LOGGING_DIR
-
-	# change directory ownership
+	# change ownership
 	chown -R $FIWARE_USR:$FIWARE_GRP $FIWARE_DIR
 	chown -R $ADAPTER_USR:$ADAPTER_GRP $ADAPTER_DIR
 	chown -R $ADAPTER_USR:$ADAPTER_GRP $LOGGING_DIR
@@ -74,9 +82,6 @@ if [ "$1" = configure ]; then
 
 		EOF
 	fi
-
-	# finalization
-	exit $STATUS
 fi
 
 # dh_installdeb will replace this with shell code automatically

@@ -82,10 +82,7 @@ if [ $1 -eq 1 ]; then
 		        --comment "FIWARE NGSI Event Broker" $BROKER_USR
 	fi
 
-	# create directories
-	mkdir -p $FIWARE_DIR $BROKER_DIR
-
-	# change directory ownership
+	# change ownership
 	chown -R $FIWARE_USR:$FIWARE_GRP $FIWARE_DIR
 	chown -R $BROKER_USR:$BROKER_GRP $BROKER_DIR
 
@@ -113,10 +110,13 @@ if [ $1 -eq 0 ]; then
 	rm -rf %{_broker_dir}
 
 	# remove FIWARE parent directory (if empty)
-	rmdir --ignore-fail-on-non-empty %{_fiware_dir}
+	[ -d %{_fiware_dir} ] && rmdir --ignore-fail-on-non-empty %{_fiware_dir}
 fi
 
 %changelog
+* Fri Mar 27 2015 Telefónica I+D <opensource@tid.es> 1.4.3-1
+- Fix problems when uninstalling package
+
 * Fri Feb 27 2015 Telefónica I+D <opensource@tid.es> 1.4.2-1
 - Add .rpm package generation
 - Minor bugs resolved

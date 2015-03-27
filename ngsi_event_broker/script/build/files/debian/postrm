@@ -13,7 +13,7 @@ purge|remove)
 	rm -rf $BROKER_DIR
 
 	# remove FIWARE parent directory (if empty)
-	rmdir --ignore-fail-on-non-empty $FIWARE_DIR
+	[ -d $FIWARE_DIR ] && rmdir --ignore-fail-on-non-empty $FIWARE_DIR
 	;;
 esac
 

@@ -8,7 +8,7 @@
 %define _adapter_grp %{_fiware_grp}
 %define _adapter_dir %{_fiware_dir}/%{_adapter_srv}
 %define _logging_dir /var/log/%{_adapter_srv}
-%define _node_req_ver %(awk '/"node":/ {split($0,v,/["~=<>]/); print v[6]}' %{_basedir_dir}/src/package.json)
+%define _node_req_ver %(awk '/"node":/ {split($0,v,/["~=<>]/); print v[6]}' %{_basedir}/src/package.json)
 
 # Package main attributes (_topdir, _basedir, _version and _release must be given at command line)
 Summary: Adapter to transform data from monitoring probes to NGSI context attributes.
@@ -110,6 +110,9 @@ if [ $1 -eq 1 ]; then
 	LOGGING_DIR=%{_logging_dir}
 	STATUS=0
 
+	# create additional directories
+	mkdir -p $LOGGING_DIR
+
 	# install npm dependencies
 	echo "Installing npm dependencies ..."
 	cd $ADAPTER_DIR
@@ -132,10 +135,7 @@ if [ $1 -eq 1 ]; then
 		        --comment "FIWARE NGSI Adapter" $ADAPTER_USR
 	fi
 
-	# create directories
-	mkdir -p $FIWARE_DIR $ADAPTER_DIR $LOGGING_DIR
-
-	# change directory ownership
+	# change ownership
 	chown -R $FIWARE_USR:$FIWARE_GRP $FIWARE_DIR
 	chown -R $ADAPTER_USR:$ADAPTER_GRP $ADAPTER_DIR
 	chown -R $ADAPTER_USR:$ADAPTER_GRP $LOGGING_DIR
@@ -180,13 +180,16 @@ if [ $1 -eq 0 ]; then
 	rm -rf %{_adapter_dir}
 
 	# remove FIWARE parent directory (if empty)
-	rmdir --ignore-fail-on-non-empty %{_fiware_dir}
+	[ -d %{_fiware_dir} ] && rmdir --ignore-fail-on-non-empty %{_fiware_dir}
 
 	# remove log files
 	rm -rf %{_logging_dir}
 fi
 
 %changelog
+* Fri Mar 27 2015 Telefónica I+D <opensource@tid.es> 1.2.3-1
+- Fix problems when uninstalling package
+
 * Fri Feb 27 2015 Telefónica I+D <opensource@tid.es> 1.2.2-1
 - Add .rpm package generation
 - Minor bugs resolved

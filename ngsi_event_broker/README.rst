@@ -156,6 +156,9 @@ definition the aforementioned custom variable ``_entity_type``.
 Changelog
 =========
 
+Version 1.4.3
+-  Fix problems when uninstalling package
+
 Version 1.4.2
 
 -  Add .rpm package generation
