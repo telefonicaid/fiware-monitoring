@@ -109,9 +109,9 @@ Requests to NGSI Adapter issued by this broker will all follow the pattern
 -  ``{check_name}`` is taken from Nagios command specified at service definition
 -  ``{region}`` is taken from broker arguments
 -  ``{uniqueid}`` is taken from service definition, depending on the command
-   plugin
+     plugin
 -  ``{type}`` is also taken from service definition, also depending on the
-   command
+     command
 
 For *SNMP monitoring* a Nagios command named ``check_snmp`` should be used.
 Entity type ``interface`` is assumed by default and ``{uniqueid}`` consists
@@ -157,6 +157,7 @@ Changelog
 =========
 
 Version 1.4.3
+
 -  Fix problems when uninstalling package
 
 Version 1.4.2

@@ -5,12 +5,12 @@ ________
 What you get
 ============
 
-Monitoring GE - TID Implementation is the key component to allow incorporating
-monitoring and metering mechanisms in order be able to constantly check the
-performance of the system, but the architecture should be easily extended
-to collect data for other required needs. Monitoring involves gathering
-operational data in a running system. Collected information can be used for
-several purposes:
+Monitoring GE - FIWARE Implementation is the key component to allow
+incorporating monitoring and metering mechanisms in order be able to
+constantly check the performance of the system, but the architecture should
+be easily extended to collect data for other required needs. Monitoring
+involves gathering operational data in a running system. Collected information
+can be used for several purposes:
 
 -  Cloud users to track the performance of their own instances.
 -  SLA management, in order to check adherence to agreement terms.
@@ -26,10 +26,10 @@ monitoring data.
 Why to get it
 =============
 
-Monitoring GE - TID Implementation is the monitoring platform to be used in the
-FIWARE Cloud ecosystem in order to monitoring and metering virtual resources.
-This middleware unify the monitoring and metering solution, providing the
-following advantages:
+Monitoring GE - FIWARE Implementation is the monitoring platform to be used
+in the FIWARE Cloud ecosystem in order to monitoring and metering virtual
+resources. This middleware unify the monitoring and metering solution,
+providing the following advantages:
 
 -  **Full FIWARE integrated solution**
 

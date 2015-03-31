@@ -95,7 +95,7 @@ License
 
 .. REFERENCES
 
-.. _FIWARE Catalogue - Monitoring GE: http://catalogue.fiware.org/enablers/monitoring-ge-tid-implementation
+.. _FIWARE Catalogue - Monitoring GE: http://catalogue.fiware.org/enablers/monitoring-ge-fiware-implementation
 .. _FIWARE 4.2.3: https://forge.fiware.org/frs/?group_id=7&release_id=576#cloud-monitoring-4-2-3-title-content
 .. _FIWARE 4.2.2: https://forge.fiware.org/frs/?group_id=7&release_id=571#cloud-monitoring-4-2-2-title-content
 .. _FIWARE 4.2.1: https://forge.fiware.org/frs/?group_id=7&release_id=563#cloud-monitoring-4-2-1-title-content

@@ -381,12 +381,12 @@ the different monitoring components:
 
 .. REFERENCES
 
-.. _Catalogue - Monitoring download: http://catalogue.fiware.org/enablers/monitoring-ge-tid-implementation/downloads
+.. _Catalogue - Monitoring download: http://catalogue.fiware.org/enablers/monitoring-ge-fiware-implementation/downloads
 .. _Resource consumption - Orion: https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_Installation_and_Administration_Guide#Resource_consumption
 .. _Orion - queryContext: https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Query_Context_operation
 .. _Orion - Admin guide: https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_Installation_and_Administration_Guide
 .. _ngsi2cosmos: https://github.com/telefonicaid/fiware-livedemoapp#ngsi2cosmos
-.. _Cygnus: https://github.com/telefonicaid/fiware-connectors/tree/develop/flume
+.. _Cygnus: https://github.com/telefonicaid/fiware-cygnus/tree/master
 .. _Nagios: http://www.nagios.org/
 .. _Zabbix: http://www.zabbix.com/
 .. _openNMS: http://www.opennms.org/

@@ -92,6 +92,7 @@ Changelog
 =========
 
 Version 1.2.3
+
 -  Fix problems when uninstalling package
 
 Version 1.2.2
