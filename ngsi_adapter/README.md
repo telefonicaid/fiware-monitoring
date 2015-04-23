@@ -69,6 +69,10 @@ two components: probe data and optional performance data.
 
 ## Changelog
 
+Version 1.1.3
+
+* Add attributes to region.js parser
+
 Version 1.1.2
 
 * Fix log rotation problems
@@ -94,4 +98,4 @@ Version 1.0.0
 
 ## License
 
-(c) 2013-2014 Telefónica I+D, Apache License 2.0
+(c) 2013-2015 Telefónica I+D, Apache License 2.0
