@@ -19,6 +19,11 @@ For more information, please refer to the description of Monitoring GE in
 
 ## Releases
 
+[FIWARE 3.5.2 (R4)][release_3_5_2_ref]
+
+* ngsi_event_broker version 1.3.2
+* ngsi_adapter version 1.1.3
+
 [FIWARE 3.5.2 (R3)][release_3_5_2_ref]
 
 * ngsi_event_broker version 1.3.2
