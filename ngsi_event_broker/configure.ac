@@ -2,7 +2,7 @@
 m4_define([DESCRIPTION], [Nagios module to forward plugin data to NGSI Adapter])
 m4_define([PRODUCT_NAME], [fiware-monitoring])
 m4_define([PRODUCT_AREA], [iotplatform])
-m4_define([PRODUCT_RELEASE], [4.2.3])
+m4_define([PRODUCT_RELEASE], [4.3.2])
 AC_INIT([PRODUCT_NAME-ngsi-event-broker], 1.4.3)
 AC_LANG(C)
 if test -z "$CFLAGS"; then
