@@ -26,6 +26,7 @@
 
 
 # Files to be updated
+BUMPVERSION_CONF=$0
 ADAPTER_CONF=ngsi_adapter/src/package.json
 BROKER_CONF=ngsi_event_broker/configure.ac
 
@@ -45,7 +46,7 @@ which bumpversion >/dev/null || {
 }
 
 # Ask for new FIWARE release
-CUR_RELEASE=$(awk -F'[ :]' '/_FIWARE.*release/ {print $3; exit}' README.rst)
+CUR_RELEASE=4.3.2
 PROMPT="Please specify new FIWARE release (current is $CUR_RELEASE): "
 read -p "$PROMPT" NEW_RELEASE
 test -n "$(expr "$NEW_RELEASE" : '\([0-9]\+\.[0-9]\+\.[0-9]\+\)$')" || {
@@ -74,15 +75,23 @@ test -n "$(expr "$NEW_BROKER_VER" : '\([0-9]\+\.[0-9]\+\.[0-9]\+\)$')" || {
 # Abort on error
 set -e
 
+# Update release in bumpversion configuration (this file)
+[ "$NEW_RELEASE" != "$CUR_RELEASE" ] && bumpversion --commit --no-tag \
+	--current-version=$CUR_RELEASE --new-version=$NEW_RELEASE \
+	--message='Bump product release: {current_version} -> {new_version}' \
+	--search='CUR_RELEASE={current_version}' \
+	--replace='CUR_RELEASE={new_version}' \
+	$BUMPVERSION_OPTS patch $BUMPVERSION_CONF
+
 # Update release and version in NGSI Adapter configuration files
-bumpversion --commit --no-tag \
+[ "$NEW_RELEASE" != "$CUR_RELEASE" ] && bumpversion --commit --no-tag \
 	--current-version=$CUR_RELEASE --new-version=$NEW_RELEASE \
 	--message='Bump product release: {current_version} -> {new_version}' \
 	--search='"release": "{current_version}"' \
 	--replace='"release": "{new_version}"' \
 	$BUMPVERSION_OPTS patch $ADAPTER_CONF
 
-bumpversion --commit --no-tag \
+[ "$NEW_ADAPTER_VER" != "$CUR_ADAPTER_VER" ] && bumpversion --commit --no-tag \
 	--current-version=$CUR_ADAPTER_VER --new-version=$NEW_ADAPTER_VER \
 	--message='Bump component version: {current_version} -> {new_version}' \
 	--search='"version": "{current_version}"' \
@@ -90,14 +99,14 @@ bumpversion --commit --no-tag \
 	$BUMPVERSION_OPTS patch $ADAPTER_CONF
 
 # Update release and version in Event Broker configuration files
-bumpversion --commit --no-tag \
+[ "$NEW_RELEASE" != "$CUR_RELEASE" ] && bumpversion --commit --no-tag \
 	--current-version=$CUR_RELEASE --new-version=$NEW_RELEASE \
 	--message='Bump product release: {current_version} -> {new_version}' \
 	--search='[PRODUCT_RELEASE], [{current_version}]' \
 	--replace='[PRODUCT_RELEASE], [{new_version}]' \
 	$BUMPVERSION_OPTS patch $BROKER_CONF
 
-bumpversion --commit --no-tag \
+[ "$NEW_BROKER_VER" != "$CUR_BROKER_VER" ] && bumpversion --commit --no-tag \
 	--current-version=$CUR_BROKER_VER --new-version=$NEW_BROKER_VER \
 	--message='Bump component version: {current_version} -> {new_version}' \
 	--search='AC_INIT([PRODUCT_NAME-ngsi-event-broker], {current_version})'\
