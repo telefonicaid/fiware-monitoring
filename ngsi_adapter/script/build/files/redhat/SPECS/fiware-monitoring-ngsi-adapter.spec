@@ -189,6 +189,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Thu May 07 2015 Telefónica I+D <opensource@tid.es> 1.1.4-1
+- Add more attributes to region.js parser (required by ODC 2.4)
+
 * Thu Apr 23 2015 Telefónica I+D <opensource@tid.es> 1.1.3-1
 - Add attributes to region.js parser
 
