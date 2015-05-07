@@ -89,7 +89,7 @@ baseParser.updateContextRequest = function(request) {
  * Parses the request to extract raw probe data.
  *
  * @abstract
- * @function paserRequest
+ * @function parseRequest
  * @memberof baseParser
  * @param {http.IncomingMessage} request    The HTTP request to this server.
  * @returns {EntityData} An object holding entity data taken from request body.

@@ -17,7 +17,7 @@ var parser = Object.create(nagios.parser);
 parser.getContextAttrs = function(probeEntityData) {
     var data  = probeEntityData.data.split('\n')[0];    // only consider first line of probe data, discard perfData   
 
-    var attrs = { coreUsed: NaN, coreEnabled: NaN, coreTot: NaN , vmUsed: NaN, vmTot: NaN,hdUsed: NaN,hdTot: NaN,ramUsed: NaN,ramTot: NaN,  location: NaN, latitude: NaN, longitude: NaN,ipUsed: NaN, ipAvailable: NaN, ipTot: NaN, vmImage:'', vmList:'', timeSample:NaN};
+    var attrs = { coreUsed: NaN, coreEnabled: NaN, coreTot: NaN , vmUsed: NaN, vmTot: NaN,hdUsed: NaN,hdTot: NaN,ramUsed: NaN,ramTot: NaN,  location: NaN, latitude: NaN, longitude: NaN,ipUsed: NaN, ipAvailable: NaN, ipTot: NaN, ram_allocation_ratio: NaN,cpu_allocation_ratio: NaN,vmImage:'', vmList:'', timeSample:NaN};
     var items = data.split(',');
     if ((items.length)>0 ) {
         for (var i = 0; i < items.length; i++){
@@ -54,6 +54,10 @@ parser.getContextAttrs = function(probeEntityData) {
                 attrs.ipAvailable=element.split('::')[1].replace(/['\s]/g, '')
             if (element.split('::')[0].replace(/\s/g, '')=="ipTot")
                 attrs.ipTot=element.split('::')[1].replace(/['\s]/g, '')
+            if (element.split('::')[0].replace(/\s/g, '')=="ram_allocation_ratio")
+                attrs.ram_allocation_ratio=element.split('::')[1].replace(/['\s]/g, '')
+            if (element.split('::')[0].replace(/\s/g, '')=="cpu_allocation_ratio")
+                attrs.cpu_allocation_ratio=element.split('::')[1].replace(/['\s]/g, '')
             if (element.split('::')[0].replace(/\s/g, '')=="vmImage")
                 if((element.split('::')[1]).replace(/#/g,','))
                   attrs.vmImage=(element.split('::')[1]).replace(/#/g,',')
