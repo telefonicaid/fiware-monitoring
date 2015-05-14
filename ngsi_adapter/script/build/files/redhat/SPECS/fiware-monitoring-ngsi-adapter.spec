@@ -189,6 +189,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Thu May 14 2015 Telefónica I+D <opensource@tid.es> 1.1.5-1
+- Neutron supported in quantum-related parsers
+
 * Thu May 07 2015 Telefónica I+D <opensource@tid.es> 1.1.4-1
 - Add more attributes to region.js parser (required by ODC 2.4)
 

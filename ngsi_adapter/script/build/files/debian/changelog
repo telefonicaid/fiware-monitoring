@@ -1,3 +1,9 @@
+fiware-monitoring-ngsi-adapter (1.1.5) precise; urgency=low
+
+  * Neutron supported in quantum-related parsers
+
+ -- Telefónica I+D <opensource@tid.es>  Thu, 14 May 2015 15:00:00 +0200
+
 fiware-monitoring-ngsi-adapter (1.1.4) precise; urgency=low
 
   * Added more attributes to region.js parser (required by ODC 2.4)

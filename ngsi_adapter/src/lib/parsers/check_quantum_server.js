@@ -11,21 +11,20 @@ var nagios = require('./common/nagios');
 var parser = Object.create(nagios.parser);
 parser.getContextAttrs = function(probeEntityData) {
     var data  = probeEntityData.data.split('\n')[0];
-    var attrs = { quantum_server: 0};
+    var attrs = { quantum_server: 0 };
     var items = data.split(':');
-    if ((items.length)>0 ) {
-	if (items[1].indexOf("quantum-server") != -1){
-		if(items[0].indexOf("PROCS OK") !=-1){
-			attrs.quantum_server=1
-		}
-		else{
-	        	attrs.quantum_server=0
-		}
-	}
-    }
-    else{
-        throw new Error('No valid quantum-server data found..');
+    if (items.length > 0) {
+        if (items[1].match(/(quantum|neutron)-server/)) {
+            if (items[0].indexOf("PROCS OK") != -1) {
+                attrs.quantum_server = 1;
+            } else {
+                attrs.quantum_server = 0;
+            }
+        }
+    } else {
+        throw new Error('No valid quantum-server data found');
     }
     return attrs;
 };
+
 exports.parser = parser;

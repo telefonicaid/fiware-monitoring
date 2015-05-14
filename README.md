@@ -19,6 +19,11 @@ For more information, please refer to the description of Monitoring GE in
 
 ## Releases
 
+[FIWARE 3.5.2 (R6)][release_3_5_2_ref]
+
+* ngsi_event_broker version 1.3.2
+* ngsi_adapter version 1.1.5
+
 [FIWARE 3.5.2 (R5)][release_3_5_2_ref]
 
 * ngsi_event_broker version 1.3.2
@@ -55,7 +60,7 @@ For more information, please refer to the description of Monitoring GE in
 
 ## License
 
-(c) 2013-2014 Telefónica I+D, Apache License 2.0
+(c) 2013-2015 Telefónica I+D, Apache License 2.0
 
 [fiware_catalogue_monitoring_ref]:
 http://catalogue.fiware.org/enablers/monitoring-ge-fiware-implementation

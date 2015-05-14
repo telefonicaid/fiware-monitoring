@@ -69,6 +69,10 @@ two components: probe data and optional performance data.
 
 ## Changelog
 
+Version 1.1.5
+
+* Neutron supported in quantum-related parsers
+
 Version 1.1.4
 
 * Add more attributes to region.js parser (required by ODC 2.4)
