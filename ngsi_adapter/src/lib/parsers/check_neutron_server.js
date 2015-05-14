@@ -8,6 +8,7 @@ var nagios = require('./common/nagios');
 
 // Information about the status of the service quantum-server
 // PROCS OK: 4 processes with command name 'neutron-server'|(null)
+// DEPRECATED: use 'check_quantum_server.js' instead
 var parser = Object.create(nagios.parser);
 parser.getContextAttrs = function(probeEntityData) {
     var data  = probeEntityData.data.split('\n')[0];
