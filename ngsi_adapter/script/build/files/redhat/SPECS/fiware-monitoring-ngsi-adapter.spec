@@ -189,6 +189,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Tue Jun 02 2015 Telefónica I+D <opensource@tid.es> 1.1.6-1
+- Fix bug in quantum-openvswitch-agent parser
+
 * Thu May 14 2015 Telefónica I+D <opensource@tid.es> 1.1.5-1
 - Neutron supported in quantum-related parsers
 

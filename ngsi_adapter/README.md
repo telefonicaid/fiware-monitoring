@@ -69,6 +69,10 @@ two components: probe data and optional performance data.
 
 ## Changelog
 
+Version 1.1.6
+
+* Fix bug in quantum-openvswitch-agent parser
+
 Version 1.1.5
 
 * Neutron supported in quantum-related parsers
