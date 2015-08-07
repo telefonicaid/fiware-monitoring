@@ -46,7 +46,7 @@ which bumpversion >/dev/null || {
 }
 
 # Ask for new FIWARE release
-CUR_RELEASE=4.3.2
+CUR_RELEASE=4.4.2
 PROMPT="Please specify new FIWARE release (current is $CUR_RELEASE): "
 read -p "$PROMPT" NEW_RELEASE
 test -n "$(expr "$NEW_RELEASE" : '\([0-9]\+\.[0-9]\+\.[0-9]\+\)$')" || {
