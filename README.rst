@@ -351,7 +351,7 @@ License
 .. _FIWARE Monitoring - User and Programmers Guide: https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Monitoring_-_User_and_Programmers_Guide
 .. _FIWARE Monitoring - Installation and Administration Guide: https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Monitoring_-_Installation_and_Administration_Guide
 .. _FIWARE Monitoring - Forge files area: https://forge.fiware.org/frs/?group_id=7#title_cloud-monitoring
-.. _FIWARE Monitoring - Apiary: http://docs.fiwaremonitoring.apiary.io/
+.. _FIWARE Monitoring - Apiary: https://jsapi.apiary.io/apis/fiwaremonitoring/reference.html
 .. _FIWARE Orion Context Broker: https://github.com/telefonicaid/fiware-orion
 .. _Nagios: http://www.nagios.org/
 .. _Zabbix: http://www.zabbix.com/
