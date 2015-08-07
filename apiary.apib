@@ -1,0 +1,46 @@
+FORMAT: 1A
+HOST: http://www.google.com
+
+# Monitoring NGSI Adapter
+The adapter exposes a RESTful, resource-oriented API accessed via HTTP/HTTPS.
+Each resource represents a kind of monitoring **probe** recognized by this
+component (from a predefined and extensible list of supported probes). By means
+of **parsers** associated to the probes, raw monitoring data is transformed into
+the [NGSI][NGSI_ref] representation.
+
+[NGSI_ref]:
+http://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/NGSI-9/NGSI-10_information_model
+"NGSI Context Management"
+
+
+## Probe resources [/{probe}?id={id}&type={type}]
+
+The set of supported monitoring probes determines the resources of this
+RESTful API.
+
+### Transform raw monitoring data from a probe [POST]
+Adapter processes requests asynchronously, indicating in the response status
+code whether `probe` is recognized (status `200`) or not (`404`).
+
+In case of known probes, adapter transforms data into NGSI and invokes the
+[updateContext][updateContext_ref] operation of **Context Broker**.
+
+[updateContext_ref]:
+http://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/FI-WARE_NGSI-10_Open_RESTful_API_Specification#Standard_NGSI-10_Operation_Resources
+"NGSI10 UpdateContext operation"
+
+
++ Parameters
+    + probe (required, string, `check_procs`) ... (Unique) name of the originating probe.
+    + id (required, string, `myEntityId`) ... Identifier of the entity being monitored.
+    + type (required, string, `myEntityType`) ... Type of entity being monitored.
+
++ Request (text/plain)
+
+        PROCS OK: 150 processes
+
++ Response 200 (text/plain)
+
+
+
+
