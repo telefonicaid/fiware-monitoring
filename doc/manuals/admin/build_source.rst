@@ -27,7 +27,7 @@ special privileges):
 - Install development tools::
 
     $ sudo yum install -y gcc-c++ make rpm-build redhat-rpm-config
-	$ sudo npm install -g grunt-cli
+    $ sudo npm install -g grunt-cli
 
 - Get the source code from GitHub::
 
@@ -42,7 +42,7 @@ special privileges):
 - (Optional but highly recommended) check coding style, run unit tests and
   get coverage::
 
-	$ grunt lint test coverage
+    $ grunt lint test coverage
 
 - At this point, we are ready to run the server manually::
 
@@ -85,6 +85,10 @@ a valid Makefile to drive the build and install process.
     $ mkdir -p m4 && autoreconf -i
     $ ./configure --enable-gcov --with-nagios-srcdir=$NAGIOS_SRC_DIR
 
+- Default installation directory is ``/opt/fiware/ngsi_event_broker/lib``. The
+  target directory may be changed by adding ``--libdir=target_libdir`` option
+  when running the ``configure`` script.
+
 - Compile and check coding style, run unit tests and get coverage (optional but
   highly recommended)::
 
@@ -111,7 +115,7 @@ NGSI Adapter
 - Install development tools::
 
     $ sudo apt-get install -y g++ make dpkg-dev debhelper devscripts
-	$ sudo npm install -g grunt-cli
+    $ sudo npm install -g grunt-cli
 
 
 NGSI Event Broker
