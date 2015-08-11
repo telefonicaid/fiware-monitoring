@@ -16,8 +16,8 @@ NGSI Adapter
 This component needs no compilation, as it is a server written in Node.js, so
 the basic procedure consists basically on installing the ``node`` interpreter,
 getting the sources and installing the required dependencies (assuming you
-don't run commands as root, we use sudo for those commands that require some
-special privileges):
+don't run commands as root, we use ``sudo`` for those commands that require
+some special privileges):
 
 - Install an updated ``node`` interpreter::
 
@@ -67,6 +67,7 @@ a valid Makefile to drive the build and install process.
 
     $ sudo yum install -y gcc-c++ make autoconf automake libtool
     $ sudo yum install -y cppunit-devel cppcheck lcov libxslt libcurl-devel wget
+    $ sudo yum install -y rpm-build redhat-rpm-config
     $ sudo pip install -q gcovr
 
 - Get Nagios 3.x sources (only some headers are actually needed)::
@@ -85,18 +86,25 @@ a valid Makefile to drive the build and install process.
     $ mkdir -p m4 && autoreconf -i
     $ ./configure --enable-gcov --with-nagios-srcdir=$NAGIOS_SRC_DIR
 
-- Default installation directory is ``/opt/fiware/ngsi_event_broker/lib``. The
-  target directory may be changed by adding ``--libdir=target_libdir`` option
-  when running the ``configure`` script.
+  Default installation directory is ``/opt/fiware/ngsi_event_broker/lib`` but
+  this may be changed by adding the ``--libdir=target_libdir`` option when
+  running the ``configure`` script.
 
 - Compile and check coding style, run unit tests and get coverage (optional but
   highly recommended)::
 
     $ make clean lint test coverage
 
-- Install the generated module (dynamic library)::
+- Install the generated module (a dynamic library)::
 
     $ make install
+
+- Alternatively, we could create a package for this component (which implies
+  building and running the unit tests), and install it::
+
+    $ cd fiware-monitoring/ngsi_event_broker
+    $ script/build/package.sh
+    $ sudo rpm -i fiware-monitoring-ngsi-event-broker-X.Y.Z-1.noarch.rpm
 
 
 Ubuntu
@@ -123,8 +131,9 @@ NGSI Event Broker
 
 - Install development tools::
 
-    $ sudo apt-get install -y g++ build-essential autoconf automake autotools-dev libtool
+    $ sudo apt-get install -y g++ build-essential make autoconf automake autotools-dev libtool
     $ sudo apt-get install -y libcppunit-dev cppcheck lcov xsltproc libcurl4-openssl-dev wget
+    $ sudo apt-get install -y dpkg-dev debhelper devscripts
     $ sudo pip install -q gcovr
 
 
