@@ -276,25 +276,8 @@ Testing
 End-to-end tests
 ----------------
 
-Use the commands of the monitoring framework being used (for example, Nagios)
-to reschedule some probe execution and force the generation of new monitoring
-data.
-
-Check NGSI Adapter logs for incoming requests with raw data, and check the
-outgoing Context Broker requests as NGSI updateContext() operations:
-
-::
-
-    $ cat /var/log/ngsi_adapter/ngsi_adapter.log
-    time=... | lvl=INFO | trans=ci2627bx00000b42g8m2pxw3z | op=POST | msg=Request on resource /check_xxx with params id=xxx&type=xxx
-    time=... | lvl=INFO | trans=ci2627bx00000b42g8m2pxw3z | op=POST | msg=Response status 200 OK
-    time=... | lvl=INFO | trans=ci2627bx00000b42g8m2pxw3z | op=UpdateContext | msg=Request to ContextBroker at http://host:1026/...
-
-
-Finally, query Context Broker API to check whether entity attributes have been
-updated according to the new monitoring data (see details here__)
-
-__ `FIWARE Orion Context Broker`_
+Please refer to the `Installation and administration guide
+<doc/manuals/admin/README.rst#end-to-end-testing>`_ for details.
 
 
 Unit tests
@@ -316,6 +299,16 @@ Please have a look at the section `building from source code
 <doc/manuals/admin/build_source.rst>`_ in order to get more
 information about how to prepare the environment to run the
 unit tests.
+
+
+Acceptance tests
+----------------
+
+In the following documents you will find a business readable description of the
+features provided by the components of the Monitoring GE, as well as automated
+tests for them:
+
+- `NGSI Adapter acceptance tests <ngsi_adapter/src/test/acceptance/README.rst>`_
 
 
 Advanced topics

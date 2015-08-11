@@ -117,8 +117,8 @@ distributed filesystem storage (usually HDFS from Hadoop_). Historically the
 here__), although from March 2014 this component is deprecated and a brand new
 **Cygnus** implementation (installation details here__) is available.
 
-__ `ngsi2cosmos`_
-__ `Cygnus`_
+__ ngsi2cosmos_
+__ Cygnus_
 
 
 Running the monitoring components
@@ -183,20 +183,24 @@ to unit tests, integration tests and user validation.
 End to end testing
 ------------------
 
-- Use the commands of the monitoring framework being used (for example, Nagios)
-  to reschedule some probe execution and force the generation of new monitoring
-  data.
+Use the commands of the monitoring framework being used (for example, Nagios)
+to reschedule some probe execution and force the generation of new monitoring
+data:
 
-- Check NGSI Adapter logs for incoming requests with raw data, and check the
-  outgoing Context Broker requests as NGSI updateContext() operations:
+- Check the logs of the framework (i.e. ``/var/log/nagios/nagios.log``) for
+  a new probe execution detected by the *collector*::
 
-.. code::
+   $ cat /var/log/nagios/nagios.log
+   [1439283831] lvl=INFO | trans=rdPmJ/uHE62a | comp=fiware-monitoring-ngsi-event-broker | op=NGSIAdapter | msg=Request sent to http://host:1337/check_xxx?id=xxx&type=host
 
-    $ cat /var/log/ngsi_adapter/ngsi_adapter.log
-    time=... | lvl=INFO | trans=ci2627bx00000b42g8m2pxw3z | op=POST | msg=Request on resource /check_xxx with params id=xxx&type=xxx
-    time=... | lvl=INFO | trans=ci2627bx00000b42g8m2pxw3z | op=POST | msg=Response status 200 OK
-    time=... | lvl=INFO | trans=ci2627bx00000b42g8m2pxw3z | op=UpdateContext | msg=Request to ContextBroker at http://host:1026/...
 
+- Check NGSI Adapter logs for incoming requests with raw data, and for the
+  corresponding updateContext() request to Context Broker::
+
+   $ cat /var/log/ngsi_adapter/ngsi_adapter.log
+   time=... | lvl=INFO | trans=rdPmJ/uHE62a | op=POST | msg=Request on resource /check_xxx with params id=xxx&type=xxx
+   time=... | lvl=INFO | trans=rdPmJ/uHE62a | op=POST | msg=Response status 200 OK
+   time=... | lvl=INFO | trans=rdPmJ/uHE62a | op=UpdateContext | msg=Request to ContextBroker at http://host:1026/...
 
 - Finally, query Context Broker API to check whether entity attributes have
   been updated according to the new monitoring data (see details here__)
@@ -211,16 +215,16 @@ A ``node`` process running the "adapter" server should be up and running, e.g.:
 
 .. code::
 
-    $ ps -C node -f | grep adapter
-    fiware   21930     1  0 Mar28 ?        00:06:06 node /opt/fiware/ngsi_adapter/src/adapter
+   $ ps -C node -f | grep adapter
+   fiware   21930     1  0 Mar28 ?        00:06:06 node /opt/fiware/ngsi_adapter/src/adapter
 
 
 Alternatively, we can check if service is running, e.g.:
 
 .. code::
 
-    $ service ngsi_adapter status
-    * ngsi_adapter is running
+   $ service ngsi_adapter status
+   * ngsi_adapter is running
 
 
 Network interfaces Up & Open
@@ -284,9 +288,10 @@ I/O flows
 Figure at `installation section`__ shows the I/O flows among the different
 monitoring components:
 
-__ `Installation`_
+__ Installation_
 
-- Probes send requests to NGSI Adapter with raw monitoring data
+- Probes send requests to NGSI Adapter with raw monitoring data, by means
+  of a custom *collector* component (for example, NGSI Event Broker)
 
 - NGSI Adapter sends request to Context Broker in terms of context
   updates of the monitored resources

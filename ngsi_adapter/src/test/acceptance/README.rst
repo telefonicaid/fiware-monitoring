@@ -1,19 +1,20 @@
-==========================================================
-FIWARE-MONITORING | NGSI-Adapter | Acceptance test project
-==========================================================
+===============================
+ NGSI Adapter acceptance tests
+===============================
 
-This project contains the NGSI-Adapter acceptance tests (component, integration and E2E testing).
-All test cases have been defined using Gherkin that it is a Business Readable, Domain Specific Language that lets you
-describe software’s behaviour without detailing how that behaviour is implemented.
-Gherkin has the purpose of serving documentation of test cases.
+This project contains the NGSI Adapter acceptance tests (component, integration
+and E2E testing). All test cases have been defined using Gherkin_, that it is a
+Business Readable, Domain Specific Language that lets you describe software’s
+behaviour without detailing how that behaviour is implemented. Gherkin has the
+purpose of serving documentation of test cases.
 
+Test case implementation has been performed using Python_ and Lettuce_.
 
-Test case implementation has been performed using `Python <http://www.python.org/>`_ and 
-`Lettuce <http://lettuce.it/>`_.
 
 Acceptance Project Structure
-----------------------------
- :: 
+============================
+
+::
  
     ├───acceptance
     │   ├───commons
@@ -29,34 +30,35 @@ Acceptance Project Structure
 
 
 FIWARE Monitoring Automation Framework
----------------------------------------
+======================================
 
 Features:
 
 - Lettuce-Tools support
 - Settings using json files and Lettuce-Tools utility
 - Test report using Lettuce-Tools XUnit output
-- NGSI-Adapter Client
+- NGSI Adapter Client
 - Logging
-- Remote NGSI-Adapter log capturing
+- Remote NGSI Adapter log capturing
 - Test data management using templates (resources)
 
 
-Acceptance test execution
--------------------------
+Acceptance tests execution
+==========================
 
 Execute the following command in the test project root directory:
 
 ::
 
-  $> cd ngsi_adapter/src/test/acceptance
-  $> lettuce_tools -ft send_data_api_resource -ts comp -sd features/ --tags=-skip -en dev
+    $ cd ngsi_adapter/src/test/acceptance
+    $ lettuce_tools -ft send_data_api_resource -ts comp -sd features/ --tags=-skip -en dev
 
 With this command, you will execute:
 
-- components Test Cases in the 'Development' environment configured in settings/dev-properties.json
-- the send_data_api_resource feature
-- Skipping all Scenarios with tagged with "skip"
+- Components test cases in the "Development" environment configured in file
+  ``settings/dev-properties.json``
+- The "send_data_api_resource" feature
+- Skipping all scenarios tagged with ``"skip"``
 
 
 **Prerequisites**
@@ -64,32 +66,72 @@ With this command, you will execute:
 - Python 2.7 or newer (2.x) (https://www.python.org/downloads/)
 - pip (https://pypi.python.org/pypi/pip)
 - virtualenv (https://pypi.python.org/pypi/virtualenv)
-- Monitoring [NGSI-Adapter] (`Download NGSI-Adapter <https://github.com/telefonicaid/fiware-monitoring>`_)
+- NGSI Adapter from FIWARE Monitoring (`download sources`__)
+
+__ `NGSI Adapter sources`_
 
 **Test case execution using virtualenv**
 
-1. Create a virtual environment somewhere *(virtualenv $WORKON_HOME/venv)*
-#. Activate the virtual environment *(source $WORKON_HOME/venv/bin/activate)*
-#. Go to *ngsi_adapter/src/test/acceptance* folder in the project
-#. Install the requirements for the acceptance tests in the virtual environment *(pip install -r requirements.txt --allow-all-external)*
+1. Create a virtual environment somewhere::
+
+    $ virtualenv $WORKON_HOME/venv
+
+#. Activate the virtual environment::
+
+    $ source $WORKON_HOME/venv/bin/activate
+
+#. Go to the acceptance tests folder in the project::
+
+    $ cd ngsi_adapter/src/test/acceptance
+
+#. Install requirements for the acceptance tests in the virtual environment::
+
+    $ pip install -r requirements.txt --allow-all-external
 
 **Test case execution using Vagrant (optional)**
 
-Instead of using virtualenv, you can use the provided Vagrantfile to deploy a local VM using `Vagrant <https://www.vagrantup.com/>`_,
-that will provide all environment configurations for launching test cases.
+Instead of using ``virtualenv``, you can use Vagrant_ to deploy a local VM from
+the given *Vagrantfile*, providing all environment configurations to launch the
+test cases.
 
-1. Download and install Vagrant (https://www.vagrantup.com/downloads.html)
-#. Go to *ngsi_adapter/src/test/acceptance* folder in the project
-#. Execute *vagrant up* to launch a VM based on Vagrantfile provided.
-#. After Vagrant provision, your VM is properly configured to launch acceptance tests. You have to access to the VM using *vagrant ssh* and change to */vagrant* directory that will have mounted your workspace *(test/acceptance)*.
+As a prerequisite, first download and install Vagrant
+(https://www.vagrantup.com/downloads.html)
 
-If you need more information about how to use Vagrant, you can see
-`Vagrant Getting Started <https://docs.vagrantup.com/v2/getting-started/index.html>`_
+1. Go to the acceptance tests folder in the project::
+
+    $ cd ngsi_adapter/src/test/acceptance
+
+#. Launch a VM from the provided *Vagrantfile*::
+
+    $ vagrant up
+
+#. After Vagrant provision, your VM is properly configured to launch acceptance
+   tests. You have to access the VM and change to the Vagrant directory mapping
+   the *test/acceptance* workspace::
+
+    $ vagrant ssh
+    $ cd /vagrant
+
+For more information about how to use Vagrant, please check `this document`__.
+
+__ `Vagrant Getting Started`_
 
 **Settings**
 
-Before executing the acceptance tests, you will need configure the properties file. To execute acceptance test on the
-experimentation environment, you will have to configured the file *settings/dev-properties*.
+Before executing the acceptance tests, you will have configure the properties
+file ``settings/dev-properties.json`` and setup the attributes to run the
+acceptance tests on the experimentation environment.
 
-You will need a valid private key (*private_key_location*) to connect to NGSI-Adapter Host to capture remote logs.
-In this way, you will be able to execute Scenarios that require the logs capturing for test validations.
+You will also need a valid private key (*private_key_location*) to connect to
+NGSI Adapter host to capture remote logs. This way you will be able to execute
+scenarios that require the logs capturing for test validations.
+
+
+.. REFERENCES
+
+.. _Gherkin: https://github.com/cucumber/cucumber/wiki/Gherkin
+.. _Lettuce: http://lettuce.it/
+.. _Python: http://www.python.org/
+.. _Vagrant: https://www.vagrantup.com/
+.. _Vagrant Getting Started: https://docs.vagrantup.com/v2/getting-started/index.html
+.. _NGSI Adapter sources: https://github.com/telefonicaid/fiware-monitoring/
