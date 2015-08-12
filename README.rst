@@ -2,6 +2,8 @@
  FIWARE Monitoring
 ===================
 
+|Build Status| |Coverage Status| 
+
 This is the code repository for FIWARE Monitoring, the reference implementation
 of the Monitoring GE.
 
@@ -331,6 +333,16 @@ License
 =======
 
 \(c) 2013-2015 Telefónica I+D, Apache License 2.0
+
+
+.. IMAGES
+
+.. |Build Status| image:: https://travis-ci.org/telefonicaid/fiware-monitoring.svg?branch=develop
+   :target: https://travis-ci.org/telefonicaid/fiware-monitoring
+   :alt: Build Status
+.. |Coverage Status| image:: https://img.shields.io/coveralls/telefonicaid/fiware-monitoring/develop.svg
+   :target: https://coveralls.io/r/telefonicaid/fiware-monitoring
+   :alt: Coverage Status
 
 
 .. REFERENCES
