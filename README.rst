@@ -80,7 +80,7 @@ Requirements
 ------------
 
 - System resources: see `these recommendations
-  <doc/manuals/admin/resources.rst#resources-recommendations>`_.
+  <doc/manuals/admin/README.rst#resource-availability>`_.
 - Operating systems: CentOS (RedHat) and Ubuntu (Debian), being CentOS 6.3 the
   reference operating system.
 - RPM/DEB dependencies: some required packages may not be present in official
@@ -175,7 +175,7 @@ command line or as a system service (the latter only available if installed as
 a package). It is not recommended to mix both ways (e.g. start it manually but
 use the service scripts to stop it). This section assumes you are using the
 system service (recommended): for the command line alternative, please refer
-to `this document <doc/manuals/admin/adapter_cli.rst>`_.
+to `this document <doc/manuals/admin/README.rst#from-the-command-line>`_.
 
 In order to start the adapter service, run::
 
@@ -216,7 +216,7 @@ The configuration used by the adapter service is optionally read from the file
 
 
 All these attributes map to options of the `command line interface
-<doc/manuals/admin/adapter_cli.rst>`_ as follows:
+<doc/manuals/admin/README.rst#from-the-command-line>`_ as follows:
 
 - ``ADAPTER_LOGLEVEL`` maps to ``-l`` or ``--logLevel`` option
 - ``ADAPTER_LISTEN_HOST`` maps to ``-H`` or ``--listenHost`` option
@@ -258,16 +258,8 @@ This would result in an invocation to Context Broker updating the context
 of an entity of type ``host`` identified by ``myhostname`` with a new
 attribute ``cpuLoadPct`` with value ``5.00``.
 
-Please have a look at the `Quick Start guide
-<doc/manuals/quick_start_guide.rst>`_ for more examples. And, additionally,
-at the `API Walkthrough`_ and `API Reference Documentation`_ sections bellow
-in order to know more details about the API.
-
-
-API Walkthrough
----------------
-
-- `FIWARE Monitoring v1 <doc/manuals/user/walkthrough_api_v1.rst>`_
+Please have a look at the `API Reference Documentation`_ section bellow and
+at the `programmer guide <doc/manuals/user/README.rst#programmer-guide>`_.
 
 
 API Reference Documentation
@@ -284,25 +276,8 @@ Testing
 End-to-end tests
 ----------------
 
-Use the commands of the monitoring framework being used (for example, Nagios)
-to reschedule some probe execution and force the generation of new monitoring
-data.
-
-Check NGSI Adapter logs for incoming requests with raw data, and check the
-outgoing Context Broker requests as NGSI updateContext() operations:
-
-::
-
-    $ cat /var/log/ngsi_adapter/ngsi_adapter.log
-    time=... | lvl=INFO | trans=ci2627bx00000b42g8m2pxw3z | op=POST | msg=Request on resource /check_xxx with params id=xxx&type=xxx
-    time=... | lvl=INFO | trans=ci2627bx00000b42g8m2pxw3z | op=POST | msg=Response status 200 OK
-    time=... | lvl=INFO | trans=ci2627bx00000b42g8m2pxw3z | op=UpdateContext | msg=Request to ContextBroker at http://host:1026/...
-
-
-Finally, query Context Broker API to check whether entity attributes have been
-updated according to the new monitoring data (see details here__)
-
-__ `FIWARE Orion Context Broker`_
+Please refer to the `Installation and administration guide
+<doc/manuals/admin/README.rst#end-to-end-testing>`_ for details.
 
 
 Unit tests
@@ -326,15 +301,30 @@ information about how to prepare the environment to run the
 unit tests.
 
 
+Acceptance tests
+----------------
+
+In the following documents you will find a business readable description of the
+features provided by the components of the Monitoring GE, as well as automated
+tests for them:
+
+- `NGSI Adapter acceptance tests <ngsi_adapter/src/test/acceptance/README.rst>`_
+
+
 Advanced topics
 ===============
 
-- Installation and administration
+- `Installation and administration <doc/manuals/admin/README.rst>`_
 
   * `Building from sources <doc/manuals/admin/build_source.rst>`_
-  * `Running Adapter from command line <doc/manuals/admin/adapter_cli.rst>`_
+  * `Running Adapter from command line <doc/manuals/admin/README.rst#from-the-command-line>`_
   * `Logs <doc/manuals/admin/logs.rst>`_
-  * `Resources & I/O Flows <doc/manuals/admin/resources.rst>`_
+  * `Resources & I/O Flows <doc/manuals/admin/README.rst#resource-availability>`_
+
+- `User and programmers guide <doc/manuals/user/README.rst>`_
+
+  * `NGSI Adapter custom probe parsers <doc/manuals/user/README.rst#ngsi-adapter-parsers>`_
+  * `Retrieval of historical data <doc/manuals/user/README.rst#monitoring-api>`_
 
 
 License

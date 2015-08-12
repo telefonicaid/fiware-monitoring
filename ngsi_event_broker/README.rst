@@ -1,49 +1,21 @@
-NGSI Event Broker
-_________________
+===================
+ NGSI Event Broker
+===================
 
+Nagios event broker (NEB_) module to forward plugin data to `NGSI Adapter
+<../ngsi_adapter/README.rst>`_. Currently, the broker is particularized for
+XIFI_ monitoring:
 
-Nagios event broker (NEB_) module to forward plugin data to
-`NGSI Adapter <../ngsi_adapter/README.rst>`_. Currently, the
-broker is particularized for XIFI_ monitoring:
-
--  *ngsi\_event\_broker\_xifi* to process plugin executions for XIFI
+- *ngsi\_event\_broker\_xifi* to process plugin executions for XIFI
 
 
 Installation
 ============
 
 The module is an architecture-dependent compiled shared object distributed as
-a single library bundled in an Ubuntu (.deb) or CentOS (.rpm) package. Assuming
-FIWARE package repositories are configured, just use the proper tool (such as
-``apt-get`` or ``yum``) to install ``fiware-monitoring-ngsi-event-broker``
-package. These distributions are currently supported:
+a single library bundled in an Ubuntu (.deb) or CentOS (.rpm) package.
 
--  Ubuntu 12.04 LTS
--  CentOS 6.3
-
-As an alternative, module can be compiled from sources, either downloaded from
-sources repository or as `source code tarball <../README.rst#Releases>`_.
-First option requires *autotools* and *libtool* to be installed, in order
-to generate configuration script
-
-.. code::
-
-   $ mkdir m4
-   $ autoreconf --install
-
-Once ``configure`` script is generated (or downloaded as part of source
-tarball), follow these steps:
-
-.. code::
-
-   $ ./configure
-   $ make
-   $ make check
-   $ sudo make install
-
-Default installation directory is ``/opt/fiware/ngsi-event-broker/lib``. In
-case of manual installation, target directory can be changed by running
-``./configure --libdir=target_libdir`` (may require sudoer privileges).
+Please refer to `this document </README.rst#build-and-install>`_ for details.
 
 
 Usage
@@ -75,7 +47,7 @@ server in response to plugin executions.
 
 
 Service definitions
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 Assuming this Nagios host definition:
 
@@ -158,49 +130,49 @@ Changelog
 
 Version 1.4.3
 
--  Fix problems when uninstalling package
+- Fix problems when uninstalling package
 
 Version 1.4.2
 
--  Add .rpm package generation
--  Minor bugs resolved
+- Add .rpm package generation
+- Minor bugs resolved
 
 Version 1.4.1
 
--  Minor bugs resolved
+- Minor bugs resolved
 
 Version 1.4.0
 
--  Include new log format (issue #25)
+- Include new log format (issue #25)
 
 Version 1.3.1
 
--  Add .deb package generation
--  Fix error in argument parser
+- Add .deb package generation
+- Fix error in argument parser
 
 Version 1.3.0
 
--  Include "host\_service" monitoring
+- Include "host\_service" monitoring
 
 Version 1.2.0
 
--  Unification into a single \_xifi broker
+- Unification into a single \_xifi broker
 
 Version 1.1.0
 
--  Broker splitted into \_snmp and \_host
--  IP address as unique identifier (within region) for hosts and vms
--  Add region as argument
--  Add NRPE support
+- Broker splitted into \_snmp and \_host
+- IP address as unique identifier (within region) for hosts and vms
+- Add region as argument
+- Add NRPE support
 
 Version 1.0.1
 
--  Add regions support (value retrieved from a metadata key named
-   "region")
+- Add regions support (value retrieved from a metadata key named
+  "region")
 
 Version 1.0.0
 
--  Initial release of the module
+- Initial release of the module
 
 
 License
