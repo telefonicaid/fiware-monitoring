@@ -34,6 +34,10 @@ override_dh_install:
 	$(foreach var,$(DH_VARS),$(call dh_var_subst,$(var),debian/postinst))
 	$(foreach var,$(DH_VARS),$(call dh_var_subst,$(var),debian/postrm))
 	$(foreach var,$(DH_VARS),$(call dh_var_subst,$(var),debian/$(DH_ADAPTER_SRV).init))
+	$(foreach var,$(DH_VARS),$(call dh_var_subst,$(var),debian/$(DH_ADAPTER_SRV).default))
 
 override_dh_installinit:
 	dh_installinit --name=$(DH_ADAPTER_SRV) --no-start
+
+override_dh_shlibdeps:
+	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
