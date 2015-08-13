@@ -47,6 +47,7 @@ cp -R %{_sourcedir}/* $RPM_BUILD_ROOT
 echo "FILES:"; cat %{_topdir}/MANIFEST
 
 %files -f %{_topdir}/MANIFEST
+%config /etc/sysconfig/%{_adapter_srv}
 
 %pre
 # preinst ($1 == 1)
@@ -153,9 +154,8 @@ if [ $1 -eq 1 ]; then
 
 		NGSI Adapter successfully installed at $ADAPTER_DIR.
 
-		WARNING: Check configuration file $ADAPTER_DIR/config/options.js
-		and logging parameters at /etc/init.d/$ADAPTER_SRV before
-		starting \`$ADAPTER_SRV' service. This component DOES NOT
+		WARNING: Check configuration file /etc/sysconfig/$ADAPTER_SRV
+		before starting \`$ADAPTER_SRV' service. This component DOES NOT
 		rotate logging files, so consider configuring \`logrotate'
 		or similar. Please read Usage section at README.rst for more
 		details.
@@ -187,6 +187,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Fri Aug 14 2015 Telefónica I+D <opensource@tid.es> 1.2.4-1
+- Add service configuration file
+
 * Fri Mar 27 2015 Telefónica I+D <opensource@tid.es> 1.2.3-1
 - Fix problems when uninstalling package
 
