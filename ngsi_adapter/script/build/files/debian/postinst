@@ -64,9 +64,8 @@ if [ "$1" = configure ]; then
 
 		NGSI Adapter successfully installed at $ADAPTER_DIR.
 
-		WARNING: Check configuration file $ADAPTER_DIR/config/options.js
-		and logging parameters at /etc/init.d/$ADAPTER_SRV before
-		starting \`$ADAPTER_SRV' service. This component DOES NOT
+		WARNING: Check configuration file /etc/default/$ADAPTER_SRV
+		before starting \`$ADAPTER_SRV' service. This component DOES NOT
 		rotate logging files, so consider configuring \`logrotate'
 		or similar. Please read Usage section at README.rst for more
 		details.

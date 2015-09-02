@@ -75,7 +75,7 @@ create_deb_package() {
 	cp -r $PROGDIR/files/debian $BASEDIR
 	cd $BASEDIR
 	[ -n "$VERSION" ] && debchange -M -v "$VERSION" "$CHANGELOG"
-	dpkg-buildpackage -b -rfakeroot -D -us -uc \
+	dpkg-buildpackage -b -rfakeroot -D -d -us -uc \
 	&& dpkg_files=$(ls -t ../*.deb ../*.changes 2>/dev/null | head -2) \
 	&& package=$(expr "$dpkg_files" : ".*/\(.*\.deb\)") \
 	&& mv -f $dpkg_files $BASEDIR \

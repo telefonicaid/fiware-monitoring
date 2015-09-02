@@ -201,6 +201,9 @@ The configuration used by the adapter service is optionally read from the file
 
 ::
 
+    # ADAPTER_LOGFILE - Logging file
+    ADAPTER_LOGFILE=/var/log/ngsi_adapter/ngsi_adapter.log
+
     # ADAPTER_LOGLEVEL - Logging level
     ADAPTER_LOGLEVEL=INFO
 
@@ -217,7 +220,7 @@ The configuration used by the adapter service is optionally read from the file
     ADAPTER_RETRIES=2
 
 
-All these attributes map to options of the `command line interface
+Most of these attributes map to options of the `command line interface
 <doc/manuals/admin/README.rst#from-the-command-line>`_ as follows:
 
 - ``ADAPTER_LOGLEVEL`` maps to ``-l`` or ``--logLevel`` option

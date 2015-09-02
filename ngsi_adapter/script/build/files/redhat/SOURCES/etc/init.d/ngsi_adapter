@@ -1,9 +1,5 @@
 #!/bin/sh
-#
-# chkconfig:   2345 91 10
-# description: NGSI Adapter is a generic component to transform monitoring \
-#              data from probes to NGSI context attributes, and forward \
-#              them through a NGSI Context Broker.
+set -a
 
 ### BEGIN INIT INFO
 # Provides:          ngsi_adapter
@@ -24,8 +20,6 @@ DAEMON=/opt/fiware/$NAME/adapter
 DAEMON_ARGS=""
 DAEMON_USER=fiware
 PIDFILE=/var/run/$NAME.pid
-LOGFILE=/var/log/$NAME/$NAME.log
-SCRIPTNAME=/etc/init.d/$NAME
 
 # Exit if the component is not installed
 [ -x "$DAEMON" ] || exit 0
@@ -33,6 +27,9 @@ SCRIPTNAME=/etc/init.d/$NAME
 # Read configuration variable files, if present
 [ -r /etc/profile ]	      && . /etc/profile
 [ -r /etc/sysconfig/$NAME ]   && . /etc/sysconfig/$NAME
+
+# Setup daemon logging according to configuration variables
+LOGFILE=${ADAPTER_LOGFILE:-/var/log/$NAME/$NAME.log}
 
 # Check that networking is up
 [ -r /etc/sysconfig/network ] && . /etc/sysconfig/network
@@ -97,7 +94,7 @@ case "$1" in
 		status -p $PIDFILE $NAME
 		;;
 	*)
-		echo $"Usage: $NAME {start|stop|restart|status}" >&2
+		echo $"Usage: service $NAME {start|stop|restart|status}" >&2
 		exit 3
 		;;
 esac

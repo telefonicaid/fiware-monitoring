@@ -22,6 +22,10 @@ Please refer to `this document </README.rst#running>`_ for details.
 Changelog
 =========
 
+Version 1.2.4
+
+- Add service configuration file
+
 Version 1.2.3
 
 - Fix problems when uninstalling package

@@ -54,12 +54,31 @@ var defaults = {
  * @property {Number} opts.retries          Maximum number of invocation retries.
  */
 var opts = require('optimist')
-    .options('l', { alias: 'logLevel',   'default': defaults.logLevel,   describe: 'Logging level'       })
-    .options('b', { alias: 'brokerUrl',  'default': defaults.brokerUrl,  describe: 'Context Broker URL'  })
-    .options('H', { alias: 'listenHost', 'default': defaults.listenHost, describe: 'Adapter listen host' })
-    .options('p', { alias: 'listenPort', 'default': defaults.listenPort, describe: 'Adapter listen port' })
-    .options('r', { alias: 'retries',    'default': defaults.retries,    describe: 'Maximum retries'     })
-    .options('h', { alias: 'help',       'boolean': true,                describe: 'Show help'           })
+    .options('l', {
+        alias: 'logLevel',
+        'default': process.env['ADAPTER_LOGLEVEL'] || defaults.logLevel,
+        describe: 'Logging level'
+    }).options('H', {
+        alias: 'listenHost',
+        'default': process.env['ADAPTER_LISTEN_HOST'] || defaults.listenHost,
+        describe: 'Adapter listen host'
+    }).options('p', {
+        alias: 'listenPort',
+        'default': process.env['ADAPTER_LISTEN_PORT'] || defaults.listenPort,
+        describe: 'Adapter listen port'
+    }).options('b', {
+        alias: 'brokerUrl',
+        'default': process.env['ADAPTER_BROKER_URL'] || defaults.brokerUrl,
+        describe: 'Context Broker URL'
+    }).options('r', {
+        alias: 'retries',
+        'default': process.env['ADAPTER_RETRIES'] || defaults.retries,
+        describe: 'Maximum retries'
+    }).options('h', {
+        alias: 'help',
+        'boolean': true,
+        describe: 'Show help'
+    })
     .demand([]);
 
 
