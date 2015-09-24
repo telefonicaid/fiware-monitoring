@@ -18,9 +18,6 @@ The monitoring system is used by different Cloud GEs in order to track the statu
 gathered data to take decisions about elasticity or for SLA management. Whenever a new resource is deployed 
 in the cloud, the proper monitoring probe is set up and configured to start providing monitoring data. 
 
-`Github's <README.rst>`_ provides a good documentation summary.
-`The User and Programmers Guide <doc/manuals/user/README.rst>`_  and `the Installation and Administration Guide <doc/manuals/admin/README.rst>`_ cover more advanced topics.
-
 The FIWARE Monitoring source code can be found `here`_ 
 
 .. _here: https://github.com/telefonicaid/fiware-monitoring.git
