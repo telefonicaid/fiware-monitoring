@@ -1,4 +1,9 @@
-**# Welcome to FIWARE Monitoring.**
+============================
+Welcome to FIWARE Monitoring
+============================
+
+Introduction
+============
 
 Monitoring GE - TID Implementation is the key component to allow incorporating monitoring and metering mechanisms 
 in order be able to constantly check the performance of the system, but the architecture should be easily extended 
@@ -13,5 +18,17 @@ The monitoring system is used by different Cloud GEs in order to track the statu
 gathered data to take decisions about elasticity or for SLA management. Whenever a new resource is deployed 
 in the cloud, the proper monitoring probe is set up and configured to start providing monitoring data. 
 
-`Github's <README.rst>`_ provides a good documentation summary.
-`The User and Programmers Guide <doc/manuals/user/README.rst>`_  and `the Installation and Administration Guide <doc/manuals/admin/README.rst>`_ cover more advanced topics.
+The FIWARE Monitoring source code can be found `here`_ 
+
+.. _here: https://github.com/telefonicaid/fiware-monitoring.git
+
+This documentation offers deeper information on FIWARE Monitoring.
+
+**Documentation**
+
+.. toctree::
+   :maxdepth: 1
+
+   README
+   doc/manuals/user/README
+   doc/manuals/admin/README
