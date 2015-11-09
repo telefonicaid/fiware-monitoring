@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Telefónica I+D
+ * Copyright 2013-2015 Telefónica I+D
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -42,13 +42,13 @@ var nagiosParser = Object.create(baseParser);
  * Parses the request to extract raw probe data. Both data and optional performance
  * data are extracted from request body.
  *
- * @function paserRequest
+ * @function parseRequest
  * @memberof nagiosParser
- * @param {http.IncomingMessage} request    The HTTP request to this server.
+ * @param {String} requestMsg  The data message included in request being processed.
  * @returns {EntityData} An object with `data` (and optional `perfData`) members.
  *
  * Probe output format: <code>
- *         TEXT OUTPUT | OPTIONAL PERFDATA
+ *         TEXT OUTPUT DATA | OPTIONAL PERFDATA
  *         LONG TEXT LINE 1
  *         LONG TEXT LINE 2
  *         ...
@@ -58,9 +58,9 @@ var nagiosParser = Object.create(baseParser);
  *         PERFDATA LINE N
  * </code>
  */
-nagiosParser.parseRequest = function(request) {
+nagiosParser.parseRequest = function (requestMsg) {
     var entityData = {};
-    var lines = request.body.split('\n');
+    var lines = requestMsg.split('\n');
     var isMultilinePerf = false;
     lines.forEach(function(item) {
         var isFirst = !entityData.data;

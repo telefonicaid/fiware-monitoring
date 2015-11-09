@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Telefónica I+D
+ * Copyright 2013-2015 Telefónica I+D
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -32,22 +32,36 @@ var url = require('url'),
 
 
 /**
- * Parser factory: given a request URL `http://host:port/path?query`, takes `path` as
- * the name of the probe whose data (request body) will be parsed. Tries to dynamically
- * load a parser object from module at `lib/parsers/` directory named after the probe.
+ * Parser factory: returns a dynamically loaded parser object at `lib/parsers/{name}`.
  *
- * @param {http.IncomingMessage} request    The request to this server.
- * @returns {Object} The parser been loaded according to probe mentioned in request.
+ * @param {String} name  The name of the parser.
+ * @returns {Object} The parser been loaded according to given name.
  */
-function getParser(request) {
-    var probeName = url.parse(request.url).pathname.slice(1),
-        moduleName = util.format('../%s', probeName);
+function getParserByName(name) {
+    var moduleName = util.format('../%s', name);
     try {
         return require(moduleName).parser;
     } catch (err) {
         var modulePath = path.normalize(__dirname + path.sep + moduleName + '.js');
-        throw new Error((!probeName) ? 'Missing resource in request' :
-            util.format('Unknown probe "%s" (no parser module "%s" loaded)', probeName, modulePath));
+        throw new Error(util.format('Parser from module "%s" could not be loaded', modulePath));
+    }
+}
+
+
+/**
+ * Parser factory: given a request URL `http://host:port/path?query`, takes `path` as
+ * the name of the probe whose data (request body) will be parsed. Tries to dynamically
+ * load a parser object from module named after the probe.
+ *
+ * @param {http.IncomingMessage} request  The request to this server.
+ * @returns {Object} The parser been loaded according to probe mentioned in request.
+ */
+function getParser(request) {
+    var name = url.parse(request.url).pathname.slice(1);
+    try {
+        return getParserByName(name);
+    } catch (err) {
+        throw new Error((!name) ? 'Missing resource in request' : util.format('Unknown probe "%s" (%s)', name, err));
     }
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Telefónica I+D
+ * Copyright 2013-2015 Telefónica I+D
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -33,9 +33,9 @@ var sinon = require('sinon'),
 
 
 /* jshint multistr: true */
-suite('base_parser', function() {
+suite('base_parser', function () {
 
-    suiteSetup(function() {
+    suiteSetup(function () {
         this.baseurl = 'http://hostname:1234/path';
         this.entityId = '1';
         this.entityType = 'host';
@@ -44,65 +44,71 @@ suite('base_parser', function() {
         };
     });
 
-    suiteTeardown(function() {
+    suiteTeardown(function () {
     });
 
-    setup(function() {
+    setup(function () {
         this.request = {
-            url: this.baseurl + '?id=' + this.entityId + '&type=' + this.entityType,
-            timestamp: Date.now()
+            url: this.baseurl + '?id=' + this.entityId + '&type=' + this.entityType
         };
-        this.entityData[parser.timestampAttrName] = this.request.timestamp;
+        this.reqdomain = {
+            timestamp: Date.now(),
+            entityId: this.entityId,
+            entityType: this.entityType
+        };
+        this.entityData[parser.timestampAttrName] = this.reqdomain.timestamp;
         this.parseRequestFunction = parser.parseRequest;
         this.getContextAttrsFunction = parser.getContextAttrs;
     });
 
-    teardown(function() {
+    teardown(function () {
         delete this.request;
+        delete this.reqdomain;
         delete this.entityData[parser.timestampAttrName];
         parser.parseRequest = this.parseRequestFunction;
         parser.getContextAttrs = this.getContextAttrsFunction;
     });
 
-    test('get_update_request_fails_unimplemented_method_parse_request', function() {
+    test('get_update_request_fails_unimplemented_method_parse_request', function () {
         var self = this;
+        parser.getContextAttrs = sinon.spy(function () { return {}; });
         assert.throws(
-            function() {
-                return parser.updateContextRequest(self.request);
+            function () {
+                return parser.updateContextRequest(self.reqdomain);
             },
             /implement/
         );
     });
 
-    test('get_update_request_fails_unimplemented_method_get_context_attrs', function() {
+    test('get_update_request_fails_unimplemented_method_get_context_attrs', function () {
         var self = this;
-        parser.parseRequest = sinon.spy(function() { return {}; });
+        parser.parseRequest = sinon.spy(function () { return {}; });
         assert.throws(
-            function() {
-                return parser.updateContextRequest(self.request);
+            function () {
+                return parser.updateContextRequest(self.reqdomain);
             },
             /implement/
         );
     });
 
-    test('get_update_request_fails_missing_entity_attributes', function() {
+    test('get_update_request_fails_missing_entity_attributes', function () {
         var self = this;
-        parser.parseRequest = sinon.spy(function() { return {}; });
-        parser.getContextAttrs = sinon.spy(function() { return {}; });
+        parser.parseRequest = sinon.spy(function () { return {}; });
+        parser.getContextAttrs = sinon.spy(function () { return {}; });
         self.request.url = self.baseurl + '?id=id&type=type&another=another';
-        self.request.body = '';
+        self.reqdomain.body = '';
         assert.throws(
             function() {
-                return parser.updateContextRequest(self.request);
+                return parser.updateContextRequest(self.reqdomain);
             }
         );
     });
 
-    test('get_update_request_ok_with_timestamp_added', function() {
+    test('get_update_request_ok_with_timestamp_added', function () {
         var self = this;
-        parser.parseRequest = sinon.spy(function() { return {}; });
-        parser.getContextAttrs = sinon.spy(function() { return self.entityData; });
-        var update = parser.updateContextRequest(self.request);
+        parser.parseRequest = sinon.spy(function () { return {}; });
+        parser.getContextAttrs = sinon.spy(function () { return self.entityData; });
+        var update = parser.updateContextRequest(self.reqdomain);
         common.assertValidUpdateXML(update, self);
     });
 

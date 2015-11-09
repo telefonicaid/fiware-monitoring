@@ -24,6 +24,7 @@
 
 
 'use strict';
+/* jshint -W069 */
 
 
 /** Fake command line arguments (required to load `adapter` without complaining) */
@@ -42,18 +43,18 @@ var http = require('http'),
 
 
 /* jshint multistr: true */
-suite('adapter', function() {
+suite('adapter', function () {
 
-    suiteSetup(function() {
+    suiteSetup(function () {
         var self = this;
         self.baseurl = 'http://hostname:1234';
         self.resource = 'check_load';
         self.body = 'invalid load data';
         self.headers = {};
-        sinon.stub(http, 'createServer', function() {
+        sinon.stub(http, 'createServer', function () {
             self.listener = arguments[0];
             return {
-                listen: function(port, host, callback) {
+                listen: function (port, host, callback) {
                     this.address = sinon.stub().returns({ address: host, port: port });
                     callback.call(this);
                 }
@@ -63,23 +64,22 @@ suite('adapter', function() {
         logger.setLevel('DEBUG');
     });
 
-    suiteTeardown(function() {
+    suiteTeardown(function () {
         http.createServer.restore();
     });
 
-    setup(function() {
+    setup(function () {
         adapter.main();
         this.request = new Emitter();
-        this.request.timestamp = Date.now();
         this.request.headers = this.headers;
         this.request.method = 'POST';
     });
 
-    teardown(function() {
+    teardown(function () {
         delete this.request;
     });
 
-    test('request_fails_if_not_post_method', function() {
+    test('request_fails_if_not_post_method', function () {
         var self = this;
         var response = {
             writeHead: sinon.stub(),
@@ -92,7 +92,7 @@ suite('adapter', function() {
         assert.equal(response.writeHead.args[0][0], 405);  // not allowed
     });
 
-    test('request_fails_missing_entity_id', function() {
+    test('request_fails_missing_entity_id', function () {
         var self = this;
         var response = {
             writeHead: sinon.stub(),
@@ -104,7 +104,7 @@ suite('adapter', function() {
         assert.equal(response.writeHead.args[0][0], 400);  // bad request
     });
 
-    test('request_fails_missing_entity_type', function() {
+    test('request_fails_missing_entity_type', function () {
         var self = this;
         var response = {
             writeHead: sinon.stub(),
@@ -116,7 +116,7 @@ suite('adapter', function() {
         assert.equal(response.writeHead.args[0][0], 400);  // bad request
     });
 
-    test('request_fails_unknown_url_resource', function() {
+    test('request_fails_unknown_url_resource', function () {
         var self = this;
         var response = {
             writeHead: sinon.stub(),
@@ -128,7 +128,7 @@ suite('adapter', function() {
         assert.equal(response.writeHead.args[0][0], 404);  // not found
     });
 
-    test('request_ok_valid_url_resource', function() {
+    test('request_ok_valid_url_resource', function () {
         var self = this;
         var response = {
             writeHead: sinon.stub(),
@@ -140,15 +140,15 @@ suite('adapter', function() {
         assert.equal(response.writeHead.args[0][0], 200);  // ok
     });
 
-    test('request_asynchronous_callback_error_on_invalid_resource_data', function(done) {
+    test('request_asynchronous_callback_error_on_invalid_resource_data', function (done) {
         var self = this;
         var response = {
             writeHead: sinon.stub(),
             end: sinon.stub()
         };
-        var callback = (function() {
-            var original = adapter.requestCallback;
-            return sinon.stub(adapter, 'requestCallback', function() {
+        var callback = (function () {
+            var original = adapter['updateContextCallback'];
+            return sinon.stub(adapter, 'updateContextCallback', function () {
                 original.apply(null, arguments);
                 callback.restore();
                 assert(callback.calledOnce);
@@ -164,25 +164,25 @@ suite('adapter', function() {
         self.request.emit('end');
     });
 
-    test('request_asynchronous_callback_error_after_all_retries', function(done) {
+    test('request_asynchronous_callback_error_after_all_retries', function (done) {
         var self = this;
         var response = {
             writeHead: sinon.stub(),
             end: sinon.stub()
         };
-        var factoryGetParser = sinon.stub(factory, 'getParser', function() {
+        var factoryGetParser = sinon.stub(factory, 'getParser', function () {
             var mockParser = Object.create(parser);
             mockParser.updateContextRequest = sinon.stub().returns('');
             return mockParser;
         });
-        var httpRequest = sinon.stub(http, 'request', function() {
+        var httpRequest = sinon.stub(http, 'request', function () {
             var clientRequest = new Emitter();
-            clientRequest.end = function() { this.emit('error', new Error()); };
+            clientRequest.end = function () { this.emit('error', new Error()); };
             return clientRequest;
         });
-        var callback = (function() {
-            var original = adapter.requestCallback;
-            return sinon.stub(adapter, 'requestCallback', function() {
+        var callback = (function () {
+            var original = adapter['updateContextCallback'];
+            return sinon.stub(adapter, 'updateContextCallback', function () {
                 original.apply(null, arguments);
                 callback.restore();
                 httpRequest.restore();
@@ -201,18 +201,18 @@ suite('adapter', function() {
         self.request.emit('end');
     });
 
-    test('request_asynchronous_callback_ok_with_valid_resource_data', function(done) {
+    test('request_asynchronous_callback_ok_with_valid_resource_data', function (done) {
         var self = this;
         var response = {
             writeHead: sinon.stub(),
             end: sinon.stub()
         };
-        var factoryGetParser = sinon.stub(factory, 'getParser', function() {
+        var factoryGetParser = sinon.stub(factory, 'getParser', function () {
             var mockParser = Object.create(parser);
             mockParser.updateContextRequest = sinon.stub().returns('');
             return mockParser;
         });
-        var httpRequest = sinon.stub(http, 'request', function(opts, callback) {
+        var httpRequest = sinon.stub(http, 'request', function (opts, callback) {
             var clientRequest = new Emitter();
             var serverResponse = new Emitter();
             serverResponse.setEncoding = sinon.stub();
@@ -223,9 +223,9 @@ suite('adapter', function() {
             clientRequest.end = sinon.stub();
             return clientRequest;
         });
-        var callback = (function() {
-            var original = adapter.requestCallback;
-            return sinon.stub(adapter, 'requestCallback', function() {
+        var callback = (function () {
+            var original = adapter['updateContextCallback'];
+            return sinon.stub(adapter, 'updateContextCallback', function () {
                 original.apply(null, arguments);
                 callback.restore();
                 httpRequest.restore();

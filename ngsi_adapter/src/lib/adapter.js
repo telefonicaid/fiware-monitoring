@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Telefónica I+D
+ * Copyright 2013-2015 Telefónica I+D
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -19,7 +19,7 @@
 /**
  * Module that implements a HTTP asynchronous server processing requests for
  * adaptation from raw monitoring data into NGSI format, then using the results
- * to invoke Context Broker.
+ * to invoke ContextBroker.
  *
  * @module adapter
  */
@@ -40,46 +40,46 @@ var http = require('http'),
 
 
 /**
- * Asynchronously process POST requests and then invoke updateContext() on ContextBroker.
+ * Asynchronously process incoming requests and then invoke updateContext() on ContextBroker.
  *
- * @param {http.IncomingMessage} request    The request to this server.
- * @param {RequestCallback}      callback   The callback that handles the response.
+ * @param {Domain}          reqdomain  Domain handling request (includes context, timestamp, id, type, body & parser).
+ * @param {RequestCallback} callback   The callback for responses from ContextBroker.
  */
-function doPost(request, callback) {
+function updateContext(reqdomain, callback) {
     try {
-        domain.active.context.op = 'Parse';
-        logger.debug('Probe data "%s"', request.body);
-        var remoteUrl = url.parse(opts.brokerUrl);
-        var dataParser = request.parser;
-        var updateReqType = dataParser.getContentType();
-        var updateReqBody = dataParser.updateContextRequest(request);
-        var updateReqOpts = {
-            hostname: remoteUrl.hostname,
-            port: remoteUrl.port,
-            path: '/NGSI10/updateContext',
-            method: 'POST',
-            headers: {
-               'Accept': updateReqType,
-               'Content-Type': updateReqType,
-               'Content-Length': updateReqBody.length
-            }
-        };
-        updateReqOpts.headers[common.txIdHttpHeader] = domain.active.context.trans;
+        reqdomain.context.op = 'Parse';
+        logger.debug('Probe data "%s"', reqdomain.body);
+        var parser = reqdomain.parser,
+            remoteUrl = url.parse(opts.brokerUrl),
+            updateReqType = parser.getContentType(),
+            updateReqBody = parser.updateContextRequest(reqdomain),
+            updateReqOpts = {
+                hostname: remoteUrl.hostname,
+                port: remoteUrl.port,
+                path: '/NGSI10/updateContext',
+                method: 'POST',
+                headers: {
+                   'Accept': updateReqType,
+                   'Content-Type': updateReqType,
+                   'Content-Length': updateReqBody.length
+                }
+            };
+        updateReqOpts.headers[common.txIdHttpHeader] = reqdomain.context.trans;
         /* jshint unused: false */
         var operation = retry.operation({ retries: opts.retries });
         operation.attempt(function(currentAttempt) {
-            domain.active.context.op = 'UpdateContext';
+            reqdomain.context.op = 'UpdateContext';
             logger.info('Request to ContextBroker at %s...', opts.brokerUrl);
-            logger.debug('%s', { toString: function() {
-                return updateReqBody.split('\n').map(function(line) {return line.trim();}).join('');
+            logger.debug('%s', { toString: function () {
+                return updateReqBody.split('\n').map(function (line) {return line.trim();}).join('');
             }});
-            var updateReq = http.request(updateReqOpts, function(response) {
+            var updateReq = http.request(updateReqOpts, function (response) {
                 var responseBody = '';
                 response.setEncoding('utf8');
                 response.on('data', function(chunk) {
                     responseBody += chunk;
                 });
-                response.on('end', function() {
+                response.on('end', function () {
                     callback(null, response.statusCode, responseBody);
                 });
             });
@@ -102,24 +102,28 @@ function doPost(request, callback) {
  * Callback for requests to updateContext().
  *
  * @callback RequestCallback
- * @param {Error}   err                     The error ocurred in request, or null.
- * @param {Number} [responseStatus]         The response status code.
- * @param {String} [responseBody]           The response body contents.
+ * @param {Error}   err                The error occurred in request, or null.
+ * @param {Number} [responseStatus]    The response status code.
+ * @param {String} [responseBody]      The response body contents.
  */
-function callback(err, responseStatus, responseBody) {
+function updateContextCallback(err, responseStatus, responseBody) {
     if (err) {
         logger.error(err.message);
     } else {
         logger.info('Response status %d %s', responseStatus, http.STATUS_CODES[responseStatus]);
-        logger.debug('%s', { toString: function() {
-            return responseBody.split('\n').map(function(line) {return line.trim();}).join('');
-        }});
+        logger.debug('%s', {
+            toString: function () {
+                return responseBody.split('\n').map(function (line) {
+                    return line.trim();
+                }).join('');
+            }
+        });
     }
 }
 
 
 /**
- * Server requests listener.
+ * HTTP requests listener.
  *
  * Request URL looks like `http://host:port/path?query`:
  *
@@ -127,45 +131,45 @@ function callback(err, responseStatus, responseBody) {
  * - Request path will denote the name of the originating probe
  * - Request headers may include a transaction identifier ({@link common#txIdHttpHeader})
  *
- * @param {http.IncomingMessage} request    The request to this server.
- * @param {http.ServerResponse}  response   The response from this server.
+ * @param {http.IncomingMessage} request    The HTTP request to this server.
+ * @param {http.ServerResponse}  response   The HTTP response from this server.
  */
 function asyncRequestListener(request, response) {
-    var reqd = domain.create();
-    reqd.add(request);
-    reqd.add(response);
-    reqd.context = {
+    var reqdomain = domain.create();
+    reqdomain.add(request);
+    reqdomain.add(response);
+    reqdomain.context = {
         trans: request.headers[common.txIdHttpHeader.toLowerCase()] || cuid(),
         op: request.method
     };
-    reqd.on('error', function(err) {
+    reqdomain.on('error', function (err) {
         logger.error(err.message);
         response.writeHead(500);  // server error
         response.end();
     });
-    reqd.run(function() {
+    reqdomain.run(function () {
         logger.info('Request on resource %s', request.url.split('?').join(' with params '));
         var status = 405;  // not allowed
         if (request.method === 'POST') {
             var query = url.parse(request.url, true).query;
-            var entityId = query.id;
-            var entityType = query.type;
+            reqdomain.entityId = query.id;
+            reqdomain.entityType = query.type;
             try {
                 status = 400;  // bad request
-                if (!entityId || !entityType) {
+                if (!reqdomain.entityId || !reqdomain.entityType) {
                     throw new Error('Missing entityId and/or entityType');
                 }
                 status = 404;  // not found
-                request.parser = parser.getParser(request);
+                reqdomain.parser = parser.getParser(request);
                 status = 200;  // ok
-                request.timestamp = Date.now();
-                request.body = '';
-                request.on('data', function(chunk) {
-                    request.body += chunk;
+                reqdomain.timestamp = Date.now();
+                reqdomain.body = '';
+                request.on('data', function (chunk) {
+                    reqdomain.body += chunk;
                 });
-                request.on('end', function() {
-                    process.nextTick(function() {
-                        doPost(request, exports.requestCallback);
+                request.on('end', function () {
+                    process.nextTick(function () {
+                        updateContext(reqdomain, exports.updateContextCallback);
                     });
                 });
             } catch (err) {
@@ -183,20 +187,20 @@ function asyncRequestListener(request, response) {
  * Server main.
  */
 function main() {
-    process.on('uncaughtException', function(err) {
+    process.on('uncaughtException', function (err) {
         logger.error({op: 'Exit'}, err.message);
         process.exit(1);
     });
-    process.on('exit', function() {
+    process.on('exit', function () {
         logger.info({op: 'Exit'}, 'Server stopped');
     });
-    process.on('SIGINT', function() {
+    process.on('SIGINT', function () {
         process.exit();
     });
-    process.on('SIGTERM', function() {
+    process.on('SIGTERM', function () {
         process.exit();
     });
-    http.createServer(asyncRequestListener).listen(opts.listenPort, opts.listenHost, function() {
+    http.createServer(asyncRequestListener).listen(opts.listenPort, opts.listenHost, function () {
         logger.info({op: 'Init'}, 'Server listening at http://%s:%d/', this.address().address, this.address().port);
     });
 }
@@ -206,7 +210,7 @@ function main() {
 exports.main = main;
 
 /** @export */
-exports.requestCallback = callback;
+exports.updateContextCallback = updateContextCallback;
 
 
 if (require.main === module) {

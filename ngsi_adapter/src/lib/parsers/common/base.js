@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Telefónica I+D
+ * Copyright 2013-2015 Telefónica I+D
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -52,31 +52,33 @@ baseParser.timestampAttrName = '_timestamp';
  * @memberof baseParser
  * @returns {String} The content type (the format) for Context Broker requests.
  */
-baseParser.getContentType = function() {
+baseParser.getContentType = function () {
     return 'application/xml';
 };
 
 
 /**
- * Gets the updateContext() request body.
+ * Returns the updateContext() request body.
  *
  * @function updateContextRequest
  * @memberof baseParser
  * @this baseParser
- * @param {http.IncomingMessage} request    The HTTP request to this server.
+ * @param {Domain} reqdomain   Domain handling current request (includes context, timestamp, id, type, body & parser).
  * @returns {String} The request body, either in XML or JSON format.
  */
-baseParser.updateContextRequest = function(request) {
-    var query = url.parse(request.url, true).query;
-    var entityId = query.id;
-    var entityType = query.type;
-    var entityData = this.parseRequest(request);
-    var entityAttrs = this.getContextAttrs(entityData);
+baseParser.updateContextRequest = function (reqdomain) {
+    var entityId = reqdomain.entityId,
+        entityType = reqdomain.entityType,
+        entityData = this.parseRequest(reqdomain.body),
+        entityAttrs = this.getContextAttrs(entityData);
+
     if (Object.keys(entityAttrs).length === 0) {
         throw new Error('Missing entity context attributes');
     }
+
     // feature #4: automatically add request timestamp to entity attributes
-    entityAttrs[this.timestampAttrName] = request.timestamp;
+    entityAttrs[this.timestampAttrName] = reqdomain.timestamp;
+
     return (this.getContentType() === 'application/xml') ?
         this.getUpdateContextXML(entityId, entityType, entityAttrs) :
         this.getUpdateContextJSON(entityId, entityType, entityAttrs);
@@ -89,10 +91,10 @@ baseParser.updateContextRequest = function(request) {
  * @abstract
  * @function parseRequest
  * @memberof baseParser
- * @param {http.IncomingMessage} request    The HTTP request to this server.
- * @returns {EntityData} An object holding entity data taken from request body.
+ * @param {String} requestMsg  The data message included in request being processed.
+ * @returns {EntityData} An object holding entity data taken from request message.
  */
-baseParser.parseRequest = function(request) {
+baseParser.parseRequest = function (requestMsg) {
     throw new Error('Must implement');
 };
 
@@ -103,10 +105,10 @@ baseParser.parseRequest = function(request) {
  * @abstract
  * @function getContextAttrs
  * @memberof baseParser
- * @param {EntityData} data                 Object holding raw entity data.
+ * @param {EntityData} data    Object holding raw entity data.
  * @returns {Object} Context attributes.
  */
-baseParser.getContextAttrs = function(data) {
+baseParser.getContextAttrs = function (data) {
     throw new Error('Must implement');
 };
 
@@ -116,12 +118,12 @@ baseParser.getContextAttrs = function(data) {
  *
  * @function getUpdateContextJSON
  * @memberof baseParser
- * @param {String} id                       The entity identifier.
- * @param {String} type                     The entity type.
- * @param {Object} attrs                    The entity context attributes.
+ * @param {String} id          The entity identifier.
+ * @param {String} type        The entity type.
+ * @param {Object} attrs       The entity context attributes.
  * @returns {String} The request body in JSON format.
  */
-baseParser.getUpdateContextJSON = function(id, type, attrs) {
+baseParser.getUpdateContextJSON = function (id, type, attrs) {
     throw new Error('TO-DO');
 };
 
@@ -131,12 +133,12 @@ baseParser.getUpdateContextJSON = function(id, type, attrs) {
  *
  * @function getUpdateContextXML
  * @memberof baseParser
- * @param {String} id                       The entity identifier.
- * @param {String} type                     The entity type.
- * @param {Object} attrs                    The entity context attributes.
+ * @param {String} id          The entity identifier.
+ * @param {String} type        The entity type.
+ * @param {Object} attrs       The entity context attributes.
  * @returns {String} The request body in XML format.
  */
-baseParser.getUpdateContextXML = function(id, type, attrs) {
+baseParser.getUpdateContextXML = function (id, type, attrs) {
     var result = '';
     result += '<?xml version="1.0" encoding="UTF-8"?>\n';
     result += '<updateContextRequest>\n';
