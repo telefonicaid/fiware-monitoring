@@ -97,7 +97,7 @@ suite('check_users', function () {
     test('parse_ok_number_of_users_logged_in', function () {
         this.reqdomain.body = util.format('%s|%s', this.probeBody.data, this.probeBody.perf);
         var parser = this.factory.getParser(this.request);
-        var requestData = parser.parseRequest(this.reqdomain.body);
+        var requestData = parser.parseRequest(this.reqdomain);
         var contextData = parser.getContextAttrs(requestData);
         assert(contextData.users);
         assert.equal(contextData.users, this.entityData.users);

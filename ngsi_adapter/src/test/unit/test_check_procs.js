@@ -103,7 +103,7 @@ suite('check_procs', function () {
     test('parse_ok_number_of_procs', function () {
         this.reqdomain.body = util.format('%s', this.probeBody.data);
         var parser = this.factory.getParser(this.request);
-        var requestData = parser.parseRequest(this.reqdomain.body);
+        var requestData = parser.parseRequest(this.reqdomain);
         var contextData = parser.getContextAttrs(requestData);
         assert(contextData.procs);
         assert.equal(contextData.procs, this.entityData.procs);

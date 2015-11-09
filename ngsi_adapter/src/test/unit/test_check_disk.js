@@ -130,7 +130,7 @@ suite('check_disk', function () {
             this.probeBody.singleGroup.perf
         );
         var parser = this.factory.getParser(this.request);
-        var requestData = parser.parseRequest(this.reqdomain.body);
+        var requestData = parser.parseRequest(this.reqdomain);
         var contextData = parser.getContextAttrs(requestData);
         assert(contextData.freeSpacePct);
         assert.equal(contextData.freeSpacePct, this.entityData.freeSpacePct);

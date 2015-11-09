@@ -67,10 +67,10 @@ baseParser.getContentType = function () {
  * @returns {String} The request body, either in XML or JSON format.
  */
 baseParser.updateContextRequest = function (reqdomain) {
-    var entityId = reqdomain.entityId,
-        entityType = reqdomain.entityType,
-        entityData = this.parseRequest(reqdomain.body),
-        entityAttrs = this.getContextAttrs(entityData);
+    var entityData = this.parseRequest(reqdomain),
+        entityAttrs = this.getContextAttrs(entityData),
+        entityId = reqdomain.entityId,
+        entityType = reqdomain.entityType;
 
     if (Object.keys(entityAttrs).length === 0) {
         throw new Error('Missing entity context attributes');
@@ -86,15 +86,15 @@ baseParser.updateContextRequest = function (reqdomain) {
 
 
 /**
- * Parses the request to extract raw probe data.
+ * Parses the request message body to extract raw probe data, and optionally sets `entityId` and `entityType`.
  *
  * @abstract
  * @function parseRequest
  * @memberof baseParser
- * @param {String} requestMsg  The data message included in request being processed.
+ * @param {Domain} reqdomain   Domain handling current request (includes context, timestamp, id, type, body & parser).
  * @returns {EntityData} An object holding entity data taken from request message.
  */
-baseParser.parseRequest = function (requestMsg) {
+baseParser.parseRequest = function (reqdomain) {
     throw new Error('Must implement');
 };
 

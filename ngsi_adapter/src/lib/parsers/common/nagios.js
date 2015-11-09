@@ -39,12 +39,11 @@ var nagiosParser = Object.create(baseParser);
 
 
 /**
- * Parses the request to extract raw probe data. Both data and optional performance
- * data are extracted from request body.
+ * Parses the request message body to extract Nagios probe data (both data and optional performance data).
  *
  * @function parseRequest
  * @memberof nagiosParser
- * @param {String} requestMsg  The data message included in request being processed.
+ * @param {Domain} reqdomain   Domain handling current request (includes context, timestamp, id, type, body & parser).
  * @returns {EntityData} An object with `data` (and optional `perfData`) members.
  *
  * Probe output format: <code>
@@ -58,9 +57,9 @@ var nagiosParser = Object.create(baseParser);
  *         PERFDATA LINE N
  * </code>
  */
-nagiosParser.parseRequest = function (requestMsg) {
+nagiosParser.parseRequest = function (reqdomain) {
     var entityData = {};
-    var lines = requestMsg.split('\n');
+    var lines = reqdomain.body.split('\n');
     var isMultilinePerf = false;
     lines.forEach(function(item) {
         var isFirst = !entityData.data;
