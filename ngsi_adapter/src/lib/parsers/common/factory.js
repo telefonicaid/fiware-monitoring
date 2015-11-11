@@ -67,6 +67,12 @@ function getParser(request) {
 
 
 /**
- * Parser factory.
+ * Parser factory: lookup by name.
+ */
+exports.getParserByName = getParserByName;
+
+
+/**
+ * Parser factory: lookup by request URL.
  */
 exports.getParser = getParser;

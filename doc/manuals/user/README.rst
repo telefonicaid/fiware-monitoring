@@ -40,13 +40,14 @@ Programmer Guide
 According to the architecture aforementioned, there are several APIs involved
 in the monitoring process:
 
--  NGSI Adapter API
+-  NGSI Adapter API (HTTP)
+-  NGSI Adapter API (UDP)
 -  Context Broker API
 -  Monitoring (*Query Manager*) API
 
 
-NGSI Adapter API
-----------------
+NGSI Adapter API (HTTP)
+-----------------------
 
 Probe raw data should be sent as body of a POST request to the adapter,
 identifying the source entity being monitored in the query parameters.
@@ -79,13 +80,22 @@ of **monitoring collector**) to automatically forward such data to the
 adaptation layer.
 
 
+NGSI Adapter API (UDP)
+----------------------
+
+In case UDP endpoints are defined (specifying the target parser to be loaded),
+probe raw data should be sent as UDP request to the adapter. Such message is
+expected to include both the id and the type of the NGSI Entity whose data is
+about to be parsed.
+
+
 NGSI Adapter parsers
 --------------------
 
 NGSI Adapter processes requests asynchronously, trying to locate a valid parser
 named after the originating probe, located at ``lib/parsers/``. If probe is
-unknown, response status will be ``404``; otherwise, response status will be
-``200``, parser will be dynamically loaded, and then its ``parseRequest()``
+unknown, HTTP response status will be ``404``; otherwise, response status will
+be ``200``, parser will be dynamically loaded, and then its ``parseRequest()``
 and ``getContextAttrs()`` methods will be invoked. With the attribute list
 returned by the latter, Context Broker will be invoked.
 
@@ -102,21 +112,43 @@ comma-separated list of values of two attributes *myAttr0* and *myAttr1*:
 
 .. code:: javascript
 
-   // module "lib.parsers.myProbe"
+   /**
+    * module "lib.parsers.myProbe"
+    */
 
    var baseParser = require('./common/base').parser,
        myParser   = Object.create(baseParser);
 
-   myParser.parseRequest = function(request) {
-       return { data: request.body };
+
+   // @param Domain object including context, timestamp, id, type & body
+   myParser.parseRequest = function (reqDomain) {
+       var reqDataContent = this.doSomeParsing(reqDomain.body);
+       return { data: reqDataContent };
    };
 
-   myParser.getContextAttrs = function(probeData) {
-       var items = probeData.data.split(',');
+   // @param EntityData object including data attribute
+   myParser.getContextAttrs = function (entityData) {
+       var items = this.doMoreParsing(entityData.data);
        return { myAttr0: items[0], myAttr1: items[1] };
    };
 
    exports.parser = myParser;
+
+
+Custom parsers for UDP request **must** also set the attributes ``entityId`` and
+``entityType`` of the input object ``reqDomain`` on return, given that such
+information is part of the UDP message itself being parsed:
+
+.. code:: javascript
+
+   // @param Domain object
+   myParser.parseRequest = function (reqDomain) {
+       var identification = this.doSomeParsing(reqDomain.body),
+           reqDataContent = this.doMoreParsing(reqDomain.body);
+       reqDomain.entityId   = identification['id'];
+       reqDomain.entityType = identification['type'];
+       return { data: reqDataContent };
+   };
 
 
 Context Broker API

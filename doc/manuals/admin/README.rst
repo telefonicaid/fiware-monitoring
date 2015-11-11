@@ -165,6 +165,8 @@ You can use these command line options (available typing ``adapter --help``):
    The hostname or address at which NGSI Adapter listens
 -p, --listenPort
    The port number at which NGSI Adapter listens
+-u, --udpEndpoints
+   Optional list of UDP endpoints (host:port:parser)
 -b, --brokerUrl
    The URL of the Context Broker instance to publish data to
 -r, --retries
@@ -232,6 +234,9 @@ Network interfaces Up & Open
 
 NGSI Adapter uses TCP 1337 as default port, although it can be changed using
 the ``--listenPort`` command line option.
+
+Additionally, a list of UDP listen ports may be specified by ``--udpEndpoints``
+command line option.
 
 
 Databases

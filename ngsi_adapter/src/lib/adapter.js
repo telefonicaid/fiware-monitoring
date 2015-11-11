@@ -29,6 +29,7 @@
 
 
 var http = require('http'),
+    dgram = require('dgram'),
     url = require('url'),
     retry = require('retry'),
     domain = require('domain'),
@@ -184,6 +185,40 @@ function asyncRequestListener(request, response) {
 
 
 /**
+ * UDP requests listener.
+ *
+ * @param {dgram.Socket} socket             The UDP socket listening to requests.
+ * @param {String}       message            The incoming message of the request.
+ * @param {String}       parserName         The name of the parser that will process the request.
+ */
+function udpRequestListener(socket, message, parserName) {
+    var reqdomain = domain.create();
+    reqdomain.add(socket);
+    reqdomain.context = {
+        trans: cuid(),
+        op: 'UDP'
+    };
+    reqdomain.on('error', function (err) {
+        logger.error(err.message);
+    });
+    reqdomain.run(function () {
+        logger.info('UDP request to adapt data using parser %s', parserName);
+        try {
+            reqdomain.body = message;
+            reqdomain.parser = parser.getParserByName(parserName);
+            reqdomain.timestamp = Date.now();
+            process.nextTick(function () {
+                updateContext(reqdomain, exports.updateContextCallback);
+            });
+
+        } catch (err) {
+            logger.error(err.message);
+        }
+    });
+}
+
+
+/**
  * Server main.
  */
 function main() {
@@ -200,8 +235,34 @@ function main() {
     process.on('SIGTERM', function () {
         process.exit();
     });
+
     http.createServer(asyncRequestListener).listen(opts.listenPort, opts.listenHost, function () {
         logger.info({op: 'Init'}, 'Server listening at http://%s:%d/', this.address().address, this.address().port);
+    });
+
+    /* Optionally bind this Adapter to a list of UDP endpoints, forwarding requests to the corresponding parser */
+    (opts.udpEndpoints || '').split(',').map(function (item) {
+        var itemElements = item.split(':'),
+            udpListenHost = itemElements[0] || opts.listenHost,
+            udpListenPort = itemElements[1] || opts.listenPort,
+            udpParserName = itemElements[2];
+
+        if (udpParserName) {
+            var udpServer = dgram.createSocket('udp4');
+            udpServer.on('error', function (err) {
+                logger.error({op: 'UDP'}, 'Server error: %s', err.stack);
+                udpServer.close();
+            });
+            udpServer.on('message', function (msg) {
+                udpRequestListener(udpServer, msg, udpParserName);
+            });
+            udpServer.bind(udpListenPort, udpListenHost, function () {
+                logger.info({op: 'Init'}, 'Listening to UDP requests for parser "%s" at %s:%d',
+                            udpParserName, this.address().address, this.address().port);
+            });
+        } else {
+            logger.warn({op: 'Init'}, 'Ignoring UDP endpoint "%s": missing parser name', item);
+        }
     });
 }
 

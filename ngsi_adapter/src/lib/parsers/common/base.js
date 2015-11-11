@@ -74,6 +74,8 @@ baseParser.updateContextRequest = function (reqdomain) {
 
     if (Object.keys(entityAttrs).length === 0) {
         throw new Error('Missing entity context attributes');
+    } else if (!entityId || !entityType) {
+        throw new Error('Missing entityId and/or entityType');
     }
 
     // feature #4: automatically add request timestamp to entity attributes
