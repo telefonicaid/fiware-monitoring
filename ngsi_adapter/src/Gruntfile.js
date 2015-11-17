@@ -175,7 +175,7 @@ module.exports = function(grunt) {
                     quiet: true,
                     root: '<%= dirs.lib[0] %>',
                     coverageFolder: '<%= dirs.reportCoverage[0] %>',
-                    reportFormats: ['cobertura']
+                    reportFormats: ['lcovonly', 'cobertura']
                 }
             }
         },
