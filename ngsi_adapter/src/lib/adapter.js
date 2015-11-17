@@ -222,17 +222,17 @@ function udpRequestListener(socket, message, parserName) {
  * Server main.
  */
 function main() {
-    process.on('uncaughtException', function (err) {
+    process.once('uncaughtException', function (err) {
         logger.error({op: 'Exit'}, err.message);
         process.exit(1);
     });
-    process.on('exit', function () {
+    process.once('exit', function () {
         logger.info({op: 'Exit'}, 'Server stopped');
     });
-    process.on('SIGINT', function () {
+    process.once('SIGINT', function () {
         process.exit();
     });
-    process.on('SIGTERM', function () {
+    process.once('SIGTERM', function () {
         process.exit();
     });
 

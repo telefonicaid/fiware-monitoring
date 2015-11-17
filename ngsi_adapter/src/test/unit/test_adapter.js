@@ -24,13 +24,6 @@
 
 
 'use strict';
-/* jshint -W069 */
-
-
-/** Constants to test UDP requests
-var UDP_PARSER = 'udp_parser',
-    UDP_HOST = 'localhost',
-    UDP_PORT = 1234;*/
 
 
 /** Fake command line arguments (required to load `adapter` without complaining) */
@@ -106,7 +99,6 @@ suite('adapter', function () {
     teardown(function () {
         delete this.request;
         this.udpServer.removeAllListeners();
-        process.removeAllListeners();
     });
 
     test('request_fails_if_not_post_method', function () {
@@ -177,7 +169,7 @@ suite('adapter', function () {
             end: sinon.stub()
         };
         var callback = (function () {
-            var original = adapter['updateContextCallback'];
+            var original = adapter.updateContextCallback;
             return sinon.stub(adapter, 'updateContextCallback', function () {
                 original.apply(null, arguments);
                 callback.restore();
@@ -211,7 +203,7 @@ suite('adapter', function () {
             return clientRequest;
         });
         var callback = (function () {
-            var original = adapter['updateContextCallback'];
+            var original = adapter.updateContextCallback;
             return sinon.stub(adapter, 'updateContextCallback', function () {
                 original.apply(null, arguments);
                 callback.restore();
@@ -254,7 +246,7 @@ suite('adapter', function () {
             return clientRequest;
         });
         var callback = (function () {
-            var original = adapter['updateContextCallback'];
+            var original = adapter.updateContextCallback;
             return sinon.stub(adapter, 'updateContextCallback', function () {
                 original.apply(null, arguments);
                 callback.restore();
