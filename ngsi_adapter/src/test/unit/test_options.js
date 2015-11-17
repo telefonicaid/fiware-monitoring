@@ -24,7 +24,6 @@
 
 
 'use strict';
-/* jshint -W069 */
 
 
 /** Fake command line arguments (required to load `adapter` without complaining) */
@@ -91,7 +90,6 @@ suite('options', function () {
 
     teardown(function () {
         delete this.udpServer;
-        process.removeAllListeners();
     });
 
     test('adapter_starts_listening_to_http_requests_at_default_port', function () {
