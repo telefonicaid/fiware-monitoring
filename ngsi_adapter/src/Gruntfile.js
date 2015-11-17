@@ -1,4 +1,6 @@
 'use strict';
+/* jshint -W106 */
+
 
 /**
  * Grunt tasks definitions
@@ -142,7 +144,6 @@ module.exports = function(grunt) {
                     ui: 'tdd',
                     reporter: 'xunit-file',
                     quiet: true
-
                 },
                 src: [
                     '<%= jshint.test.src %>'
@@ -150,34 +151,34 @@ module.exports = function(grunt) {
             }
         },
 
-		mocha_istanbul: {
-		    coverage: {
+        mocha_istanbul: {
+            coverage: {
                 src: '<%= dirs.test[0] %>',
                 options: {
-					root: '<%= dirs.lib[0] %>',
-					coverageFolder: '<%= dirs.reportCoverage[0] %>',
+                    root: '<%= dirs.lib[0] %>',
+                    coverageFolder: '<%= dirs.reportCoverage[0] %>',
                     reportFormats: ['lcovonly']
                 }
             },
-		    coverageHtml: {
+            coverageHtml: {
                 src: '<%= dirs.test[0] %>',
                 options: {
                     quiet: true,
-					root: '<%= dirs.lib[0] %>',
-					coverageFolder: '<%= dirs.siteCoverage[0] %>',
+                    root: '<%= dirs.lib[0] %>',
+                    coverageFolder: '<%= dirs.siteCoverage[0] %>',
                     reportFormats: ['lcov']
                 }
             },
-		    coberturaReport: {
+            coberturaReport: {
                 src: '<%= dirs.test[0] %>',
                 options: {
                     quiet: true,
-					root: '<%= dirs.lib[0] %>',
-					coverageFolder: '<%= dirs.reportCoverage[0] %>',
+                    root: '<%= dirs.lib[0] %>',
+                    coverageFolder: '<%= dirs.reportCoverage[0] %>',
                     reportFormats: ['cobertura']
                 }
             }
-		},
+        },
 
         dox: {
             options: {
@@ -249,13 +250,13 @@ module.exports = function(grunt) {
     grunt.registerTask('test-report', 'Generate tests reports',
         ['env', 'clean:reportTest', 'mkdir:reportTest', 'mochaTest:unitReport']);
 
-	grunt.registerTask('coverage', 'Print coverage summary',
+    grunt.registerTask('coverage', 'Print coverage summary',
         ['mocha_istanbul:coverage']);
 
-	grunt.registerTask('coverage-report', 'Generate Cobertura report',
+    grunt.registerTask('coverage-report', 'Generate Cobertura report',
         ['mocha_istanbul:coberturaReport']);
 
-	grunt.registerTask('coverage-html', 'Generate HTML site with coverage',
+    grunt.registerTask('coverage-html', 'Generate HTML site with coverage',
         ['mocha_istanbul:coverageHtml']);
 
     grunt.registerTask('complexity', 'Generate code complexity reports',
