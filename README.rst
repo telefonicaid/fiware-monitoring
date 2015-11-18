@@ -213,6 +213,8 @@ The configuration used by the adapter service is optionally read from the file
     # ADAPTER_LISTEN_PORT - The port where NGSI Adapter listens to requests
     ADAPTER_LISTEN_PORT=1337
 
+    # ADAPTER_UDP_ENDPOINTS - UDP listen endpoints (host:port:parser,...)
+
     # ADAPTER_BROKER_URL - The endpoint where Context Broker is listening
     ADAPTER_BROKER_URL=http://127.0.0.1:1026/
 
@@ -226,10 +228,11 @@ Most of these attributes map to options of the `command line interface
 - ``ADAPTER_LOGLEVEL`` maps to ``-l`` or ``--logLevel`` option
 - ``ADAPTER_LISTEN_HOST`` maps to ``-H`` or ``--listenHost`` option
 - ``ADAPTER_LISTEN_PORT`` maps to ``-p`` or ``--listenPort`` option
+- ``ADAPTER_UDP_ENDPOINTS`` maps to ``-u`` or ``--udpEndpoints`` option
 - ``ADAPTER_BROKER_URL`` maps to ``-b`` or ``--brokerUrl`` option
 - ``ADAPTER_RETRIES`` maps to ``-r`` or ``--retries`` option
 
-Default values are found in ``/opt/fiware/ngsi_adapter/config/options.js``.
+Default values are found in ``/opt/fiware/ngsi_adapter/lib/common.js``.
 
 
 Checking status

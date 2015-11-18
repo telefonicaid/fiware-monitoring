@@ -26,22 +26,7 @@
 'use strict';
 
 
-/**
- * @namespace
- * @property {Object} defaults              Default values for configuration options.
- * @property {String} defaults.logLevel     Default logging level.
- * @property {String} defaults.brokerUrl    Default Context Broker URL.
- * @property {String} defaults.listenHost   Default adapter listen host.
- * @property {Number} defaults.listenPort   Default adapter listen port.
- * @property {Number} defaults.retries      Default maximum number of invocation retries.
- */
-var defaults = {
-    logLevel: 'INFO',
-    brokerUrl: 'http://127.0.0.1:1026/',
-    listenHost: '0.0.0.0',
-    listenPort: 1337,
-    retries: 2
-};
+var defaults = require('../lib/common').defaults;
 
 
 /**
@@ -49,9 +34,10 @@ var defaults = {
  * @property {Object} opts                  Command line options.
  * @property {String} opts.logLevel         Logging level.
  * @property {String} opts.brokerUrl        Context Broker URL.
- * @property {String} opts.listenHost       Adapter listen host.
- * @property {Number} opts.listenPort       Adapter listen port.
- * @property {Number} opts.retries          Maximum number of invocation retries.
+ * @property {String} opts.listenHost       Adapter listen HTTP host.
+ * @property {Number} opts.listenPort       Adapter listen HTTP port.
+ * @property {String} opts.udpEndpoints     Comma-separated list of UDP endpoints (host:port:parser).
+ * @property {Number} opts.retries          Maximum number of Context Broker invocation retries.
  */
 var opts = require('optimist')
     .options('l', {
@@ -66,6 +52,10 @@ var opts = require('optimist')
         alias: 'listenPort',
         'default': process.env['ADAPTER_LISTEN_PORT'] || defaults.listenPort,
         describe: 'Adapter listen port'
+    }).options('u', {
+        alias: 'udpEndpoints',
+        'default': process.env['ADAPTER_UDP_ENDPOINTS'] || defaults.udpEndpoints,
+        describe: 'List of UDP endpoints (host:port:parser)'
     }).options('b', {
         alias: 'brokerUrl',
         'default': process.env['ADAPTER_BROKER_URL'] || defaults.brokerUrl,

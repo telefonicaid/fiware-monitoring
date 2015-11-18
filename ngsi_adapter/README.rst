@@ -22,6 +22,10 @@ Please refer to `this document </README.rst#running>`_ for details.
 Changelog
 =========
 
+Version 1.3.0
+
+- Add support to UDP requests
+
 Version 1.2.4
 
 - Add service configuration file

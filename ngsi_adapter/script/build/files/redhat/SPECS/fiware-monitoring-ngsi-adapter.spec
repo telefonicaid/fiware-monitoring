@@ -187,6 +187,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Wed Nov 11 2015 Telefónica I+D <opensource@tid.es> 1.3.0-1
+- Add support to UDP requests
+
 * Fri Aug 14 2015 Telefónica I+D <opensource@tid.es> 1.2.4-1
 - Add service configuration file
 

@@ -30,3 +30,25 @@
  * HTTP header for transaction id.
  */
 exports.txIdHttpHeader = 'txId';
+
+
+/**
+ * Default values.
+ *
+ * @namespace
+ * @property {Object} defaults              Default values for configuration options.
+ * @property {String} defaults.logLevel     Default logging level.
+ * @property {String} defaults.brokerUrl    Default Context Broker URL.
+ * @property {String} defaults.listenHost   Default adapter HTTP listen host.
+ * @property {Number} defaults.listenPort   Default adapter HTTP listen port.
+ * @property {String} defaults.udpEndpoints Default list of UDP endpoints (host:port:parser).
+ * @property {Number} defaults.retries      Default maximum number of Context Broker invocation retries.
+ */
+exports.defaults = {
+    logLevel: 'INFO',
+    brokerUrl: 'http://127.0.0.1:1026/',
+    listenHost: '0.0.0.0',
+    listenPort: 1337,
+    udpEndpoints: null,
+    retries: 2
+};

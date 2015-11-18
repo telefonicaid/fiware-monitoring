@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Telefónica I+D
+ * Copyright 2013-2015 Telefónica I+D
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -32,9 +32,9 @@ var util = require('util'),
 
 
 /* jshint laxbreak: true */
-suite('check_procs', function() {
+suite('check_procs', function () {
 
-    suiteSetup(function() {
+    suiteSetup(function () {
         this.timestampName = require('../../lib/parsers/common/base').parser.timestampAttrName;
         this.factory = require('../../lib/parsers/common/factory');
 
@@ -48,56 +48,62 @@ suite('check_procs', function() {
         this.probeData = {
             procs: this.entityData.procs
         };
+
         this.probeBody = {
             data: util.format('PROCS OK: %d processes', this.probeData.procs)
         };
     });
 
-    suiteTeardown(function() {
+    suiteTeardown(function () {
     });
 
-    setup(function() {
+    setup(function () {
         this.request = {
-            url: this.baseurl + '?id=' + this.entityId + '&type=' + this.entityType,
-            timestamp: Date.now()
+            url: this.baseurl + '?id=' + this.entityId + '&type=' + this.entityType
         };
-        this.entityData[this.timestampName] = this.request.timestamp;
+        this.reqdomain = {
+            timestamp: Date.now(),
+            entityId: this.entityId,
+            entityType: this.entityType
+        };
+        this.entityData[this.timestampName] = this.reqdomain.timestamp;
     });
 
-    teardown(function() {
+    teardown(function () {
         delete this.request;
+        delete this.reqdomain;
         delete this.entityData[this.timestampName];
     });
 
-    test('get_update_request_fails_with_invalid_check_procs_content', function() {
-        this.request.body = 'XXX INVALID XXX';
+    test('get_update_request_fails_with_invalid_check_procs_content', function () {
+        this.reqdomain.body = 'XXX INVALID XXX';
         var self = this;
         var parser = this.factory.getParser(self.request);
         assert.throws(
-            function() {
-                return parser.updateContextRequest(self.request);
+            function () {
+                return parser.updateContextRequest(self.reqdomain);
             }
         );
     });
 
-    test('get_update_request_ok_with_valid_check_procs_content', function() {
-        this.request.body = util.format('%s', this.probeBody.data);
+    test('get_update_request_ok_with_valid_check_procs_content', function () {
+        this.reqdomain.body = util.format('%s', this.probeBody.data);
         var parser = this.factory.getParser(this.request);
-        var update = parser.updateContextRequest(this.request);
+        var update = parser.updateContextRequest(this.reqdomain);
         common.assertValidUpdateXML(update, this);
     });
 
-    test('get_update_request_ok_with_another_threshold_metric', function() {
-        this.request.body = util.format('%s', this.probeBody.data).replace(/^PROCS/, 'VSZ');
+    test('get_update_request_ok_with_another_threshold_metric', function () {
+        this.reqdomain.body = util.format('%s', this.probeBody.data).replace(/^PROCS/, 'VSZ');
         var parser = this.factory.getParser(this.request);
-        var update = parser.updateContextRequest(this.request);
+        var update = parser.updateContextRequest(this.reqdomain);
         common.assertValidUpdateXML(update, this);
     });
 
-    test('parse_ok_number_of_procs', function() {
-        this.request.body = util.format('%s', this.probeBody.data);
+    test('parse_ok_number_of_procs', function () {
+        this.reqdomain.body = util.format('%s', this.probeBody.data);
         var parser = this.factory.getParser(this.request);
-        var requestData = parser.parseRequest(this.request);
+        var requestData = parser.parseRequest(this.reqdomain);
         var contextData = parser.getContextAttrs(requestData);
         assert(contextData.procs);
         assert.equal(contextData.procs, this.entityData.procs);

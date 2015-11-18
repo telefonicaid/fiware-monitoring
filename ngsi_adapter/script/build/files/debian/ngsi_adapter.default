@@ -10,6 +10,8 @@ ADAPTER_LISTEN_HOST=0.0.0.0
 # ADAPTER_LISTEN_PORT - The port where NGSI Adapter listens to requests
 ADAPTER_LISTEN_PORT=1337
 
+# ADAPTER_UDP_ENDPOINTS - UDP listen endpoints (host:port:parser,...)
+
 # ADAPTER_BROKER_URL - The endpoint where Context Broker is listening
 ADAPTER_BROKER_URL=http://127.0.0.1:1026/
 
