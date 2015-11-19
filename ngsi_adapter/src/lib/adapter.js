@@ -244,7 +244,7 @@ function main() {
     (opts.udpEndpoints || '').split(',').map(function (item) {
         var itemElements = item.split(':'),
             udpListenHost = itemElements[0] || opts.listenHost,
-            udpListenPort = itemElements[1] || opts.listenPort,
+            udpListenPort = parseInt(itemElements[1] || opts.listenPort, 10),
             udpParserName = itemElements[2];
 
         if (udpParserName) {

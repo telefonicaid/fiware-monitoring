@@ -51,6 +51,8 @@ suite('options', function () {
         self.resource = 'check_load';
         self.body = 'invalid load data';
         self.headers = {};
+        self.availPort = 1234;
+        self.boundPort = 4321;
         sinon.stub(http, 'createServer', function () {
             self.httpListener = arguments[0];
             self.serverListen = sinon.spy(function (port, host, callback) {
@@ -62,19 +64,22 @@ suite('options', function () {
             };
         });
         sinon.stub(dgram, 'createSocket', function () {
-            var udpSocket = new Emitter();
-            udpSocket.bind = sinon.spy(function (port, host, callback) {
-                self.udpServer = this;
-                this.address = sinon.stub().returns({ address: host, port: port });
-                callback.call(this);
+            self.udpServer = new Emitter();
+            self.udpServer.bind = sinon.spy(function (port, host, callback) {
+                if (port === self.boundPort) {
+                    this.emit('error', new Error('bind error'));
+                } else {
+                    this.address = sinon.stub().returns({address: host, port: port});
+                    callback.call(this);
+                }
             });
             /* jshint -W072 */
-            udpSocket.send = function (buf, offset, length, port, address, callback) {
-                self.udpServer.emit('message', buf.toString('utf8', offset, length - offset));
+            self.udpServer.send = function (buf, offset, length, port, address, callback) {
+                this.emit('message', buf.toString('utf8', offset, length - offset));
                 callback.call(this, null, length - offset);
             };
-            udpSocket.close = sinon.stub();
-            return udpSocket;
+            self.udpServer.close = sinon.stub();
+            return self.udpServer;
         });
         logger.stream = require('dev-null')();
         logger.setLevel('DEBUG');
@@ -116,9 +121,10 @@ suite('options', function () {
     });
 
     test('adapter_starts_listening_to_both_http_and_udp_requests', function () {
-        var udpParser = 'parser',
+        var self = this,
+            udpParser = 'parser',
             udpHost = 'localhost',
-            udpPort = 1234,
+            udpPort = self.availPort,
             optsUdpEndpointsSave = opts.udpEndpoints;
         opts.udpEndpoints = util.format('%s:%d:%s', udpHost, udpPort, udpParser);
         adapter.main();
@@ -128,7 +134,23 @@ suite('options', function () {
         assert(this.udpServer.bind.calledOnce);
         assert(this.udpServer.bind.args[0][0], udpPort);
         assert(this.udpServer.bind.args[0][1], udpHost);
-        this.udpServer.removeAllListeners();
+    });
+
+    test('adapter_starts_but_logs_error_when_udp_bind_fails', function () {
+        var self = this,
+            udpParser = 'parser',
+            udpHost = 'localhost',
+            udpPort = self.boundPort,
+            optsUdpEndpointsSave = opts.udpEndpoints;
+        opts.udpEndpoints = util.format('%s:%d:%s', udpHost, udpPort, udpParser);
+        sinon.spy(logger, 'error');
+        adapter.main();
+        opts.udpEndpoints = optsUdpEndpointsSave;
+        assert(this.serverListen.calledOnce);
+        assert(this.serverListen.args[0][0], defaults.listenPort);
+        assert(this.udpServer.bind.calledOnce);
+        assert(logger.error.calledOnce);
+        logger.error.restore();
     });
 
 });
