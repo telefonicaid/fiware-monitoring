@@ -141,6 +141,18 @@ suite('adapter', function () {
         assert.equal(response.writeHead.args[0][0], 400);  // bad request
     });
 
+    test('request_fails_missing_url_resource', function () {
+        var self = this;
+        var response = {
+            writeHead: sinon.stub(),
+            end: sinon.stub()
+        };
+        self.request.url = self.baseurl + '/' + '?id=id&type=type';
+        self.httpListener(self.request, response);
+        assert(response.writeHead.calledOnce);
+        assert.equal(response.writeHead.args[0][0], 404);  // not found
+    });
+
     test('request_fails_unknown_url_resource', function () {
         var self = this;
         var response = {

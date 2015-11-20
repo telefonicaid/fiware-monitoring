@@ -187,7 +187,8 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
-* Wed Nov 11 2015 Telefónica I+D <opensource@tid.es> 1.3.0-1
+* Fri Nov 20 2015 Telefónica I+D <opensource@tid.es> 1.3.0-1
+- Add an option to specify a list of directories to look for parsers
 - Add support to UDP requests
 
 * Fri Aug 14 2015 Telefónica I+D <opensource@tid.es> 1.2.4-1

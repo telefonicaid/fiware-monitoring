@@ -17,15 +17,15 @@
 
 
 /**
- * Module that defines a parser for `check_procs` Nagios plugin.
+ * Module that defines a parser for `check_users` Nagios plugin.
  *
  * Context attributes to be calculated:
  *
- * - procs = number of processes running
+ * - users = number of users logged in
  *
- * @module check_procs
- * @see https://www.nagios-plugins.org/doc/man/check_procs.html
- * @see https://github.com/nagios-plugins/nagios-plugins/blob/maint/plugins/check_procs.c
+ * @module check_users
+ * @see https://www.nagios-plugins.org/doc/man/check_users.html
+ * @see https://github.com/nagios-plugins/nagios-plugins/blob/maint/plugins/check_users.c
  */
 
 
@@ -33,18 +33,18 @@
 /* jshint -W101, unused: false */
 
 
-var nagios = require('./common/nagios');
+var nagios = require('../common/nagios');
 
 
 /**
- * Parser for `check_procs` Nagios probe.
+ * Parser for `check_users` Nagios probe.
  * @augments nagios
  */
 var parser = Object.create(nagios.parser);
 
 
 /**
- * Parses `check_procs` raw data to extract an object whose members are NGSI context attributes.
+ * Parses `check_users` raw data to extract an object whose members are NGSI context attributes.
  *
  * @function getContextAttrs
  * @memberof parser
@@ -52,23 +52,26 @@ var parser = Object.create(nagios.parser);
  * @returns {Object} Context attributes.
  *
  * <code>
- * Sample data: "PROCS OK: 136 processes"
- *                 ^        ^
- *     Metric -----+        |       (list of metrics: PROCS,VSZ,RSS,CPU,ELAPSED)
- *     # of procs ----------+
+ * Sample data: "USERS OK - 1 users currently logged in |users=1;10;15;0"
+ *                          ^                                  ^  ^  ^ ^
+ *     # of users ----------+----------------------------------+  |  | |
+ *     ==========                                                 |  | |
+ *     Warning threshold -----------------------------------------+  | |
+ *     Critical threshold -------------------------------------------+ |
+ *     Reserved -------------------------------------------------------+
  * </code>
  */
 parser.getContextAttrs = function(probeEntityData) {
     var data = probeEntityData.data.split('\n')[0];     // only consider first line of probe data, discard perfData
-    var attrs = { procs: NaN };
+    var attrs = { users: NaN };
 
-    var items = data.split(':');
+    var items = data.split('-');
     if (items[1]) {
-        attrs.procs = parseFloat(items[1].trim().split(' ')[0]);
+        attrs.users = parseFloat(items[1].trim().split(' ')[0]);
     }
 
-    if (isNaN(attrs.procs)) {
-        throw new Error('No valid procs data found');
+    if (isNaN(attrs.users)) {
+        throw new Error('No valid users data found');
     }
 
     return attrs;
@@ -76,6 +79,6 @@ parser.getContextAttrs = function(probeEntityData) {
 
 
 /**
- * Parser for `check_procs`.
+ * Parser for `check_users`.
  */
 exports.parser = parser;

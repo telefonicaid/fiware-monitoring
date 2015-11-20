@@ -12,6 +12,9 @@ ADAPTER_LISTEN_PORT=1337
 
 # ADAPTER_UDP_ENDPOINTS - UDP listen endpoints (host:port:parser,...)
 
+# ADAPTER_PARSERS_PATH - Path with directories to look for parsers
+ADAPTER_PARSERS_PATH=lib/parsers/nagios
+
 # ADAPTER_BROKER_URL - The endpoint where Context Broker is listening
 ADAPTER_BROKER_URL=http://127.0.0.1:1026/
 

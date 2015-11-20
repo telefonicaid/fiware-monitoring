@@ -24,6 +24,7 @@ Changelog
 
 Version 1.3.0
 
+- Add an option to specify a list of directories to look for parsers
 - Add support to UDP requests
 
 Version 1.2.4

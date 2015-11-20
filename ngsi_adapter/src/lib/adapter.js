@@ -26,6 +26,7 @@
 
 
 'use strict';
+/* jshint -W030 */
 
 
 var http = require('http'),
@@ -241,7 +242,7 @@ function main() {
     });
 
     /* Optionally bind this Adapter to a list of UDP endpoints, forwarding requests to the corresponding parser */
-    (opts.udpEndpoints || '').split(',').map(function (item) {
+    opts.udpEndpoints && opts.udpEndpoints.split(',').map(function (item) {
         var itemElements = item.split(':'),
             udpListenHost = itemElements[0] || opts.listenHost,
             udpListenPort = parseInt(itemElements[1] || opts.listenPort, 10),

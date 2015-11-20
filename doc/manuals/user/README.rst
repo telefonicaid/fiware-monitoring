@@ -92,12 +92,13 @@ about to be parsed.
 NGSI Adapter parsers
 --------------------
 
-NGSI Adapter processes requests asynchronously, trying to locate a valid parser
-named after the originating probe, located at ``lib/parsers/``. If probe is
-unknown, HTTP response status will be ``404``; otherwise, response status will
-be ``200``, parser will be dynamically loaded, and then its ``parseRequest()``
-and ``getContextAttrs()`` methods will be invoked. With the attribute list
-returned by the latter, Context Broker will be invoked.
+NGSI Adapter processes requests asynchronously, trying to load a valid parser
+named after the originating probe, located at any of the directories specified
+(see `Installation and Administration Guide <../admin/README.rst>`_). If probe
+is unknown (parser not found), HTTP response status will be ``404``; otherwise,
+response status will be ``200``, parser will be dynamically loaded, and then
+its ``parseRequest()`` and ``getContextAttrs()`` methods will be called. The
+attribute list returned by the latter will be used to invoke Context Broker.
 
 Custom parsers for new probes may be easily added to NGSI Adapter, just
 extending a base abstract object and implementing the aforementioned methods.
@@ -113,12 +114,11 @@ comma-separated list of values of two attributes *myAttr0* and *myAttr1*:
 .. code:: javascript
 
    /**
-    * module "lib.parsers.myProbe"
+    * module "myProbe" at any directory included in ADAPTER_PARSERS_PATH
     */
 
-   var baseParser = require('./common/base').parser,
-       myParser   = Object.create(baseParser);
-
+   // @augments base parser (must redefine parseRequest and getContextAttrs)
+   var myParser = Object.create(null);
 
    // @param Domain object including context, timestamp, id, type & body
    myParser.parseRequest = function (reqDomain) {
