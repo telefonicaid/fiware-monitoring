@@ -97,7 +97,7 @@ Additional parsers
 NGSI Adapter currently includes a predefined set of parsers for Nagios probes
 at ``lib/parsers/nagios`` directory, each named after its corresponding probe.
 
-This can be extended with additional parsers found at from other directories.
+This can be extended with additional parsers found at additional directories.
 To do so, please configure ``--parsersPath`` command line option (or set the
 variable ``ADAPTER_PARSERS_PATH``) with a colon-separated list of absolute (or
 relative to Adapter root) directories where parsers are located.
