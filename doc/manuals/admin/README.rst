@@ -95,11 +95,12 @@ Additional parsers
 ~~~~~~~~~~~~~~~~~~
 
 NGSI Adapter currently includes a predefined set of parsers for Nagios probes
-at ``lib/parsers/`` directory, each parser named after its corresponding probe.
+at ``lib/parsers/nagios`` directory, each named after its corresponding probe.
 
-Whenever new Nagios probes are used, or even if we decide to use a different
-monitoring framework with its own set of probes, the corresponding parsers
-should be dropped in such directory.
+This can be extended with additional parsers found at additional directories.
+To do so, please configure ``--parsersPath`` command line option (or set the
+variable ``ADAPTER_PARSERS_PATH``) with a colon-separated list of absolute (or
+relative to Adapter root) directories where parsers are located.
 
 
 Installation of Context Broker
@@ -167,6 +168,8 @@ You can use these command line options (available typing ``adapter --help``):
    The port number at which NGSI Adapter listens
 -u, --udpEndpoints
    Optional list of UDP endpoints (host:port:parser)
+-P, --parsersPath
+   Colon-separated path with directories to look for parsers
 -b, --brokerUrl
    The URL of the Context Broker instance to publish data to
 -r, --retries

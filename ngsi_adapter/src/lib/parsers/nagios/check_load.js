@@ -33,7 +33,7 @@
 /* jshint -W101, unused: false */
 
 
-var nagios = require('./common/nagios');
+var nagios = require('../common/nagios');
 
 
 /**

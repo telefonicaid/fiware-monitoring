@@ -30,7 +30,8 @@
 process.argv = [];
 
 
-var util = require('util'),
+var url = require('url'),
+    util = require('util'),
     http = require('http'),
     dgram = require('dgram'),
     sinon = require('sinon'),
@@ -48,6 +49,7 @@ suite('adapter', function () {
 
     suiteSetup(function () {
         var self = this;
+        self.processEvents = ['SIGINT', 'SIGTERM', 'uncaughtException', 'exit'];
         self.baseurl = 'http://hostname:1234';
         self.resource = 'check_load';
         self.body = 'invalid load data';
@@ -99,6 +101,7 @@ suite('adapter', function () {
     teardown(function () {
         delete this.request;
         this.udpServer.removeAllListeners();
+        this.processEvents.map(function (event) { process.removeListener(event, process.listeners(event).pop()); });
     });
 
     test('request_fails_if_not_post_method', function () {
@@ -138,6 +141,18 @@ suite('adapter', function () {
         assert.equal(response.writeHead.args[0][0], 400);  // bad request
     });
 
+    test('request_fails_missing_url_resource', function () {
+        var self = this;
+        var response = {
+            writeHead: sinon.stub(),
+            end: sinon.stub()
+        };
+        self.request.url = self.baseurl + '/' + '?id=id&type=type';
+        self.httpListener(self.request, response);
+        assert(response.writeHead.calledOnce);
+        assert.equal(response.writeHead.args[0][0], 404);  // not found
+    });
+
     test('request_fails_unknown_url_resource', function () {
         var self = this;
         var response = {
@@ -160,6 +175,29 @@ suite('adapter', function () {
         self.httpListener(self.request, response);
         assert(response.writeHead.calledOnce);
         assert.equal(response.writeHead.args[0][0], 200);  // ok
+    });
+
+    test('request_fails_when_domain_error', function (done) {
+        var self = this;
+        var response = {
+            writeHead: function () {},
+            end: sinon.stub()
+        };
+        // Force an error when invoking url.parse()
+        sinon.stub(url, 'parse', function () {
+            url.parse.restore();
+            self.request.emit('error', new Error('detail of error'));
+            return url.parse.apply(null, arguments);
+        });
+        // Ensure a HTTP 500 status in response
+        sinon.stub(response, 'writeHead', function (status) {
+            response.writeHead.restore();
+            assert.equal(status, 500);
+            done();
+        });
+        self.timeout(500);
+        self.request.url = self.baseurl + '/' + self.resource + '?id=id&type=type';
+        self.httpListener(self.request, response);
     });
 
     test('request_asynchronous_callback_error_on_invalid_resource_data', function (done) {

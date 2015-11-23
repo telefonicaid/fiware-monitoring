@@ -215,6 +215,9 @@ The configuration used by the adapter service is optionally read from the file
 
     # ADAPTER_UDP_ENDPOINTS - UDP listen endpoints (host:port:parser,...)
 
+    # ADAPTER_PARSERS_PATH - Path with directories to look for parsers
+    ADAPTER_PARSERS_PATH=lib/parsers/nagios
+
     # ADAPTER_BROKER_URL - The endpoint where Context Broker is listening
     ADAPTER_BROKER_URL=http://127.0.0.1:1026/
 
@@ -229,6 +232,7 @@ Most of these attributes map to options of the `command line interface
 - ``ADAPTER_LISTEN_HOST`` maps to ``-H`` or ``--listenHost`` option
 - ``ADAPTER_LISTEN_PORT`` maps to ``-p`` or ``--listenPort`` option
 - ``ADAPTER_UDP_ENDPOINTS`` maps to ``-u`` or ``--udpEndpoints`` option
+- ``ADAPTER_PARSERS_PATH`` maps to ``-P`` or ``--parsersPath`` option
 - ``ADAPTER_BROKER_URL`` maps to ``-b`` or ``--brokerUrl`` option
 - ``ADAPTER_RETRIES`` maps to ``-r`` or ``--retries`` option
 

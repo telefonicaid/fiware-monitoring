@@ -37,6 +37,7 @@ var defaults = require('../lib/common').defaults;
  * @property {String} opts.listenHost       Adapter listen HTTP host.
  * @property {Number} opts.listenPort       Adapter listen HTTP port.
  * @property {String} opts.udpEndpoints     Comma-separated list of UDP endpoints (host:port:parser).
+ * @property {String} opts.parsersPath      Colon-separated path with directories to look for parsers.
  * @property {Number} opts.retries          Maximum number of Context Broker invocation retries.
  */
 var opts = require('optimist')
@@ -56,6 +57,10 @@ var opts = require('optimist')
         alias: 'udpEndpoints',
         'default': process.env['ADAPTER_UDP_ENDPOINTS'] || defaults.udpEndpoints,
         describe: 'List of UDP endpoints (host:port:parser)'
+    }).options('P', {
+        alias: 'parsersPath',
+        'default': process.env['ADAPTER_PARSERS_PATH'] || defaults.parsersPath,
+        describe: 'Path to look for parsers'
     }).options('b', {
         alias: 'brokerUrl',
         'default': process.env['ADAPTER_BROKER_URL'] || defaults.brokerUrl,

@@ -24,27 +24,52 @@
 
 
 'use strict';
+/* jshint -W030 */
 
 
 var url = require('url'),
     util = require('util'),
-    path = require('path');
+    path = require('path'),
+    opts = require('../../../config/options'),
+    defaults = require('../../common').defaults,
+    baseParser = require('./base').parser,
+    parsersPath = opts.parsersPath + ':' + defaults.parsersPath,
+    absoluteBaseDir = path.normalize(__dirname + path.sep + '..' + path.sep + '..' + path.sep + '..');
 
 
 /**
- * Parser factory: returns a dynamically loaded parser object at `lib/parsers/{name}`.
+ * Cache of parsers already loaded.
+ */
+var parsersCache = {};
+
+
+/**
+ * Parser factory: returns a parser object from a dynamically loaded parser prototype from a module `name` located at
+ * any of the directories specified in `parsersPath` option, either absolute directories or relative to Adapter's root.
  *
  * @param {String} name  The name of the parser.
- * @returns {Object} The parser been loaded according to given name.
+ * @returns {Object} The parser been loaded according to given module name.
  */
 function getParserByName(name) {
-    var moduleName = util.format('../%s', name);
-    try {
-        return require(moduleName).parser;
-    } catch (err) {
-        var modulePath = path.normalize(__dirname + path.sep + moduleName + '.js');
-        throw new Error(util.format('Parser from module "%s" could not be loaded', modulePath));
+    var parser = parsersCache[name];
+    parser || parsersPath.split(':').some(function (dir) {
+        try {
+            /* jshint -W103,-W106 */
+            var prototype = require(path.join(path.resolve(absoluteBaseDir, dir), util.format('%s.js', name))).parser;
+            if (prototype.__proto__ === null) {
+                prototype.__proto__ = baseParser;  // ensure baseParser is part of the prototype chain
+            }
+            parser = Object.create(prototype);
+            parsersCache[name] = parser;
+            return true;
+        } catch (err) {
+            return false;
+        }
+    });
+    if (!parser) {
+        throw new Error(util.format('Parser from module "%s" could not be found at path %s', name, parsersPath));
     }
+    return parser;
 }
 
 
