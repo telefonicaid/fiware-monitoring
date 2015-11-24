@@ -18,5 +18,8 @@ ADAPTER_PARSERS_PATH=lib/parsers/nagios
 # ADAPTER_BROKER_URL - The endpoint where Context Broker is listening
 ADAPTER_BROKER_URL=http://127.0.0.1:1026/
 
+# ADAPTER_MAX_REQUESTS - Maximum number of simultaneous requests
+ADAPTER_MAX_REQUESTS=5
+
 # ADAPTER_RETRIES - Maximum number of retries invoking Context Broker
 ADAPTER_RETRIES=2

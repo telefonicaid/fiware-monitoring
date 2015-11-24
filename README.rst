@@ -221,6 +221,9 @@ The configuration used by the adapter service is optionally read from the file
     # ADAPTER_BROKER_URL - The endpoint where Context Broker is listening
     ADAPTER_BROKER_URL=http://127.0.0.1:1026/
 
+    # ADAPTER_MAX_REQUESTS - Maximum number of simultaneous requests
+    ADAPTER_MAX_REQUESTS=5
+
     # ADAPTER_RETRIES - Maximum number of retries invoking Context Broker
     ADAPTER_RETRIES=2
 
@@ -234,6 +237,7 @@ Most of these attributes map to options of the `command line interface
 - ``ADAPTER_UDP_ENDPOINTS`` maps to ``-u`` or ``--udpEndpoints`` option
 - ``ADAPTER_PARSERS_PATH`` maps to ``-P`` or ``--parsersPath`` option
 - ``ADAPTER_BROKER_URL`` maps to ``-b`` or ``--brokerUrl`` option
+- ``ADAPTER_MAX_REQUESTS`` maps to ``-m`` or ``--maxRequests`` option
 - ``ADAPTER_RETRIES`` maps to ``-r`` or ``--retries`` option
 
 Default values are found in ``/opt/fiware/ngsi_adapter/lib/common.js``.

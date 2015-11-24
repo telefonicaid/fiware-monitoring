@@ -172,6 +172,8 @@ You can use these command line options (available typing ``adapter --help``):
    Colon-separated path with directories to look for parsers
 -b, --brokerUrl
    The URL of the Context Broker instance to publish data to
+-m, --maxRequests
+   Maximum number of simultaneous outgoing requests to Context Broker
 -r, --retries
    Number of times a request to Context Broker is retried, in case of error
 
