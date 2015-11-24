@@ -42,6 +42,12 @@ var http = require('http'),
 
 
 /**
+ * Restrict the number of simultaneous outgoing requests.
+ */
+http.globalAgent.maxSockets = opts.maxRequests;
+
+
+/**
  * Asynchronously process incoming requests and then invoke updateContext() on ContextBroker.
  *
  * @param {Domain}          reqdomain  Domain handling request (includes context, timestamp, id, type, body & parser).

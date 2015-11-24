@@ -43,6 +43,7 @@ exports.txIdHttpHeader = 'txId';
  * @property {Number} defaults.listenPort   Default adapter HTTP listen port.
  * @property {String} defaults.udpEndpoints Default list of UDP endpoints (host:port:parser).
  * @property {String} defaults.parsersPath  Default path with directories to look for parsers.
+ * @property {Number} defaults.maxRequests  Default maximum number of simultaneous outgoing requests.
  * @property {Number} defaults.retries      Default maximum number of Context Broker invocation retries.
  */
 exports.defaults = {
@@ -52,5 +53,6 @@ exports.defaults = {
     listenPort: 1337,
     udpEndpoints: null,
     parsersPath: 'lib/parsers:lib/parsers/nagios',
+    maxRequests: 5,
     retries: 2
 };

@@ -38,6 +38,7 @@ var defaults = require('../lib/common').defaults;
  * @property {Number} opts.listenPort       Adapter listen HTTP port.
  * @property {String} opts.udpEndpoints     Comma-separated list of UDP endpoints (host:port:parser).
  * @property {String} opts.parsersPath      Colon-separated path with directories to look for parsers.
+ * @property {Number} opts.maxRequests      Maximum number of simultaneous outgoing requests.
  * @property {Number} opts.retries          Maximum number of Context Broker invocation retries.
  */
 var opts = require('optimist')
@@ -65,6 +66,10 @@ var opts = require('optimist')
         alias: 'brokerUrl',
         'default': process.env['ADAPTER_BROKER_URL'] || defaults.brokerUrl,
         describe: 'Context Broker URL'
+    }).options('m', {
+        alias: 'maxRequests',
+        'default': process.env['ADAPTER_MAX_REQUESTS'] || defaults.maxRequests,
+        describe: 'Maximum simultaneous requests'
     }).options('r', {
         alias: 'retries',
         'default': process.env['ADAPTER_RETRIES'] || defaults.retries,
