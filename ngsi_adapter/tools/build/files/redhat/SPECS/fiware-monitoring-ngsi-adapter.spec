@@ -8,7 +8,7 @@
 %define _adapter_grp %{_fiware_grp}
 %define _adapter_dir %{_fiware_dir}/%{_adapter_srv}
 %define _logging_dir /var/log/%{_adapter_srv}
-%define _node_req_ver %(awk '/"node":/ {split($0,v,/["~=<>]/); print v[6]}' %{_basedir}/src/package.json)
+%define _node_req_ver %(awk '/"node":/ {split($0,v,/["~=<>]/); print v[6]}' %{_basedir}/package.json)
 
 # Package main attributes (_topdir, _basedir, _version and _release must be given at command line)
 Summary: Adapter to transform data from monitoring probes to NGSI context attributes.
@@ -36,12 +36,11 @@ fi
 rm -rf $RPM_BUILD_ROOT
 
 %install
-mkdir -p $RPM_BUILD_ROOT/%{_adapter_dir}
-set +x
-EXCLUDE='test|report|site|node_modules'
-FILES=$(cd %{_basedir}/src; for i in *; do echo $i; done | egrep -v "$EXCLUDE")
-for I in $FILES; do cp -R %{_basedir}/src/$I $RPM_BUILD_ROOT/%{_adapter_dir}; done
-cp %{_basedir}/README.rst $RPM_BUILD_ROOT/%{_adapter_dir}
+mkdir -p $RPM_BUILD_ROOT/%{_adapter_dir}; set +x
+INCLUDE='lib|config|package.json|LICENSE|README.*|adapter$'
+PATTERN='* .npmrc'
+FILES=$(cd %{_basedir}; for i in $PATTERN; do echo $i; done | egrep "$INCLUDE")
+for I in $FILES; do cp -R %{_basedir}/$I $RPM_BUILD_ROOT/%{_adapter_dir}; done
 cp -R %{_sourcedir}/* $RPM_BUILD_ROOT
 (cd $RPM_BUILD_ROOT; find . -type f -printf "/%%P\n" >> %{_topdir}/MANIFEST)
 echo "FILES:"; cat %{_topdir}/MANIFEST

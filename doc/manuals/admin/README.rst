@@ -223,7 +223,7 @@ A ``node`` process running the "adapter" server should be up and running, e.g.:
 .. code::
 
    $ ps -C node -f | grep adapter
-   fiware   21930     1  0 Mar28 ?        00:06:06 node /opt/fiware/ngsi_adapter/src/adapter
+   fiware   21930     1  0 Mar28 ?        00:06:06 node /opt/fiware/ngsi_adapter/adapter
 
 
 Alternatively, we can check if service is running, e.g.:

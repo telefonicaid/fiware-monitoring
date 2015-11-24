@@ -27,7 +27,7 @@
 
 # Files to be updated
 BUMPVERSION_CONF=$0
-ADAPTER_CONF=ngsi_adapter/src/package.json
+ADAPTER_CONF=ngsi_adapter/package.json
 BROKER_CONF=ngsi_event_broker/configure.ac
 
 # Additional bumpversion options

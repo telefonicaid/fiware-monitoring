@@ -36,7 +36,7 @@ some special privileges):
 
 - Install dependencies::
 
-    $ cd fiware-monitoring/ngsi_adapter/src
+    $ cd fiware-monitoring/ngsi_adapter
     $ npm install
 
 - (Optional but highly recommended) check coding style, run unit tests and
@@ -52,7 +52,7 @@ some special privileges):
   then run the ``ngsi_adapter`` service::
 
     $ cd fiware-monitoring/ngsi_adapter
-    $ script/build/package.sh
+    $ tools/build/package.sh
     $ sudo rpm -i fiware-monitoring-ngsi-adapter-X.Y.Z-1.noarch.rpm
     $ sudo service ngsi_adapter start
 
@@ -103,7 +103,7 @@ a valid Makefile to drive the build and install process.
   building and running the unit tests), and install it::
 
     $ cd fiware-monitoring/ngsi_event_broker
-    $ script/build/package.sh
+    $ tools/build/package.sh
     $ sudo rpm -i fiware-monitoring-ngsi-event-broker-X.Y.Z-1.noarch.rpm
 
 
