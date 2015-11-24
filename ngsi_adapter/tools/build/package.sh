@@ -86,7 +86,7 @@ create_deb_package() {
 # Function to create a RPM package
 create_rpm_package() {
 	local package rpmbuild_file
-	local conf=$BASEDIR/src/package.json
+	local conf=$BASEDIR/package.json
 	local pkgversion=$(awk -F'"' '/"version"/ {print $4}' $conf)
 	local topdir=$BASEDIR/redhat
 	cp -r $PROGDIR/files/redhat $BASEDIR

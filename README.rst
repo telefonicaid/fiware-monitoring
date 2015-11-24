@@ -324,7 +324,7 @@ In the following documents you will find a business readable description of the
 features provided by the components of the Monitoring GE, as well as automated
 tests for them:
 
-- `NGSI Adapter acceptance tests <ngsi_adapter/src/test/acceptance/README.rst>`_
+- `NGSI Adapter acceptance tests <ngsi_adapter/test/acceptance/README.rst>`_
 
 
 Advanced topics

@@ -83,25 +83,23 @@ fi
 PROJECT_DIR=$WORKSPACE/ngsi_adapter
 
 # Absolute directories
-PROJECT_BASE_DIR=$PROJECT_DIR/src
-LINT_REPORT_DIR=$PROJECT_BASE_DIR/report/lint
-TEST_REPORT_DIR=$PROJECT_BASE_DIR/report/test
-COVERAGE_REPORT_DIR=$PROJECT_BASE_DIR/report/coverage
-COVERAGE_SITE_DIR=$PROJECT_BASE_DIR/site/coverage/lcov-report
+LINT_REPORT_DIR=$PROJECT_DIR/report/lint
+TEST_REPORT_DIR=$PROJECT_DIR/report/test
+COVERAGE_REPORT_DIR=$PROJECT_DIR/report/coverage
 
 # Properties
-PRODUCT_INFO=$(awk '/"product"/,/\}/' $PROJECT_BASE_DIR/package.json)
+PRODUCT_INFO=$(awk '/"product"/,/\}/' $PROJECT_DIR/package.json)
 PRODUCT_AREA=$(echo "$PRODUCT_INFO" | sed -n '/"area"/ {s/.*:.*"\(.*\)".*/\1/; p; q}')
 PRODUCT_NAME=$(echo "$PRODUCT_INFO" | sed -n '/"name"/ {s/.*:.*"\(.*\)".*/\1/; p; q}')
 PRODUCT_RELEASE=$(echo "$PRODUCT_INFO" | sed -n '/"release"/ {s/.*:.*"\(.*\)".*/\1/; p; q}')
-PROJECT_NAME=$(sed -n '/"name"/ {s/.*:.*"\(.*\)".*/\1/; p; q}' $PROJECT_BASE_DIR/package.json)
-PROJECT_DESC=$(sed -n '/"description"/ {s/.*:.*"\(.*\)".*/\1/; p; q}' $PROJECT_BASE_DIR/package.json)
-PROJECT_VERSION=$(sed -n '/"version"/ {s/.*:.*"\(.*\)".*/\1/; p; q}' $PROJECT_BASE_DIR/package.json)
+PROJECT_NAME=$(sed -n '/"name"/ {s/.*:.*"\(.*\)".*/\1/; p; q}' $PROJECT_DIR/package.json)
+PROJECT_DESC=$(sed -n '/"description"/ {s/.*:.*"\(.*\)".*/\1/; p; q}' $PROJECT_DIR/package.json)
+PROJECT_VERSION=$(sed -n '/"version"/ {s/.*:.*"\(.*\)".*/\1/; p; q}' $PROJECT_DIR/package.json)
 SONAR_PROJECT_NAME="Monitoring NGSI Adapter"
 SONAR_PROJECT_KEY=com.telefonica.iot:monitoring-ngsi-adapter
 
 # Change to project directory
-cd $PROJECT_BASE_DIR
+cd $PROJECT_DIR
 
 # Perform action
 case $ACTION in
@@ -117,11 +115,11 @@ build)
 	sed -i s:"$(readlink -f $PWD)":".":g $COVERAGE_REPORT_DIR/lcov.info
 
 	# SonarQube coverage reports
-	SONAR_COVERAGE_REPORT_RELATIVE_PATH=${COVERAGE_REPORT_DIR#$PROJECT_BASE_DIR/}/cobertura-coverage.xml
-	SONAR_LCOV_REPORT_RELATIVE_PATH=${COVERAGE_REPORT_DIR#$PROJECT_BASE_DIR/}/lcov.info
+	SONAR_COVERAGE_REPORT_RELATIVE_PATH=${COVERAGE_REPORT_DIR#$PROJECT_DIR/}/cobertura-coverage.xml
+	SONAR_LCOV_REPORT_RELATIVE_PATH=${COVERAGE_REPORT_DIR#$PROJECT_DIR/}/lcov.info
 
 	# Prepare properties file for SonarQube (awk to remove leading spaces)
-	awk '$1=$1' > $PROJECT_BASE_DIR/sonar-project.properties <<-EOF
+	awk '$1=$1' > $PROJECT_DIR/sonar-project.properties <<-EOF
 		product.area.name=$PRODUCT_AREA
 		product.name=$PRODUCT_NAME
 		product.release=$PRODUCT_RELEASE
@@ -153,6 +151,6 @@ package)
 	fi
 
 	# Generate package
-	$PROJECT_DIR/script/build/package.sh -v $PROJECT_VERSION
+	$PROJECT_DIR/tools/build/package.sh -v $PROJECT_VERSION
 	;;
 esac
