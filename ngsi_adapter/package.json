@@ -48,6 +48,7 @@
     "grunt-mocha-test": "~0.7.0",
     "grunt-mocha-istanbul": "~3.0.1",
     "load-grunt-tasks": "~3.3.0",
+    "closure-linter-wrapper": "^0.2.11",
     "xunit-file": "~0.0.5",
     "chai": "~1.8.0",
     "sinon": "~1.7.3",
