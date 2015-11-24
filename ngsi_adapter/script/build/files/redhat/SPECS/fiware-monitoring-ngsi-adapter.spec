@@ -189,6 +189,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Tue Nov 24 2015 Telefónica I+D <opensource@tid.es> 1.1.7-1
+- Add option to set maximum number of simultaneous outgoing requests
+
 * Tue Jun 02 2015 Telefónica I+D <opensource@tid.es> 1.1.6-1
 - Fix bug in quantum-openvswitch-agent parser
 

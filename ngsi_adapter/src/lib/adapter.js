@@ -37,6 +37,12 @@ var http   = require('http'),
 
 
 /**
+ * Restrict the number of simultaneous outgoing requests.
+ */
+http.globalAgent.maxSockets = opts.maxRequests;
+
+
+/**
  * Asynchronously process POST requests and then invoke updateContext() on ContextBroker.
  *
  * @param {http.IncomingMessage} request    The request to this server.

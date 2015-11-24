@@ -32,13 +32,15 @@
  * @property {String} defaults.brokerUrl    Default Context Broker URL.
  * @property {String} defaults.listenHost   Default adapter listen host.
  * @property {Number} defaults.listenPort   Default adapter listen port.
+ * @property {Number} defaults.maxRequests  Default maximum number of simultaneous outgoing requests.
  * @property {Number} defaults.retries      Default maximum number of invocation retries.
  */
 var defaults = {
-    brokerUrl:  'http://127.0.0.1:1026/',
-    listenHost: '127.0.0.1',
-    listenPort: 1337,
-    retries:    2
+    brokerUrl:   'http://127.0.0.1:1026/',
+    listenHost:  '127.0.0.1',
+    listenPort:  1337,
+    maxRequests: 5,
+    retries:     2
 };
 
 
@@ -48,14 +50,16 @@ var defaults = {
  * @property {String} opts.brokerUrl        Context Broker URL.
  * @property {String} opts.listenHost       Adapter listen host.
  * @property {Number} opts.listenPort       Adapter listen port.
+ * @property {Number} opts.maxRequests      Maximum number of simultaneous outgoing requests.
  * @property {Number} opts.retries          Maximum number of invocation retries.
  */
 var opts = require('optimist')
-    .options('b', { alias: 'brokerUrl',  'default': defaults.brokerUrl,  describe: 'Context Broker URL'  })
-    .options('H', { alias: 'listenHost', 'default': defaults.listenHost, describe: 'Adapter listen host' })
-    .options('p', { alias: 'listenPort', 'default': defaults.listenPort, describe: 'Adapter listen port' })
-    .options('r', { alias: 'retries',    'default': defaults.retries,    describe: 'Maximum retries'     })
-    .options('h', { alias: 'help',       'boolean': true,                describe: 'Show help'           })
+    .options('b', { alias: 'brokerUrl',   'default': defaults.brokerUrl,   describe: 'Context Broker URL'            })
+    .options('H', { alias: 'listenHost',  'default': defaults.listenHost,  describe: 'Adapter listen host'           })
+    .options('p', { alias: 'listenPort',  'default': defaults.listenPort,  describe: 'Adapter listen port'           })
+    .options('m', { alias: 'maxRequests', 'default': defaults.maxRequests, describe: 'Maximum simultaneous requests' })
+    .options('r', { alias: 'retries',     'default': defaults.retries,     describe: 'Maximum retries'               })
+    .options('h', { alias: 'help',        'boolean': true,                 describe: 'Show help'                     })
     .demand([]);
 
 
