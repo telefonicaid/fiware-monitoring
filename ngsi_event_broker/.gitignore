@@ -1,8 +1,9 @@
 m4/
-docs/
 .deps/
 .libs/
 contrib/
+report/
+site/
 autom4te.cache/
 aclocal.m4
 depcomp
