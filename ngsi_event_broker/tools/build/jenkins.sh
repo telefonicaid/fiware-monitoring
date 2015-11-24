@@ -90,7 +90,6 @@ PROJECT_SRC_DIR=$PROJECT_DIR/src
 LINT_REPORT_DIR=$PROJECT_DIR/report/cppcheck
 TEST_REPORT_DIR=$PROJECT_DIR/report/test
 COVERAGE_REPORT_DIR=$PROJECT_DIR/report/coverage
-COVERAGE_SITE_DIR=$PROJECT_DIR/site/coverage/lcov-report
 
 # Properties
 PRODUCT_AREA=$(sed -n '/\[PRODUCT_AREA\]/ {s/.*\[.*\].*\[\(.*\)\].*/\1/; p}' $PROJECT_DIR/configure.ac)
@@ -208,6 +207,6 @@ package)
 
 	# Generate source distribution and package
 	make clean dist
-	script/build/package.sh -v $PROJECT_VERSION
+	tools/build/package.sh -v $PROJECT_VERSION
 	;;
 esac

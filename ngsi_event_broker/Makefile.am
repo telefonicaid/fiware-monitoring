@@ -11,14 +11,14 @@ PROJECT_SITE_DIR = $(PROJECT_DIR)/site
 CPPUNIT_REPORT_DIR = $(PROJECT_REPORT_DIR)/test
 CPPCHECK_REPORT_DIR = $(PROJECT_REPORT_DIR)/cppcheck
 COVERAGE_REPORT_DIR = $(PROJECT_REPORT_DIR)/coverage
-COVERAGE_SITE_DIR = $(PROJECT_SITE_DIR)/coverage/lcov-report
+COVERAGE_LCOV_DIR = $(COVERAGE_REPORT_DIR)/lcov-report
 
 CPPCHECK_FLAGS  = -I/usr/include $(CPPFLAGS)
 CPPCHECK_FLAGS += --suppress='*:/usr/include/*.h'
 CPPCHECK_FLAGS += --suppress='*:/usr/include/curl/*.h'
 CPPCHECK_FLAGS += --enable=all --max-configs=100
 
-XSLTPROC_FLAGS  = $(PROJECT_DIR)/script/build/files/cppunit2xunit.xsl
+XSLTPROC_FLAGS  = $(PROJECT_DIR)/tools/build/files/cppunit2xunit.xsl
 
 # function to get relative path
 relpath = $(subst $(CURDIR)/,,$(1))
@@ -70,22 +70,27 @@ coverage:
 	@$(MAKE) check >/dev/null
 	cd src/.libs; gcovr --root=. --print-summary
 
-# generate coverage report (and site)
+# generate coverage report
 coverage-report: REPORT_DIR = $(call relpath,$(COVERAGE_REPORT_DIR))
-coverage-report: SITE_DIR = $(call relpath,$(COVERAGE_SITE_DIR))
+coverage-report: LCOV_DIR = $(call relpath,$(COVERAGE_LCOV_DIR))
 coverage-report:
 	@echo "Running tests..."
 	@$(MAKE) check >/dev/null
-	@rm -rf $(COVERAGE_SITE_DIR)
-	@mkdir -p $(COVERAGE_SITE_DIR)
+	@rm -rf $(COVERAGE_LCOV_DIR)
+	@mkdir -p $(COVERAGE_LCOV_DIR)
 	@mkdir -p $(COVERAGE_REPORT_DIR)
 	lcov -d src/.libs --capture --output-file $(COVERAGE_REPORT_DIR)/lcov.info
 	lcov -r $(COVERAGE_REPORT_DIR)/lcov.info "/usr/include/*" -o $(COVERAGE_REPORT_DIR)/lcov.info
-	genhtml -o $(COVERAGE_SITE_DIR) $(COVERAGE_REPORT_DIR)/lcov.info
+	genhtml -o $(COVERAGE_LCOV_DIR) $(COVERAGE_REPORT_DIR)/lcov.info
 	@sed -i s:"$(CURDIR)":".":g $(COVERAGE_REPORT_DIR)/lcov.info
 	cd src/.libs; gcovr --root=. -x -o $(COVERAGE_REPORT_DIR)/cobertura-coverage.xml
 	@sed -i s#filename=\"#filename=\"src/#g $(COVERAGE_REPORT_DIR)/cobertura-coverage.xml
 	@for i in $(REPORT_DIR)/*; do echo "Generated \`$$i'"; done
-	@if [ -d "$(SITE_DIR)" ]; then  echo "Generated \`$(SITE_DIR)'"; fi
+	@if [ -d "$(LCOV_DIR)" ]; then  echo "Generated \`$(LCOV_DIR)'"; fi
 
 endif
+
+# generate documentation
+doc:
+	@mkdir -p $(PROJECT_SITE_DIR)
+	doxygen
