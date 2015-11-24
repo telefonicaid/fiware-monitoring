@@ -1,3 +1,9 @@
+fiware-monitoring-ngsi-adapter (1.1.7) precise; urgency=low
+
+  * Add option to set maximum number of simultaneous outgoing requests
+
+ -- Telefónica I+D <opensource@tid.es>  Tue, 24 Nov 2015 18:00:00 +0200
+
 fiware-monitoring-ngsi-adapter (1.1.6) precise; urgency=low
 
   * Fixed bug in quantum-openvswitch-agent parser

@@ -69,6 +69,10 @@ two components: probe data and optional performance data.
 
 ## Changelog
 
+Version 1.1.7
+
+* Add option to set maximum number of simultaneous outgoing requests
+
 Version 1.1.6
 
 * Fix bug in quantum-openvswitch-agent parser
