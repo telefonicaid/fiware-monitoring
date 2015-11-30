@@ -36,15 +36,15 @@
 #
 
 OPTS='h(help)'
-NAME=$(basename $0)
+PROG=$(basename $0)
 
 # Command line options
 ACTION=
 
-# Process command line
+# Command line processing
 OPTERR=
 OPTSTR=$(echo :-:$OPTS | sed 's/([a-zA-Z0-9]*)//g')
-OPTHLP=$(sed -n '20,/^$/ { s/$0/'$NAME'/; s/^#[ ]\?//p }' $0)
+OPTHLP=$(sed -n '20,/^$/ { s/$0/'$PROG'/; s/^#[ ]\?//p }' $0)
 while getopts $OPTSTR OPT; do while [ -z "$OPTERR" ]; do
 case $OPT in
 'h')	OPTERR="$OPTHLP";;
@@ -66,10 +66,13 @@ ACTION=$(expr "$1" : "^\(build\|package\)$") && shift
 [ -z "$OPTERR" -a -z "$ACTION" ] && OPTERR="Valid action required as argument"
 [ -z "$OPTERR" -a -n "$*" ] && OPTERR="Too many arguments"
 [ -n "$OPTERR" ] && {
-	[ "$OPTERR" != "$OPTHLP" ] && OPTERR="${OPTERR}\nTry \`$NAME --help'"
-	TAB=4; LEN=$(echo "$OPTERR" | awk -F'\t' '/ .+\t/ {print $1}' | wc -L)
-	TABSTOPS=$TAB,$(((2+LEN/TAB)*TAB)); WIDTH=${COLUMNS:-$(tput cols)}
-	printf "$OPTERR" | tr -s '\t' | expand -t$TABSTOPS | fmt -$WIDTH -s 1>&2
+	PREAMBLE=$(printf "$OPTHLP" | sed -n '0,/^Usage:/ p' | head -n -1)
+	USAGE="Usage:\n"$(printf "$OPTHLP" | sed '0,/^Usage:/ d')"\n\n"
+	TAB=4; LEN=$(echo "$USAGE" | awk -F'\t' '/ .+\t/ {print $1}' | wc -L)
+	TABSTOPS=$TAB,$(((LEN/TAB+1)*TAB)); WIDTH=${COLUMNS:-$(tput cols)}
+	[ "$OPTERR" != "$OPTHLP" ] && PREAMBLE="ERROR: $OPTERR"
+	printf "$PREAMBLE\n\n" | fmt -$WIDTH 1>&2
+	printf "$USAGE" | tr -s '\t' | expand -t$TABSTOPS | fmt -$WIDTH -s 1>&2
 	exit 1
 }
 
@@ -92,12 +95,13 @@ TEST_REPORT_DIR=$PROJECT_DIR/report/test
 COVERAGE_REPORT_DIR=$PROJECT_DIR/report/coverage
 
 # Properties
-PRODUCT_AREA=$(sed -n '/\[PRODUCT_AREA\]/ {s/.*\[.*\].*\[\(.*\)\].*/\1/; p}' $PROJECT_DIR/configure.ac)
-PRODUCT_NAME=$(sed -n '/\[PRODUCT_NAME\]/ {s/.*\[.*\].*\[\(.*\)\].*/\1/; p}' $PROJECT_DIR/configure.ac)
-PRODUCT_RELEASE=$(sed -n '/\[PRODUCT_RELEASE\]/ {s/.*\[.*\].*\[\(.*\)\].*/\1/; p}' $PROJECT_DIR/configure.ac)
-PROJECT_DESC=$(sed -n '/\[DESCRIPTION\]/ {s/.*\[.*\].*\[\(.*\)\].*/\1/; p}' $PROJECT_DIR/configure.ac)
-PROJECT_NAME=$(sed -n '/AC_INIT/ {s/.*\[PRODUCT_NAME-\(.*\)].*/\1/; p}' $PROJECT_DIR/configure.ac)
-PROJECT_VERSION=$(sed -n '/AC_INIT/ {s/.*,[ \t]*\(.*\))/\1/; p}' $PROJECT_DIR/configure.ac)
+CFGFILE=$PROJECT_DIR/configure.ac
+PRODUCT_AREA=$(sed -n '/\[PRODUCT_AREA\]/ {s/.*\[.*\].*\[\(.*\)\].*/\1/; p}' $CFGFILE)
+PRODUCT_NAME=$(sed -n '/\[PRODUCT_NAME\]/ {s/.*\[.*\].*\[\(.*\)\].*/\1/; p}' $CFGFILE)
+PRODUCT_RELEASE=$(sed -n '/\[PRODUCT_RELEASE\]/ {s/.*\[.*\].*\[\(.*\)\].*/\1/; p}' $CFGFILE)
+PROJECT_DESC=$(sed -n '/\[DESCRIPTION\]/ {s/.*\[.*\].*\[\(.*\)\].*/\1/; p}' $CFGFILE)
+PROJECT_NAME=$(sed -n '/AC_INIT/ {s/.*\[PRODUCT_NAME-\(.*\)].*/\1/; p}' $CFGFILE)
+PROJECT_VERSION=$(sed -n '/AC_INIT/ {s/.*,[ \t]*\(.*\))/\1/; p}' $CFGFILE)
 SONAR_PROJECT_NAME="Monitoring NGSI Event Broker"
 SONAR_PROJECT_KEY=com.telefonica.iot:monitoring-ngsi-event-broker
 
@@ -105,8 +109,8 @@ SONAR_PROJECT_KEY=com.telefonica.iot:monitoring-ngsi-event-broker
 RPM_BUILD_DEPENDENCIES="wget gcc-c++ make autoconf automake libtool cppunit-devel libcurl-devel"
 DEB_BUILD_DEPENDENCIES="wget g++ build-essential autoconf automake autotools-dev libtool libcppunit-dev libcurl4-openssl-dev"
 NAGIOS_SRC_DIR=$PROJECT_DIR/nagios
-NAGIOS_INC_DIR=$PROJECT_DIR/$(awk -F= '/nagios_incdir=/ { print $2 }' $PROJECT_DIR/configure.ac)
-NAGIOS_VERSION=$(awk -F= '/nagios_reqver=/ { print $2 }' $PROJECT_DIR/configure.ac)
+NAGIOS_INC_DIR=$PROJECT_DIR/$(awk -F= '/nagios_incdir=/ { print $2 }' $CFGFILE)
+NAGIOS_VERSION=$(awk -F= '/nagios_reqver=/ { print $2 }' $CFGFILE)
 NAGIOS_FILES=http://sourceforge.net/projects/nagios/files
 NAGIOS_URL=$NAGIOS_FILES/nagios-${NAGIOS_VERSION%%.*}.x/nagios-$NAGIOS_VERSION/nagios-$NAGIOS_VERSION.tar.gz/download
 
@@ -190,7 +194,7 @@ package)
 	# Install development and package generation dependencies
 	if test -r /etc/redhat-release; then
 		# CentOS
-		sudo yum -y -q install $RPM_BUILD_DEPENDENCIES rpm-build redhat-rpm-config
+		sudo yum -y -q install $RPM_BUILD_DEPENDENCIES rpm-build rpmdevtools redhat-rpm-config
 	else
 		# Ubuntu
 		sudo apt-get -y -q install $DEB_BUILD_DEPENDENCIES dpkg-dev debhelper devscripts

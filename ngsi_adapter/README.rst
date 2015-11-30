@@ -22,49 +22,10 @@ Please refer to `this document </README.rst#running>`_ for details.
 Changelog
 =========
 
-Version 1.3.0
+Please refer to `FIWARE Monitoring releases changelog`__.
 
-- Add option to set maximum number of simultaneous outgoing requests
-- Add an option to specify a list of directories to look for parsers
-- Add support to UDP requests
-
-Version 1.2.4
-
-- Add service configuration file
-
-Version 1.2.3
-
-- Fix problems when uninstalling package
-
-Version 1.2.2
-
-- Add .rpm package generation
-- Minor bugs resolved
-
-Version 1.2.1
-
-- Minor bugs resolved
-
-Version 1.2.0
-
-- Add new log format (issue #25)
-
-Version 1.1.1
-
-- Add .deb package generation (issue #16)
-
-Version 1.1.0
-
-- Add timestamp to entity attributes (issue #4)
-
-Version 1.0.1
-
-- NGSI9 and NGSI10 decoupled in update requests by using append action
-- Bugfixing: solved errors in update requests
-
-Version 1.0.0
-
-- Only Nagios probes (plugins) are supported
+__ `changelog`_
+.. _changelog: https://github.com/telefonicaid/fiware-monitoring/releases
 
 
 License

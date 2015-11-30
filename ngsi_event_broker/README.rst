@@ -128,51 +128,7 @@ definition the aforementioned custom variable ``_entity_type``.
 Changelog
 =========
 
-Version 1.4.3
-
-- Fix problems when uninstalling package
-
-Version 1.4.2
-
-- Add .rpm package generation
-- Minor bugs resolved
-
-Version 1.4.1
-
-- Minor bugs resolved
-
-Version 1.4.0
-
-- Include new log format (issue #25)
-
-Version 1.3.1
-
-- Add .deb package generation
-- Fix error in argument parser
-
-Version 1.3.0
-
-- Include "host\_service" monitoring
-
-Version 1.2.0
-
-- Unification into a single \_xifi broker
-
-Version 1.1.0
-
-- Broker splitted into \_snmp and \_host
-- IP address as unique identifier (within region) for hosts and vms
-- Add region as argument
-- Add NRPE support
-
-Version 1.0.1
-
-- Add regions support (value retrieved from a metadata key named
-  "region")
-
-Version 1.0.0
-
-- Initial release of the module
+Please refer to `FIWARE Monitoring releases changelog`_.
 
 
 License
@@ -187,3 +143,4 @@ License
 .. _NEB: http://nagios.sourceforge.net/download/contrib/documentation/misc/NEB%202x%20Module%20API.pdf
 .. _Nagios service definition: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service
 .. _OpenStack region: http://docs.openstack.org/glossary/content/glossary.html#region
+.. _FIWARE Monitoring releases changelog: https://github.com/telefonicaid/fiware-monitoring/releases
