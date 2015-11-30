@@ -18,6 +18,10 @@
     "type": "git",
     "url": "https://github.com/telefonicaid/fiware-monitoring.git"
   },
+  "artifacts": {
+     "url": "http://repositories.testbed.fiware.org/repo"
+   },
+  "readmeFilename": "README.rst",
   "main": "lib/adapter.js",
   "scripts": {
     "start": "adapter",

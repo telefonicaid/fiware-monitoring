@@ -15,10 +15,11 @@ Summary: Adapter to transform data from monitoring probes to NGSI context attrib
 URL: https://github.com/telefonicaid/fiware-monitoring/tree/master/ngsi_adapter
 Name: %{_name}
 Version: %{_version}
-Release: %{_release}
+Release: %{_release}%{?dist}
 License: Apache
 Group: Applications/Engineering
 Vendor: Telefónica I+D
+Packager: Telefónica I+D <opensource@tid.es>
 BuildArch: noarch
 # Requires: nodejs (see %pre)
 
@@ -37,7 +38,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %install
 mkdir -p $RPM_BUILD_ROOT/%{_adapter_dir}; set +x
-INCLUDE='lib|config|package.json|LICENSE|README.*|adapter$'
+INCLUDE='lib|config|package.json|.npmrc|LICENSE|README.*|adapter$'
 PATTERN='* .npmrc'
 FILES=$(cd %{_basedir}; for i in $PATTERN; do echo $i; done | egrep "$INCLUDE")
 for I in $FILES; do cp -R %{_basedir}/$I $RPM_BUILD_ROOT/%{_adapter_dir}; done

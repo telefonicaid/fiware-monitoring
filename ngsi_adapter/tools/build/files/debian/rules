@@ -17,7 +17,7 @@ DH_ADAPTER_USR:=$(DH_FIWARE_USR)
 DH_ADAPTER_GRP:=$(DH_FIWARE_GRP)
 DH_ADAPTER_DIR:=$(DH_FIWARE_DIR)/$(DH_ADAPTER_SRV)
 DH_LOGGING_DIR:=/var/log/$(DH_ADAPTER_SRV)
-DH_NODE_REQ_VERSION:=$(shell awk '/"node":/ {split($$0,v,/["~=<>]/); print v[6]}' src/package.json)
+DH_NODE_REQ_VERSION:=$(shell awk '/"node":/ {split($$0,v,/["~=<>]/); print v[6]}' package.json)
 
 # Function to substitute variable $(1) in file $(2)
 dh_var_subst = $(shell sed -i 's:\#$(1)\#:$(value $(1)):' $(2))

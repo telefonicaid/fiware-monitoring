@@ -12,10 +12,11 @@ Summary: Nagios event broker (NEB) module to forward plugin data to NGSI Adapter
 URL: https://github.com/telefonicaid/fiware-monitoring/tree/master/ngsi_event_broker
 Name: %{_name}
 Version: %{_version}
-Release: %{_release}
+Release: %{_release}%{?dist}
 License: Apache
 Group: Applications/Engineering
 Vendor: Telefónica I+D
+Packager: Telefónica I+D <opensource@tid.es>
 Requires: libstdc++, libcurl
 BuildRequires: wget, gcc-c++, make, autoconf, automake, libtool, cppunit-devel, libcurl-devel
 

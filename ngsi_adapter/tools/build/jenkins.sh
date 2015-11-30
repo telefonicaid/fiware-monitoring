@@ -36,15 +36,15 @@
 #
 
 OPTS='h(help)'
-NAME=$(basename $0)
+PROG=$(basename $0)
 
 # Command line options
 ACTION=
 
-# Process command line
+# Command line processing
 OPTERR=
 OPTSTR=$(echo :-:$OPTS | sed 's/([a-zA-Z0-9]*)//g')
-OPTHLP=$(sed -n '20,/^$/ { s/$0/'$NAME'/; s/^#[ ]\?//p }' $0)
+OPTHLP=$(sed -n '20,/^$/ { s/$0/'$PROG'/; s/^#[ ]\?//p }' $0)
 while getopts $OPTSTR OPT; do while [ -z "$OPTERR" ]; do
 case $OPT in
 'h')	OPTERR="$OPTHLP";;
@@ -66,10 +66,13 @@ ACTION=$(expr "$1" : "^\(build\|package\)$") && shift
 [ -z "$OPTERR" -a -z "$ACTION" ] && OPTERR="Valid action required as argument"
 [ -z "$OPTERR" -a -n "$*" ] && OPTERR="Too many arguments"
 [ -n "$OPTERR" ] && {
-	[ "$OPTERR" != "$OPTHLP" ] && OPTERR="${OPTERR}\nTry \`$NAME --help'"
-	TAB=4; LEN=$(echo "$OPTERR" | awk -F'\t' '/ .+\t/ {print $1}' | wc -L)
-	TABSTOPS=$TAB,$(((2+LEN/TAB)*TAB)); WIDTH=${COLUMNS:-$(tput cols)}
-	printf "$OPTERR" | tr -s '\t' | expand -t$TABSTOPS | fmt -$WIDTH -s 1>&2
+	PREAMBLE=$(printf "$OPTHLP" | sed -n '0,/^Usage:/ p' | head -n -1)
+	USAGE="Usage:\n"$(printf "$OPTHLP" | sed '0,/^Usage:/ d')"\n\n"
+	TAB=4; LEN=$(echo "$USAGE" | awk -F'\t' '/ .+\t/ {print $1}' | wc -L)
+	TABSTOPS=$TAB,$(((LEN/TAB+1)*TAB)); WIDTH=${COLUMNS:-$(tput cols)}
+	[ "$OPTERR" != "$OPTHLP" ] && PREAMBLE="ERROR: $OPTERR"
+	printf "$PREAMBLE\n\n" | fmt -$WIDTH 1>&2
+	printf "$USAGE" | tr -s '\t' | expand -t$TABSTOPS | fmt -$WIDTH -s 1>&2
 	exit 1
 }
 
@@ -88,13 +91,14 @@ TEST_REPORT_DIR=$PROJECT_DIR/report/test
 COVERAGE_REPORT_DIR=$PROJECT_DIR/report/coverage
 
 # Properties
-PRODUCT_INFO=$(awk '/"product"/,/\}/' $PROJECT_DIR/package.json)
+CFGFILE=$PROJECT_DIR/package.json
+PRODUCT_INFO=$(awk '/"product"/,/\}/' $CFGFILE)
 PRODUCT_AREA=$(echo "$PRODUCT_INFO" | sed -n '/"area"/ {s/.*:.*"\(.*\)".*/\1/; p; q}')
 PRODUCT_NAME=$(echo "$PRODUCT_INFO" | sed -n '/"name"/ {s/.*:.*"\(.*\)".*/\1/; p; q}')
 PRODUCT_RELEASE=$(echo "$PRODUCT_INFO" | sed -n '/"release"/ {s/.*:.*"\(.*\)".*/\1/; p; q}')
-PROJECT_NAME=$(sed -n '/"name"/ {s/.*:.*"\(.*\)".*/\1/; p; q}' $PROJECT_DIR/package.json)
-PROJECT_DESC=$(sed -n '/"description"/ {s/.*:.*"\(.*\)".*/\1/; p; q}' $PROJECT_DIR/package.json)
-PROJECT_VERSION=$(sed -n '/"version"/ {s/.*:.*"\(.*\)".*/\1/; p; q}' $PROJECT_DIR/package.json)
+PROJECT_NAME=$(sed -n '/"name"/ {s/.*:.*"\(.*\)".*/\1/; p; q}' $CFGFILE)
+PROJECT_DESC=$(sed -n '/"description"/ {s/.*:.*"\(.*\)".*/\1/; p; q}' $CFGFILE)
+PROJECT_VERSION=$(sed -n '/"version"/ {s/.*:.*"\(.*\)".*/\1/; p; q}' $CFGFILE)
 SONAR_PROJECT_NAME="Monitoring NGSI Adapter"
 SONAR_PROJECT_KEY=com.telefonica.iot:monitoring-ngsi-adapter
 
@@ -118,7 +122,7 @@ build)
 	SONAR_COVERAGE_REPORT_RELATIVE_PATH=${COVERAGE_REPORT_DIR#$PROJECT_DIR/}/cobertura-coverage.xml
 	SONAR_LCOV_REPORT_RELATIVE_PATH=${COVERAGE_REPORT_DIR#$PROJECT_DIR/}/lcov.info
 
-	# Prepare properties file for SonarQube (awk to remove leading spaces)
+	# Prepare properties file for SonarQube (workaround: awk to remove leading spaces)
 	awk '$1=$1' > $PROJECT_DIR/sonar-project.properties <<-EOF
 		product.area.name=$PRODUCT_AREA
 		product.name=$PRODUCT_NAME
@@ -143,14 +147,16 @@ build)
 	;;
 
 package)
-	# install development dependencies
+	# Install development dependencies
 	if test -r /etc/redhat-release; then
-		sudo yum -y -q install rpm-build redhat-rpm-config
+		# CentOS
+		sudo yum -y -q install rpm-build rpmdevtools redhat-rpm-config
 	else
+		# Ubuntu
 		sudo apt-get -y -q install dpkg-dev debhelper devscripts
 	fi
 
 	# Generate package
-	$PROJECT_DIR/tools/build/package.sh -v $PROJECT_VERSION
+	$PROJECT_DIR/tools/build/package.sh
 	;;
 esac
