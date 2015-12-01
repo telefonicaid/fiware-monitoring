@@ -211,6 +211,6 @@ package)
 
 	# Generate source distribution and package
 	make clean dist
-	tools/build/package.sh -v $PROJECT_VERSION
+	tools/build/package.sh
 	;;
 esac
