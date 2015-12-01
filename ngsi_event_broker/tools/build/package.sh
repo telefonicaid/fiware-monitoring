@@ -246,6 +246,7 @@ create_rpm_package() {
 	rpmbuild -bb SPECS/*.spec \
 	         --define "_topdir $topdir" \
 	         --define "_basedir $BASEDIR" \
+	         --define "_builddir $BASEDIR" \
 	         --define "_version $pkgversion" \
 	         --define "_release $pkgrelease" \
 	&& rpmbuild_file=$(find RPMS/ -name *.rpm) \
