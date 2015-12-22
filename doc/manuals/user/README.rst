@@ -62,7 +62,8 @@ then requests would look like::
 
     HTTP POST http://adapterhost:1337/check_load?id=178.23.5.23&type=host
     Content-Type: text/plain
-    OK - load average: 0.36, 0.25, 0.24|load1=0.360;1.000;1.000;0; load5=0.250;5.000;5.000;0; load15=0.240;15.000;15.000;0;
+    OK - load average: 0.36, 0.25, 0.24|load1=0.360;1.000;1.000;0;
+    load5=0.250;5.000;5.000;0; load15=0.240;15.000;15.000;0;
 
 Please take into account that NGSI standard identify entities (in this case,
 the resources being monitored) using a pair <*entityId*,\ *entityType*>. This
