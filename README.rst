@@ -266,8 +266,10 @@ then the request would look like:
 
 ::
 
-    curl "{adapter_endpoint}/check_load?id={myhostname}&type=host" -s -S --header 'Content-Type: text/plain' -X POST -d @- <<-EOF
-    OK - load average: 5.00, 7.01, 7.05|load1=5.000;10.000;10.000;0; load5=7.010;15.000;15.000;0; load15=7.050;30.000;30.000;0;
+    curl "{adapter_endpoint}/check_load?id={myhostname}&type=host" -s -S
+    --header 'Content-Type: text/plain' -X POST -d @- <<-EOF
+    OK - load average: 5.00, 7.01, 7.05|load1=5.000;10.000;10.000;0;
+    load5=7.010;15.000;15.000;0; load15=7.050;30.000;30.000;0;
     EOF
 
 This would result in an invocation to Context Broker updating the context
