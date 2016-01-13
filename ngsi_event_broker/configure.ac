@@ -4,7 +4,7 @@ m4_define([PRODUCT_NAME], [fiware-monitoring])
 m4_define([PRODUCT_AREA], [iotplatform])
 m4_define([PRODUCT_RELEASE], [5.2.1])
 m4_define([ARTIFACTS_URL], [http://repositories.testbed.fiware.org/repo])
-AC_INIT([PRODUCT_NAME-ngsi-event-broker], 1.4.4)
+AC_INIT([PRODUCT_NAME-ngsi-event-broker], 1.4.3)
 AC_LANG(C)
 if test -z "$CFLAGS"; then
    # prevent configure from assigning default flags
