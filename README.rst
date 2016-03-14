@@ -2,7 +2,7 @@
  FIWARE Monitoring
 ===================
 
-|Build Status| |Coverage Status| 
+|Build Status| |Coverage Status| |StackOverflow| |Documentation Badge| |License Badge|
 
 This is the code repository for FIWARE Monitoring, the reference implementation
 of the Monitoring GE.
@@ -359,6 +359,14 @@ License
 .. |Coverage Status| image:: https://img.shields.io/coveralls/telefonicaid/fiware-monitoring/develop.svg
    :target: https://coveralls.io/r/telefonicaid/fiware-monitoring
    :alt: Coverage Status
+.. |StackOverflow| image:: https://img.shields.io/badge/support-sof-yellowgreen.svg
+   :target: https://stackoverflow.com/questions/tagged/fiware-monitoring
+   :alt: Help, ask questions
+.. |License Badge| image:: https://img.shields.io/badge/license-AGPL-blue.svg
+   :target: https://opensource.org/licenses/AGPL-3.0
+.. |Documentation Badge| image:: https://readthedocs.org/projects/fiware-monitoring/badge/?version=latest
+   :target: http://fiware-monitoring.readthedocs.org/en/latest/?badge=latest
+   :alt: License
 
 
 .. REFERENCES
