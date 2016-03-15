@@ -362,8 +362,8 @@ License
 .. |StackOverflow| image:: https://img.shields.io/badge/support-sof-yellowgreen.svg
    :target: https://stackoverflow.com/questions/tagged/fiware-monitoring
    :alt: Help, ask questions
-.. |License Badge| image:: https://img.shields.io/badge/license-AGPL-blue.svg
-   :target: https://opensource.org/licenses/AGPL-3.0
+.. |License Badge| image:: https://img.shields.io/badge/license-Apache_2.0-blue.svg
+   :target: ngsi_adapter/LICENSE
 .. |Documentation Badge| image:: https://readthedocs.org/projects/fiware-monitoring/badge/?version=latest
    :target: http://fiware-monitoring.readthedocs.org/en/latest/?badge=latest
    :alt: License
