@@ -2,7 +2,7 @@
  FIWARE Monitoring
 ===================
 
-|Build Status| |Coverage Status| |StackOverflow| |Documentation Badge| |License Badge|
+|Build Status| |Coverage Status| |License Badge| |Documentation Badge| |StackOverflow|
 
 This is the code repository for FIWARE Monitoring, the reference implementation
 of the Monitoring GE.
