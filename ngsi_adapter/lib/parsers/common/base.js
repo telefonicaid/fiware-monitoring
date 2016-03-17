@@ -53,7 +53,7 @@ baseParser.timestampAttrName = '_timestamp';
  * @returns {String} The content type (the format) for Context Broker requests.
  */
 baseParser.getContentType = function () {
-    return 'application/xml';
+    return 'application/json';
 };
 
 
@@ -126,7 +126,31 @@ baseParser.getContextAttrs = function (data) {
  * @returns {String} The request body in JSON format.
  */
 baseParser.getUpdateContextJSON = function (id, type, attrs) {
-    throw new Error('TO-DO');
+    var result = '';
+    var lastComma = ',\n';
+
+    result += '{\n';
+    result += '    "id": "' + id + '",\n';
+    result += '    "isPattern": "false",\n';
+    result += '    "type": "' + type + '",\n';
+
+    if (Object.keys(attrs).length > 0) {
+    result += '    "attributes": [\n';
+        for (var name in attrs) {
+    result += '        {\n';
+    result += '            "name": "' + name + '",\n';
+    result += '            "type": "' + 'string' + '",\n';
+    result += '            "value": "' + attrs[name] + '"\n';
+    result += '        }';
+    result += lastComma;
+        }
+    result = result.substring(0, result.length-lastComma.length)+'\n';
+    result += '    ]\n';
+    }
+
+    result += '}\n';
+
+    return result;
 };
 
 

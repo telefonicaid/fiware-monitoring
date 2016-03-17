@@ -64,7 +64,7 @@ function updateContext(reqdomain, callback) {
             updateReqOpts = {
                 hostname: remoteUrl.hostname,
                 port: remoteUrl.port,
-                path: '/NGSI10/updateContext',
+                path: '/v1/contextEntities',
                 method: 'POST',
                 headers: {
                    'Accept': updateReqType,
