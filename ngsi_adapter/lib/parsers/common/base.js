@@ -144,7 +144,7 @@ baseParser.getUpdateContextJSON = function (id, type, attrs) {
     result += '        }';
     result += lastComma;
         }
-    result = result.substring(0, result.length-lastComma.length)+'\n';
+    result = result.substring(0, result.length - lastComma.length) + '\n';
     result += '    ]\n';
     }
 
