@@ -64,7 +64,7 @@ baseParser.getContentType = function () {
  * @memberof baseParser
  * @this baseParser
  * @param {Domain} reqdomain   Domain handling current request (includes context, timestamp, id, type, body & parser).
- * @returns {String} The request body, either in XML or JSON format.
+ * @returns {String} The request body in JSON format.
  */
 baseParser.updateContextRequest = function (reqdomain) {
     var entityData = this.parseRequest(reqdomain),

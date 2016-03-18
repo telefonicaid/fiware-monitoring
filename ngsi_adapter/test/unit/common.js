@@ -77,6 +77,6 @@ exports.assertIsNumber = assertIsNumber;
 
 
 /**
- * assertValidUpdateXML.
+ * assertValidUpdateJSON.
  */
 exports.assertValidUpdateJSON = assertValidUpdateJSON;
