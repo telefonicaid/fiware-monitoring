@@ -53,20 +53,19 @@ function assertValidUpdateJSON(updateJSON, testSuite) {
     // feature #4: automatically add request timestamp to entity attributes
     assert.ok(testSuite.entityData[timestamp]);
     assertIsNumber(testSuite.entityId);
-    var entityAttrList = Object.keys(testSuite.entityData);
     var update = JSON.parse(updateJSON);
     // check id element
     assert.ok(update);
     assert.ok(update.id);
     // check isPattern element
-    assert.ok(update.isPattern === "false");
+    assert.ok(update.isPattern === 'false');
     // check type element
     assert.ok(update.type);
     // check attributes
-    update.attributes.forEach(function(item) { 
-        assert.ok(item['name']);
-        assert.ok(item['type']);
-        assert.ok(item['value']);
+    update.attributes.forEach(function(item) {
+        assert.ok(item.name);
+        assert.ok(item.type);
+        assert.ok(item.value);
     });
 }
 
