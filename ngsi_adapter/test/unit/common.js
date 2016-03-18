@@ -27,7 +27,6 @@
 
 
 var assert = require('assert'),
-    xml2js = require('xml2js'),
     timestamp = require('../../lib/parsers/common/base').parser.timestampAttrName;
 
 
@@ -41,50 +40,35 @@ function assertIsNumber(value) {
     assert(!isNaN(value) && !isNaN(parseFloat(value)));
 }
 
-
 /**
- * Asserts given XML is well formed according to test suite data.
+ * Asserts given JSON is well formed according to test suite data.
  *
- * @function assertValidUpdateXML
- * @param {String} updateXML    The XML payload of an updateContext request.
- * @param {Object} testSuite    The test suite whose data produced the XML.
+ * @function assertValidUpdateJSON
+ * @param {String} updateJSON   The JSON payload of an updateContext request.
+ * @param {Object} testSuite    The test suite whose data produced the JSON.
  */
-function assertValidUpdateXML(updateXML, testSuite) {
-    assert.ok(updateXML);
+function assertValidUpdateJSON(updateJSON, testSuite) {
     assert.ok(testSuite.entityType);
     assert.ok(testSuite.entityData);
     // feature #4: automatically add request timestamp to entity attributes
     assert.ok(testSuite.entityData[timestamp]);
     assertIsNumber(testSuite.entityId);
     var entityAttrList = Object.keys(testSuite.entityData);
-    xml2js.parseString(updateXML, function(err, result) {
-        // check <updateContextRequest> element
-        assert.ok(result.updateContextRequest);
-        // check <contextElementList> element
-        assert.ok(result.updateContextRequest.contextElementList);
-        assert(result.updateContextRequest.contextElementList.length > 0);
-        // check <contextElement> element
-        var contextElement = result.updateContextRequest.contextElementList[0].contextElement[0];
-        assert.ok(contextElement);
-        // check <entityId> element and its attributes/subelements
-        assert.ok(contextElement.entityId);
-        assert.equal(contextElement.entityId[0].$.type, testSuite.entityType);
-        assert.equal(contextElement.entityId[0].id[0], testSuite.entityId);
-        // check <contextAttributeList> element
-        assert(contextElement.contextAttributeList.length === 1);
-        var contextAttrList = contextElement.contextAttributeList[0].contextAttribute;
-        assert.ok(contextAttrList);
-        // ensure element has one and only one subelement corresponding to expected attributes
-        var attrcount = {};
-        entityAttrList.forEach(function(item) { attrcount[item] = 0; });
-        contextAttrList.forEach(function(item) { attrcount[item.name[0]]++; });
-        assert.equal(Object.keys(attrcount).length, entityAttrList.length);
-        entityAttrList.forEach(function(item) { assert(attrcount[item] === 1); });
-        // ensure subelements are numbers
-        contextAttrList.forEach(function(item) { assertIsNumber(item.contextValue[0]); });
+    var update = JSON.parse(updateJSON);
+    // check id element
+    assert.ok(update);
+    assert.ok(update.id);
+    // check isPattern element
+    assert.ok(update.isPattern === "false");
+    // check type element
+    assert.ok(update.type);
+    // check attributes
+    update.attributes.forEach(function(item) { 
+        assert.ok(item['name']);
+        assert.ok(item['type']);
+        assert.ok(item['value']);
     });
 }
-
 
 /**
  * assertIsNumber.
@@ -95,4 +79,4 @@ exports.assertIsNumber = assertIsNumber;
 /**
  * assertValidUpdateXML.
  */
-exports.assertValidUpdateXML = assertValidUpdateXML;
+exports.assertValidUpdateJSON = assertValidUpdateJSON;

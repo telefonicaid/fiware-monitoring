@@ -109,7 +109,7 @@ suite('base_parser', function () {
         parser.parseRequest = sinon.spy(function () { return {}; });
         parser.getContextAttrs = sinon.spy(function () { return self.entityData; });
         var update = parser.updateContextRequest(self.reqdomain);
-        common.assertValidUpdateXML(update, self);
+        common.assertValidUpdateJSON(update, self);
     });
 
 });

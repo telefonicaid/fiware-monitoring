@@ -121,7 +121,7 @@ suite('check_disk', function () {
         );
         var parser = this.factory.getParser(this.request);
         var update = parser.updateContextRequest(this.reqdomain);
-        common.assertValidUpdateXML(update, this);
+        common.assertValidUpdateJSON(update, this);
     });
 
     test('parse_ok_free_space_percentage', function () {
