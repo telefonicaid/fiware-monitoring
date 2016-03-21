@@ -138,15 +138,12 @@ baseParser.getUpdateContextJSON = function (id, type, attrs) {
     };
 
     for (var name in attrs) {
-        var next = {
+        payload.contextElements[0].attributes.push({
             'name': name,
             'type': 'string',
             'value': attrs[name].toString()
-        };
-        payload.contextElements[0].attributes.push( next );
+        });
     }
-
-    console.log(JSON.stringify(payload));
 
     return JSON.stringify(payload);
 };
