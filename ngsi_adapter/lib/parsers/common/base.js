@@ -81,9 +81,7 @@ baseParser.updateContextRequest = function (reqdomain) {
     // feature #4: automatically add request timestamp to entity attributes
     entityAttrs[this.timestampAttrName] = reqdomain.timestamp;
 
-    return (this.getContentType() === 'application/xml') ?
-        this.getUpdateContextXML(entityId, entityType, entityAttrs) :
-        this.getUpdateContextJSON(entityId, entityType, entityAttrs);
+    return this.getUpdateContextJSON(entityId, entityType, entityAttrs);
 };
 
 
@@ -126,67 +124,31 @@ baseParser.getContextAttrs = function (data) {
  * @returns {String} The request body in JSON format.
  */
 baseParser.getUpdateContextJSON = function (id, type, attrs) {
-    var result = '';
-    var lastComma = ',\n';
 
-    result += '{\n';
-    result += '    "id": "' + id + '",\n';
-    result += '    "isPattern": "false",\n';
-    result += '    "type": "' + type + '",\n';
+    var payload = {
+        'contextElements': [
+            {
+                'type': type,
+                'isPattern': 'false',
+                'id': id,
+                'attributes': [ ]
+            }
+        ],
+        'updateAction': 'APPEND'
+    };
 
-    if (Object.keys(attrs).length > 0) {
-    result += '    "attributes": [\n';
-        for (var name in attrs) {
-    result += '        {\n';
-    result += '            "name": "' + name + '",\n';
-    result += '            "type": "' + 'string' + '",\n';
-    result += '            "value": "' + attrs[name] + '"\n';
-    result += '        }';
-    result += lastComma;
-        }
-    result = result.substring(0, result.length - lastComma.length) + '\n';
-    result += '    ]\n';
-    }
-
-    result += '}\n';
-
-    return result;
-};
-
-
-/**
- * Generates a XML updateContext() request body.
- *
- * @function getUpdateContextXML
- * @memberof baseParser
- * @param {String} id          The entity identifier.
- * @param {String} type        The entity type.
- * @param {Object} attrs       The entity context attributes.
- * @returns {String} The request body in XML format.
- */
-baseParser.getUpdateContextXML = function (id, type, attrs) {
-    var result = '';
-    result += '<?xml version="1.0" encoding="UTF-8"?>\n';
-    result += '<updateContextRequest>\n';
-    result += '    <contextElementList>\n';
-    result += '        <contextElement>\n';
-    result += '            <entityId type="' + type + '" isPattern="false">\n';
-    result += '                <id>' + id + '</id>\n';
-    result += '            </entityId>\n';
-    result += '            <contextAttributeList>\n';
     for (var name in attrs) {
-    result += '                <contextAttribute>\n';
-    result += '                    <name>' + name + '</name>\n';
-    result += '                    <type>string</type>\n';
-    result += '                    <contextValue>' + attrs[name] + '</contextValue>\n';
-    result += '                </contextAttribute>\n';
+        var next = {
+            'name': name,
+            'type': 'string',
+            'value': attrs[name]
+        };
+        payload.contextElements[0].attributes.push( next );
     }
-    result += '            </contextAttributeList>\n';
-    result += '        </contextElement>\n';
-    result += '    </contextElementList>\n';
-    result += '    <updateAction>APPEND</updateAction>\n';
-    result += '</updateContextRequest>\n';
-    return result;
+
+    console.log(JSON.stringify(payload));
+
+    return JSON.stringify(payload);
 };
 
 

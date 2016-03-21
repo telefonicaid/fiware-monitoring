@@ -64,7 +64,7 @@ function updateContext(reqdomain, callback) {
             updateReqOpts = {
                 hostname: remoteUrl.hostname,
                 port: remoteUrl.port,
-                path: '/v1/contextEntities',
+                path: '/v1/updateContext',
                 method: 'POST',
                 headers: {
                    'Accept': updateReqType,

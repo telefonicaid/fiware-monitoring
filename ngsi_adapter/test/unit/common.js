@@ -56,17 +56,18 @@ function assertValidUpdateJSON(updateJSON, testSuite) {
     var update = JSON.parse(updateJSON);
     // check id element
     assert.ok(update);
-    assert.ok(update.id);
+    assert.ok(update.contextElements[0].id);
     // check isPattern element
-    assert.ok(update.isPattern === 'false');
+    assert.ok(update.contextElements[0].isPattern === 'false');
     // check type element
-    assert.ok(update.type);
+    assert.ok(update.contextElements[0].type);
     // check attributes
-    update.attributes.forEach(function(item) {
+    update.contextElements[0].attributes.forEach(function(item) {
         assert.ok(item.name);
         assert.ok(item.type);
         assert.ok(item.value);
     });
+    assert.ok(update.updateAction === 'APPEND');
 }
 
 /**
