@@ -141,7 +141,7 @@ baseParser.getUpdateContextJSON = function (id, type, attrs) {
         var next = {
             'name': name,
             'type': 'string',
-            'value': attrs[name]
+            'value': attrs[name].toString()
         };
         payload.contextElements[0].attributes.push( next );
     }
