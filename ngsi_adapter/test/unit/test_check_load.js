@@ -95,7 +95,7 @@ suite('check_load', function () {
         this.reqdomain.body = util.format('%s|%s', this.probeBody.data, this.probeBody.perf);
         var parser = this.factory.getParser(this.request);
         var update = parser.updateContextRequest(this.reqdomain);
-        common.assertValidUpdateXML(update, this);
+        common.assertValidUpdateJSON(update, this);
     });
 
     test('parse_ok_cpu_load_percentage', function () {

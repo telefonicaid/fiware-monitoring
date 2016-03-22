@@ -90,14 +90,14 @@ suite('check_procs', function () {
         this.reqdomain.body = util.format('%s', this.probeBody.data);
         var parser = this.factory.getParser(this.request);
         var update = parser.updateContextRequest(this.reqdomain);
-        common.assertValidUpdateXML(update, this);
+        common.assertValidUpdateJSON(update, this);
     });
 
     test('get_update_request_ok_with_another_threshold_metric', function () {
         this.reqdomain.body = util.format('%s', this.probeBody.data).replace(/^PROCS/, 'VSZ');
         var parser = this.factory.getParser(this.request);
         var update = parser.updateContextRequest(this.reqdomain);
-        common.assertValidUpdateXML(update, this);
+        common.assertValidUpdateJSON(update, this);
     });
 
     test('parse_ok_number_of_procs', function () {
