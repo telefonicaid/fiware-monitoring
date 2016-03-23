@@ -1,0 +1,157 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>&lt;h3&gt;[QA] Acceptance tests - FIWARE Monitoring NGSI Adapter:&#xd;
+&lt;i style=&quot;color:#8E1C1C&quot;&gt;Component Test Cases&lt;/i&gt;&#xd;
+&lt;/h3&gt;&#xd;
+&#xd;
+&lt;ul style=&quot;list-style-image: url(http://mirrors.jenkins-ci.org/art/jenkins-logo/32x32/headshot.png);&quot;&gt;&#xd;
+  &lt;li&gt;&#xd;
+    Task to execute acceptance tests (status: &lt;img src=&quot;/../jenkins/job/Monitoring-NGSIAdapter-4-Acceptance-comp/lastBuild/buildStatus&quot; width=&quot;16&quot;&gt;)&lt;br&gt;&#xd;
+    &lt;br&gt;&#xd;
+    This task will execute &lt;a href=&quot;https://github.com/telefonicaid/fiware-monitoring/tree/develop/ngsi_adapter/test/acceptance&quot;&gt;&lt;b&gt;ngsi_adapter/src/test/acceptance&lt;/b&gt;&lt;/a&gt; test project:&#xd;
+    &lt;ul style=&quot;list-style: disc;&quot;&gt;&#xd;
+      &lt;li&gt;Functional test cases - API resources&lt;/li&gt;&#xd;
+      &lt;li&gt;Remote logs validations&lt;/li&gt;&#xd;
+    &lt;/ul&gt;&#xd;
+    &lt;br&gt;&#xd;
+    Please note this task requires some resource files found at path defined by parameter &lt;b&gt;JENKINS_JOB_RESOURCES_PATH&lt;/b&gt;&#xd;
+  &lt;/li&gt;&#xd;
+&lt;/ul&gt;&#xd;
+&lt;ul style=&quot;list-style-image: url(/../jenkins/plugin/build-flow-plugin/images/32x32/flow.png);&quot;&gt;&#xd;
+  &lt;li&gt;&#xd;
+    &lt;a href=&quot;/../jenkins/job/Monitoring-NGSIAdapter&quot;&gt;Flow&lt;/a&gt;&#xd;
+  &lt;/li&gt;&#xd;
+&lt;/ul&gt;&#xd;
+&lt;ul style=&quot;list-style-image: url(/../jenkins/images/32x32/setting.png);&quot;&gt;&#xd;
+  &lt;li&gt;Environment:&lt;br&gt;&#xd;
+    &lt;br&gt;&#xd;
+    &lt;dl&gt;&#xd;
+      &lt;dt&gt;PYTHON27&lt;/dt&gt;&lt;dd&gt;Path to Python 2.7 interpreter&lt;/dd&gt;&#xd;
+      &lt;dt&gt;WORKON_HOME&lt;/dt&gt;&lt;dd&gt;Path where new virtualenv will be created&lt;/dd&gt;&#xd;
+    &lt;/dl&gt; &#xd;
+  &lt;/li&gt;&#xd;
+&lt;/ul&gt;&#xd;
+</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>15</daysToKeep>
+    <numToKeep>5</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <hudson.plugins.buildblocker.BuildBlockerProperty plugin="build-blocker-plugin@1.4.1">
+      <useBuildBlocker>false</useBuildBlocker>
+    </hudson.plugins.buildblocker.BuildBlockerProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>WORKSPACE</name>
+          <description></description>
+          <defaultValue>$JENKINS_HOME/jobs/Monitoring-NGSIAdapter-1-Build/workspace</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>ENVIRONMENT</name>
+          <description>&lt;p&gt;Environment to execute acceptance tests (component)&lt;/p&gt;
+Values:
+&lt;ul&gt;
+  &lt;li&gt;&lt;b&gt;dev:&lt;/b&gt; Experimentation environment (default value)&lt;/li&gt;
+&lt;/ul&gt;</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>dev</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>JENKINS_JOB_RESOURCES_PATH</name>
+          <description></description>
+          <defaultValue>/home/develenv/fiware_cloud_job_resources/Monitoring-NGSIAdapter-Acceptance</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.25"/>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <customWorkspace>$WORKSPACE</customWorkspace>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>echo $JENKINS_HOME
+
+# Go to acceptance test project
+cd $ACCEPTANCE_TEST_PROJECT_PATH
+
+# Clean previous reports and virtualenv
+rm -rf testreport
+rm -rf $WORKON_HOME/$JOB_NAME
+
+# Copy configuration ( $ENVIRONMENT )
+cp -f $JENKINS_JOB_RESOURCES_PATH/${ENVIRONMENT}-properties.json ./settings/${ENVIRONMENT}-properties.json
+
+# Create and activate a virtualenv
+virtualenv $WORKON_HOME/$JOB_NAME
+source $WORKON_HOME/$JOB_NAME/bin/activate
+
+# Install python dependencies
+pip install -r requirements.txt
+
+# Execute Lettuce features: Component test cases
+lettuce_tools -ft send_data_api_resource.feature -ts comp -sd /features --tags=-skip -en $ENVIRONMENT
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>$ACCEPTANCE_TEST_PROJECT_PATH/logs/**</artifacts>
+      <allowEmptyArchive>true</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>false</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
+    </hudson.tasks.ArtifactArchiver>
+    <xunit plugin="xunit@1.91">
+      <types>
+        <JUnitType>
+          <pattern>$ACCEPTANCE_TEST_PROJECT_PATH/testreport/*.xml</pattern>
+          <skipNoTestFiles>false</skipNoTestFiles>
+          <failIfNotNew>true</failIfNotNew>
+          <deleteOutputFiles>true</deleteOutputFiles>
+          <stopProcessingIfError>true</stopProcessingIfError>
+        </JUnitType>
+      </types>
+      <thresholds>
+        <org.jenkinsci.plugins.xunit.threshold.FailedThreshold>
+          <unstableThreshold></unstableThreshold>
+          <unstableNewThreshold></unstableNewThreshold>
+          <failureThreshold></failureThreshold>
+          <failureNewThreshold></failureNewThreshold>
+        </org.jenkinsci.plugins.xunit.threshold.FailedThreshold>
+        <org.jenkinsci.plugins.xunit.threshold.SkippedThreshold>
+          <unstableThreshold></unstableThreshold>
+          <unstableNewThreshold></unstableNewThreshold>
+          <failureThreshold></failureThreshold>
+          <failureNewThreshold></failureNewThreshold>
+        </org.jenkinsci.plugins.xunit.threshold.SkippedThreshold>
+      </thresholds>
+      <thresholdMode>0</thresholdMode>
+      <extraConfiguration>
+        <testTimeMargin>3000</testTimeMargin>
+      </extraConfiguration>
+    </xunit>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.4.0">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+    <hudson.plugins.setenv.SetEnvBuildWrapper plugin="setenv@1.1">
+      <localVarText>ACCEPTANCE_TEST_PROJECT_PATH=ngsi_adapter/test/acceptance</localVarText>
+    </hudson.plugins.setenv.SetEnvBuildWrapper>
+  </buildWrappers>
+</project>

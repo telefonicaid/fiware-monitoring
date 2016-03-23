@@ -1,0 +1,127 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<com.cloudbees.plugins.flow.BuildFlow plugin="build-flow-plugin@0.17">
+  <actions/>
+  <description>Task orchestration for &lt;b&gt;Monitoring-NGSIAdapter&lt;/b&gt;:&#xd;
+&lt;br&gt;&#xd;
+&lt;ul style=&quot;list-style-image: url(/../jenkins/plugin/build-flow-plugin/images/16x16/flow.png);&quot;&gt;&#xd;
+  &lt;li&gt;&#xd;
+    &lt;a href=&quot;/../jenkins/job/Monitoring-NGSIAdapter-1-Build&quot;&gt;&lt;b&gt;Build&lt;/b&gt;&lt;/a&gt;&#xd;
+  &lt;/li&gt;&#xd;
+  &lt;li&gt;&lt;em&gt;Package&lt;/em&gt;&#xd;
+    &lt;ul style=&quot;list-style-type: square;&quot;&gt;&#xd;
+      &lt;li&gt;&#xd;
+        &lt;a href=&quot;/../jenkins/job/Monitoring-NGSIAdapter-2-Package-deb&quot;&gt;&lt;b&gt;Package-deb&lt;/b&gt;&lt;/a&gt;&#xd;
+      &lt;/li&gt;&#xd;
+      &lt;li&gt;&#xd;
+        &lt;a href=&quot;/../jenkins/job/Monitoring-NGSIAdapter-2-Package-rpm&quot;&gt;&lt;b&gt;Package-rpm&lt;/b&gt;&lt;/a&gt;&#xd;
+      &lt;/li&gt;&#xd;
+    &lt;/ul&gt;&#xd;
+  &lt;/li&gt;&#xd;
+  &lt;li&gt;&#xd;
+    &lt;a href=&quot;/../jenkins/job/Monitoring-NGSIAdapter-3-Deploy&quot;&gt;&lt;b&gt;Deploy&lt;/b&gt;&lt;/a&gt;&#xd;
+  &lt;/li&gt;&#xd;
+  &lt;li&gt;&#xd;
+    &lt;a href=&quot;/../jenkins/job/Monitoring-NGSIAdapter-4-Acceptance-comp&quot;&gt;&lt;b&gt;Acceptance-comp&lt;/b&gt;&lt;/a&gt;&#xd;
+  &lt;/li&gt;&#xd;
+&lt;/ul&gt;&#xd;
+&lt;br&gt;&#xd;
+Environment:&lt;ul style=&quot;list-style: none;&quot;&gt;&lt;li&gt;&#xd;
+&lt;dl&gt;&#xd;
+  &lt;dt&gt;PYTHON27&lt;/dt&gt;&lt;dd&gt;Path to Python 2.7 interpreter&lt;/dd&gt;&#xd;
+  &lt;dt&gt;WORKON_HOME&lt;/dt&gt;&lt;dd&gt;Path where new virtualenv will be created&lt;/dd&gt;&#xd;
+  &lt;dt&gt;FIWARE_REPOSITORIES_GIT&lt;/dt&gt;&lt;dd&gt;Git URL for FIWARE-Repositories component&lt;/dd&gt;&#xd;
+  &lt;dt&gt;FIWARE_REPOSITORIES_DIR&lt;/dt&gt;&lt;dd&gt;Path where FIWARE-Repositories component is downloaded&lt;/dd&gt;&#xd;
+  &lt;dt&gt;OS_USERNAME&lt;/dt&gt;&lt;dd&gt;Username of OpenStack credentials needed to upload packages&lt;/dd&gt;&#xd;
+  &lt;dt&gt;OS_PASSWORD&lt;/dt&gt;&lt;dd&gt;Password of OpenStack credentials needed to upload packages&lt;/dd&gt;&#xd;
+  &lt;dt&gt;OS_TENANT_NAME&lt;/dt&gt;&lt;dd&gt;Tenant of OpenStack credentials needed to upload packages&lt;/dd&gt;&#xd;
+&lt;/dl&gt;&#xd;
+&lt;/li&gt;&lt;/ul&gt;&#xd;
+</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>7</daysToKeep>
+    <numToKeep>7</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <hudson.plugins.buildblocker.BuildBlockerProperty plugin="build-blocker-plugin@1.4.1">
+      <useBuildBlocker>false</useBuildBlocker>
+    </hudson.plugins.buildblocker.BuildBlockerProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>REPOSITORY</name>
+          <description>Specify the repository to track. By default: &apos;telefonicaid/fiware-monitoring&apos;</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>https://github.com/telefonicaid/fiware-monitoring</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>BRANCH</name>
+          <description>Branch to build. By default: &apos;develop&apos;</description>
+          <defaultValue>develop</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>WORKSPACE</name>
+          <description>Common workspace for all the jobs in this flow</description>
+          <defaultValue>$JENKINS_HOME/jobs/Monitoring-NGSIAdapter-1-Build/workspace</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>ENVIRONMENT</name>
+          <description>&lt;p&gt;Environment where the component will be deployed and tested&lt;/p&gt;
+Values:
+&lt;ul&gt;
+  &lt;li&gt;&lt;b&gt;dev:&lt;/b&gt; Experimentation environment (default value)&lt;/li&gt;
+&lt;/ul&gt;</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>dev</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.25"/>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <hudson.triggers.TimerTrigger>
+      <spec>H H(0-7) * * *</spec>
+    </hudson.triggers.TimerTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders/>
+  <publishers>
+    <hudson.tasks.Mailer plugin="mailer@1.11">
+      <recipients>iot-cloud at tid dot es</recipients>
+      <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
+      <sendToIndividuals>false</sendToIndividuals>
+    </hudson.tasks.Mailer>
+  </publishers>
+  <buildWrappers/>
+  <icon/>
+  <dsl>build_job = build ( &quot;Monitoring-NGSIAdapter-1-Build&quot;, REPOSITORY: params[&apos;REPOSITORY&apos;], BRANCH: params[&apos;BRANCH&apos;], WORKSPACE: params[&apos;WORKSPACE&apos;] )
+git_curr_commit = build_job.environment.get( &quot;GIT_COMMIT&quot; )
+git_prev_commit = build_job.environment.get( &quot;GIT_PREVIOUS_COMMIT&quot; )
+
+if ( git_curr_commit == git_prev_commit ) {
+	out.println &quot;No changes in SCM (latest build commit $git_prev_commit). Finishing...&quot;
+} else {
+	parallel (
+	    { build ( &quot;Monitoring-NGSIAdapter-2-Package-deb&quot;, REPOSITORY: params[&apos;REPOSITORY&apos;], BRANCH: params[&apos;BRANCH&apos;] ) },
+	    { build ( &quot;Monitoring-NGSIAdapter-2-Package-rpm&quot;, WORKSPACE: params[&apos;WORKSPACE&apos;] ) }
+	)
+	build ( &quot;Monitoring-NGSIAdapter-3-Deploy&quot;, WORKSPACE: params[&apos;WORKSPACE&apos;], ENVIRONMENT: params[&apos;ENVIRONMENT&apos;] )
+	build ( &quot;Monitoring-NGSIAdapter-4-Acceptance-comp&quot;, WORKSPACE: params[&apos;WORKSPACE&apos;], ENVIRONMENT: params[&apos;ENVIRONMENT&apos;] )
+}
+</dsl>
+  <buildNeedsWorkspace>false</buildNeedsWorkspace>
+</com.cloudbees.plugins.flow.BuildFlow>
