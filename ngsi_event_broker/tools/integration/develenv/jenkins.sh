@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright 2013-2015 Telefónica I+D
+# Copyright 2013-2016 Telefónica I+D
 # All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -17,7 +17,7 @@
 #
 
 #
-# Support script for this component within a Jenkins CI job
+# Support script for this component within a Develenv Jenkins CI job
 #
 # Usage:
 #     $0 build|package
