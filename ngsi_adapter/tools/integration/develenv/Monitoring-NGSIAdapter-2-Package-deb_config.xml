@@ -79,7 +79,7 @@
     <submoduleCfg class="list"/>
     <extensions/>
   </scm>
-  <assignedNode>ci-fiware-ubunt-01.hi.inet</assignedNode>
+  <assignedNode>ci-fiware-ubunt-01</assignedNode>
   <canRoam>false</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
