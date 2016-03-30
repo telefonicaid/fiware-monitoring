@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
-#
-# on_rtd is whether we are on readthedocs.org
+
 import os
+
+# The paths that contain custom static files (such as style sheets).
+html_static_path = ['_static']
+
+# Check whether we are on readthedocs.org
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
-if not on_rtd:  # only import and set the theme if we're building docs locally
+# Only import and set the theme if we're building docs locally; otherwise,
+# readthedocs.org uses their theme by default, so no need to specify it.
+if not on_rtd:
     import sphinx_rtd_theme
     html_theme = 'sphinx_rtd_theme'
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
@@ -19,8 +25,6 @@ else:
             '_static/mystyle.css',
         ],
     }
-
-# otherwise, readthedocs.org uses their theme by default, so no need to specify it
 
 # The suffix of source filenames.
 source_suffix = '.rst'
