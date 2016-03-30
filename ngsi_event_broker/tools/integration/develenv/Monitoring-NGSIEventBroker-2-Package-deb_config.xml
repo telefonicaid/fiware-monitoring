@@ -3,13 +3,12 @@
   <actions/>
   <description>&lt;ul style=&quot;list-style-image: url(http://mirrors.jenkins-ci.org/art/jenkins-logo/32x32/headshot.png);&quot;&gt;&#xd;
   &lt;li&gt;&#xd;
-    Task to generate &lt;b&gt;.deb&lt;/b&gt; package (status: &lt;img src=&quot;/../jenkins/job/Monitoring-NGSIEventBroker-2-Package-deb/lastBuild/buildStatus&quot; width=&quot;16&quot;&gt;)&#xd;
-    and publish to this &lt;a href=&quot;http://repositories.lab.fiware.org/repo/deb/&quot;&gt;repository&lt;/a&gt;&#xd;
+    Job to generate a &lt;b&gt;.deb&lt;/b&gt; package for this component and publish into &lt;b&gt;artifacts repository&lt;/b&gt;&#xd;
   &lt;/li&gt;&#xd;
 &lt;/ul&gt;&#xd;
-&lt;ul style=&quot;list-style-image: url(https://github.com/favicon.ico);&quot;&gt;&#xd;
+&lt;ul style=&quot;list-style-image: url(/../jenkins/images/32x32/package.png);&quot;&gt;&#xd;
   &lt;li&gt;&#xd;
-    &lt;a href=&quot;https://github.com/telefonicaid/fiware-monitoring/tree/develop/ngsi_event_broker&quot;&gt;Sources&lt;/a&gt;&#xd;
+    &lt;a href=&quot;http://repositories.lab.fiware.org/repo/deb/&quot;&gt;Repository&lt;/a&gt;&#xd;
   &lt;/li&gt;&#xd;
 &lt;/ul&gt;&#xd;
 &lt;ul style=&quot;list-style-image: url(/../jenkins/plugin/build-flow-plugin/images/32x32/flow.png);&quot;&gt;&#xd;
@@ -30,6 +29,7 @@
     &lt;/dl&gt; &#xd;
   &lt;/li&gt;&#xd;
 &lt;/ul&gt;&#xd;
+&lt;br&gt;&#xd;
 </description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>

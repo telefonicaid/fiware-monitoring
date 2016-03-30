@@ -1,19 +1,19 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <com.cloudbees.plugins.flow.BuildFlow plugin="build-flow-plugin@0.17">
   <actions/>
-  <description>Task orchestration for &lt;b&gt;Monitoring-NGSIEventBroker&lt;/b&gt;:&#xd;
+  <description>Job orchestration for &lt;b&gt;Monitoring-NGSIEventBroker&lt;/b&gt;:&#xd;
 &lt;br&gt;&#xd;
-&lt;ul style=&quot;list-style-image: url(/../jenkins/plugin/build-flow-plugin/images/16x16/flow.png);&quot;&gt;&#xd;
+&lt;ul&gt;&#xd;
   &lt;li&gt;&#xd;
     &lt;a href=&quot;/../jenkins/job/Monitoring-NGSIEventBroker-1-Build&quot;&gt;&lt;b&gt;Build&lt;/b&gt;&lt;/a&gt;&#xd;
   &lt;/li&gt;&#xd;
   &lt;li&gt;&lt;em&gt;Package&lt;/em&gt;&#xd;
-    &lt;ul style=&quot;list-style-type: square;&quot;&gt;&#xd;
+    &lt;ul&gt;&#xd;
       &lt;li&gt;&#xd;
-        &lt;a href=&quot;/../jenkins/job/Monitoring-NGSIEventBroker-2-Package-deb&quot;&gt;&lt;b&gt;Package-deb&lt;/b&gt;&lt;/a&gt;&#xd;
+        &lt;a href=&quot;/../jenkins/job/Monitoring-NGSIEventBroker-2-Package-deb&quot;&gt;&lt;b&gt;Package (.deb)&lt;/b&gt;&lt;/a&gt;&#xd;
       &lt;/li&gt;&#xd;
       &lt;li&gt;&#xd;
-        &lt;a href=&quot;/../jenkins/job/Monitoring-NGSIEventBroker-2-Package-rpm&quot;&gt;&lt;b&gt;Package-rpm&lt;/b&gt;&lt;/a&gt;&#xd;
+        &lt;a href=&quot;/../jenkins/job/Monitoring-NGSIEventBroker-2-Package-rpm&quot;&gt;&lt;b&gt;Package (.rpm)&lt;/b&gt;&lt;/a&gt;&#xd;
       &lt;/li&gt;&#xd;
     &lt;/ul&gt;&#xd;
   &lt;/li&gt;&#xd;
@@ -24,9 +24,8 @@
     &lt;a href=&quot;/../jenkins/job/Monitoring-NGSIEventBroker-4-Acceptance-comp&quot;&gt;&lt;b&gt;Acceptance-comp&lt;/b&gt;&lt;/a&gt;&#xd;
   &lt;/li&gt;&#xd;
 &lt;/ul&gt;&#xd;
-&lt;br&gt;&#xd;
-Environment:&lt;ul style=&quot;list-style: none;&quot;&gt;&lt;li&gt;&#xd;
-&lt;dl&gt;&#xd;
+Environment:&#xd;
+&lt;dl style=&quot;margin-left: 2em;&quot;&gt;&#xd;
   &lt;dt&gt;PYTHON27&lt;/dt&gt;&lt;dd&gt;Path to Python 2.7 interpreter&lt;/dd&gt;&#xd;
   &lt;dt&gt;WORKON_HOME&lt;/dt&gt;&lt;dd&gt;Path where new virtualenv will be created&lt;/dd&gt;&#xd;
   &lt;dt&gt;FIWARE_REPOSITORIES_GIT&lt;/dt&gt;&lt;dd&gt;Git URL for FIWARE-Repositories component&lt;/dd&gt;&#xd;
@@ -35,7 +34,7 @@ Environment:&lt;ul style=&quot;list-style: none;&quot;&gt;&lt;li&gt;&#xd;
   &lt;dt&gt;OS_PASSWORD&lt;/dt&gt;&lt;dd&gt;Password of OpenStack credentials needed to upload packages&lt;/dd&gt;&#xd;
   &lt;dt&gt;OS_TENANT_NAME&lt;/dt&gt;&lt;dd&gt;Tenant of OpenStack credentials needed to upload packages&lt;/dd&gt;&#xd;
 &lt;/dl&gt;&#xd;
-&lt;/li&gt;&lt;/ul&gt;&#xd;
+&lt;br&gt;&#xd;
 </description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>7</daysToKeep>
