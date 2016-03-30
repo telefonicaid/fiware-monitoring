@@ -1,12 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>&lt;ul style=&quot;list-style-image: url(http://mirrors.jenkins-ci.org/art/jenkins-logo/32x32/headshot.png);&quot;&gt;&#xd;
+  <description>&lt;img src=&quot;/../jenkins/job/Monitoring-NGSIAdapter-1-Build/badge/icon&quot;&gt;&#xd;
+&lt;ul style=&quot;list-style-image: url(http://mirrors.jenkins-ci.org/art/jenkins-logo/32x32/headshot.png);&quot;&gt;&#xd;
   &lt;li&gt;&#xd;
-    Task to build component (status: &lt;img src=&quot;/../jenkins/job/Monitoring-NGSIAdapter-1-Build/badge/icon&quot;&gt;)&#xd;
-    and publish &lt;a href=&quot;/../jenkins/job/metrics-queue-consumer&quot;&gt;metrics&lt;/a&gt;&#xd;
+    Job to build this component and publish &lt;a href=&quot;/../jenkins/job/metrics-queue-consumer&quot;&gt;metrics&lt;/a&gt; into SonarQube&#xd;
     (status:&lt;img src=&quot;/../jenkins/job/metrics-queue-consumer/lastBuild/buildStatus&quot; width=&quot;16&quot;&gt;)&#xd;
-    into SonarQube.&#xd;
   &lt;/li&gt;&#xd;
 &lt;/ul&gt;&#xd;
 &lt;ul style=&quot;list-style-image: url(https://github.com/favicon.ico);&quot;&gt;&#xd;
@@ -23,6 +22,7 @@
   &lt;li&gt;Environment: &lt;i&gt;None&lt;/i&gt;&#xd;
   &lt;/li&gt;&#xd;
 &lt;/ul&gt;&#xd;
+&lt;br&gt;&#xd;
 </description>
   <keepDependencies>false</keepDependencies>
   <properties>
