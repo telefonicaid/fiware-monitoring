@@ -73,8 +73,8 @@ Adaptation layer
 Build and Install
 =================
 
-The recommended procedure is to install using RPM packages in CentOS 6.x,
-or DEB packages in Ubuntu 12.04/14.04 LTS. If you are interested in building
+The recommended procedure is to install using *rpm* packages in CentOS 6.x,
+or *deb* packages in Ubuntu 12.04/14.04 LTS. If you are interested in building
 from sources, check `this document <doc/manuals/admin/build_source.rst>`_.
 
 
@@ -83,9 +83,9 @@ Requirements
 
 - System resources: see `these recommendations
   <doc/manuals/admin/README.rst#resource-availability>`_.
-- Operating systems: CentOS (RedHat) and Ubuntu (Debian), being CentOS 6.3 the
-  reference operating system.
-- RPM/DEB dependencies: some required packages may not be present in official
+- Operating systems: CentOS (or RedHat) and Ubuntu (or Debian), being CentOS 6.3
+  the reference operating system.
+- Package dependencies: some required packages may not be present in official
   repositories, or their versions are too old (for example, ``nodejs``). In any
   case, checking for such dependencies and configuration of alternative sources
   is automatically managed by the package installation scripts when using the
@@ -103,11 +103,16 @@ repository where FIWARE packages are available (and update cache, if needed):
 
 **CentOS** ::
 
-    http://repositories.testbed.fiware.org/repo/rpm/x86_64
+    [fiware]
+    name=FIWARE Repository
+    baseurl=http://repositories.lab.fiware.org/repo/rpm/$releasever
+    gpgcheck=0
+    enabled=1
 
 **Ubuntu** ::
 
-    http://repositories.testbed.fiware.org/repo/deb
+    deb http://repositories.lab.fiware.org/repo/deb <your_release> main
+    deb-src http://repositories.lab.fiware.org/repo/deb <your_release> main
 
 Then, use the proper tool to install the packages (this depends on monitoring
 framework used in the cloud infrastructure, but at least NGSI Adapter will be
@@ -126,8 +131,8 @@ being used as the framework to gather monitoring data, then we may install
 the package ``fiware-monitoring-ngsi-event-broker`` (see Components_ above).
 
 
-Using the RPM/DEB files
-~~~~~~~~~~~~~~~~~~~~~~~
+Using the .rpm/.deb files
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Download the package(s) from the `FIWARE Files area`__ and use the proper
 tool to install it. Take into account that you may need to manually install
@@ -138,8 +143,8 @@ __ `FIWARE Monitoring - Forge files area`_
 
 **CentOS** ::
 
-    $ sudo rpm -i fiware-monitoring-ngsi-adapter-X.Y.Z-1.noarch.rpm
-    $ sudo rpm -i fiware-monitoring-ngsi-event-broker-X.Y.Z-1.x86_64.rpm
+    $ sudo rpm -i fiware-monitoring-ngsi-adapter-X.Y.Z.noarch.rpm
+    $ sudo rpm -i fiware-monitoring-ngsi-event-broker-X.Y.Z.x86_64.rpm
 
 **Ubuntu** ::
 
@@ -266,7 +271,7 @@ then the request would look like:
 
 ::
 
-    curl "{adapter_endpoint}/check_load?id={myhostname}&type=host" -s -S
+    $ curl "{adapter_endpoint}/check_load?id={myhostname}&type=host" -s -S \
     --header 'Content-Type: text/plain' -X POST -d @- <<-EOF
     OK - load average: 5.00, 7.01, 7.05|load1=5.000;10.000;10.000;0;
     load5=7.010;15.000;15.000;0; load15=7.050;30.000;30.000;0;
