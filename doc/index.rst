@@ -21,9 +21,8 @@ elasticity or for SLA management. Whenever a new resource is deployed in the
 cloud, the proper monitoring probe is set up and configured to start providing
 monitoring data. 
 
-FIWARE Monitoring source code can be found here__.
-
-__ `FIWARE Monitoring GitHub`_
+FIWARE Monitoring source code can be found `here
+<https://github.com/telefonicaid/fiware-monitoring.git>`_.
 
 
 Documentation
@@ -42,11 +41,7 @@ This documentation offers deeper information on FIWARE Monitoring:
 See also
 ========
 
-`Monitoring Federation Infrastructure`_ presentation summarises the development
-of this component as a joint task between FIWARE and XIFI projects.
-
-
-.. REFERENCES
-
-.. _FIWARE Monitoring GitHub: https://github.com/telefonicaid/fiware-monitoring.git
-.. _Monitoring Federation Infrastructure: http://www.slideshare.net/flopezaguilar/monitoring-federation-open-stack-infrastructure
+`Monitoring Federation Infrastructure
+<http://www.slideshare.net/flopezaguilar/monitoring-federation-open-stack-infrastructure>`_
+presentation summarises the development of this component as a joint task between
+FIWARE and XIFI projects.
