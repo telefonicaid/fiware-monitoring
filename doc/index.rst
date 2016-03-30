@@ -33,7 +33,7 @@ This documentation offers deeper information on FIWARE Monitoring:
 .. toctree::
    :maxdepth: 1
 
-   ../README
+   /README
    manuals/user/README
    manuals/admin/README
 
@@ -41,7 +41,8 @@ This documentation offers deeper information on FIWARE Monitoring:
 See also
 ========
 
-`Monitoring Federation Infrastructure
-<http://www.slideshare.net/flopezaguilar/monitoring-federation-open-stack-infrastructure>`_
-presentation summarises the development of this component as a joint task between
-FIWARE and XIFI projects.
+-  `Monitoring Federation OpenStack Infrastructure`_ presentation summarises
+   the development of this component as a joint task between FIWARE and XIFI
+   projects.
+
+.. _Monitoring Federation OpenStack Infrastructure: http://www.slideshare.net/flopezaguilar/monitoring-federation-open-stack-infrastructure
