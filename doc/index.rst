@@ -42,12 +42,10 @@ This documentation offers deeper information on FIWARE Monitoring:
 See also
 ========
 
-- `Monitoring Federation Infrastructure`_
+`Monitoring Federation Infrastructure`_ presentation summarises the development
+of this component as a joint task between FIWARE and XIFI projects.
 
-   This presentation summarises the development of this component as a joint
-   task between FIWARE and XIFI projects.
-   
-   
+
 .. REFERENCES
 
 .. _FIWARE Monitoring GitHub: https://github.com/telefonicaid/fiware-monitoring.git
