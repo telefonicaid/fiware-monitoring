@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>&lt;ul style=&quot;list-style-image: url(http://mirrors.jenkins-ci.org/art/jenkins-logo/32x32/headshot.png);&quot;&gt;&#xd;
+  &lt;li&gt;&#xd;
+    Task to deploy component at experimentation environment (status: &lt;img src=&quot;/../jenkins/job/Monitoring-NGSIEventBroker-3-Deploy/lastBuild/buildStatus&quot; width=&quot;16&quot;&gt;)&#xd;
+  &lt;/li&gt;&#xd;
+&lt;/ul&gt;&#xd;
+&lt;ul style=&quot;list-style-image: url(/../jenkins/plugin/build-flow-plugin/images/32x32/flow.png);&quot;&gt;&#xd;
+  &lt;li&gt;&#xd;
+    &lt;a href=&quot;/../jenkins/job/Monitoring-NGSIEventBroker&quot;&gt;Flow&lt;/a&gt;&#xd;
+  &lt;/li&gt;&#xd;
+&lt;/ul&gt;&#xd;
+&lt;ul style=&quot;list-style-image: url(/../jenkins/images/32x32/setting.png);&quot;&gt;&#xd;
+  &lt;li&gt;Environment: &lt;i&gt;None&lt;/i&gt;&#xd;
+  &lt;/li&gt;&#xd;
+&lt;/ul&gt;&#xd;
+</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <hudson.plugins.buildblocker.BuildBlockerProperty plugin="build-blocker-plugin@1.4.1">
+      <useBuildBlocker>false</useBuildBlocker>
+    </hudson.plugins.buildblocker.BuildBlockerProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>WORKSPACE</name>
+          <description></description>
+          <defaultValue>$JENKINS_HOME/jobs/Monitoring-NGSIEventBroker-1-Build/workspace</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>ENVIRONMENT</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>dev</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.25"/>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <customWorkspace>$WORKSPACE</customWorkspace>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>echo TO-DO
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.4.0">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
+</project>

@@ -1,0 +1,114 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>&lt;ul style=&quot;list-style-image: url(http://mirrors.jenkins-ci.org/art/jenkins-logo/32x32/headshot.png);&quot;&gt;&#xd;
+  &lt;li&gt;&#xd;
+    Task to generate &lt;b&gt;.deb&lt;/b&gt; package (status: &lt;img src=&quot;/../jenkins/job/Monitoring-NGSIEventBroker-2-Package-deb/lastBuild/buildStatus&quot; width=&quot;16&quot;&gt;)&#xd;
+    and publish to this &lt;a href=&quot;http://repositories.lab.fiware.org/repo/deb/&quot;&gt;repository&lt;/a&gt;&#xd;
+  &lt;/li&gt;&#xd;
+&lt;/ul&gt;&#xd;
+&lt;ul style=&quot;list-style-image: url(https://github.com/favicon.ico);&quot;&gt;&#xd;
+  &lt;li&gt;&#xd;
+    &lt;a href=&quot;https://github.com/telefonicaid/fiware-monitoring/tree/develop/ngsi_event_broker&quot;&gt;Sources&lt;/a&gt;&#xd;
+  &lt;/li&gt;&#xd;
+&lt;/ul&gt;&#xd;
+&lt;ul style=&quot;list-style-image: url(/../jenkins/plugin/build-flow-plugin/images/32x32/flow.png);&quot;&gt;&#xd;
+  &lt;li&gt;&#xd;
+    &lt;a href=&quot;/../jenkins/job/Monitoring-NGSIEventBroker&quot;&gt;Flow&lt;/a&gt;&#xd;
+  &lt;/li&gt;&#xd;
+&lt;/ul&gt;&#xd;
+&lt;ul style=&quot;list-style-image: url(/../jenkins/images/32x32/setting.png);&quot;&gt;&#xd;
+  &lt;li&gt;Environment:&lt;br&gt;&#xd;
+    &lt;br&gt;&#xd;
+    &lt;dl&gt;&#xd;
+      &lt;dt&gt;PYTHON27&lt;/dt&gt;&lt;dd&gt;Path to Python 2.7 interpreter&lt;/dd&gt;&#xd;
+      &lt;dt&gt;FIWARE_REPOSITORIES_GIT&lt;/dt&gt;&lt;dd&gt;Git URL for FIWARE-Repositories component&lt;/dd&gt;&#xd;
+      &lt;dt&gt;FIWARE_REPOSITORIES_DIR&lt;/dt&gt;&lt;dd&gt;Path where FIWARE-Repositories component is downloaded&lt;/dd&gt;&#xd;
+      &lt;dt&gt;OS_USERNAME&lt;/dt&gt;&lt;dd&gt;Username of OpenStack credentials needed to upload packages&lt;/dd&gt;&#xd;
+      &lt;dt&gt;OS_PASSWORD&lt;/dt&gt;&lt;dd&gt;Password of OpenStack credentials needed to upload packages&lt;/dd&gt;&#xd;
+      &lt;dt&gt;OS_TENANT_NAME&lt;/dt&gt;&lt;dd&gt;Tenant of OpenStack credentials needed to upload packages&lt;/dd&gt;&#xd;
+    &lt;/dl&gt; &#xd;
+  &lt;/li&gt;&#xd;
+&lt;/ul&gt;&#xd;
+</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>10</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <hudson.plugins.buildblocker.BuildBlockerProperty plugin="build-blocker-plugin@1.4.1">
+      <useBuildBlocker>false</useBuildBlocker>
+    </hudson.plugins.buildblocker.BuildBlockerProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>REPOSITORY</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>https://github.com/telefonicaid/fiware-monitoring</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>BRANCH</name>
+          <description></description>
+          <defaultValue>develop</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.25"/>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.2.6">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>$REPOSITORY</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>$BRANCH</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
+  <assignedNode>ci-fiware-ubunt-01</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command># Download upload client
+[ -d $FIWARE_REPOSITORIES_DIR ] || git clone $FIWARE_REPOSITORIES_GIT -b master $FIWARE_REPOSITORIES_DIR
+
+# Install upload client
+(cd $FIWARE_REPOSITORIES_DIR/tools/client; git fetch; git pull origin master; sudo $PYTHON27 setup.py install)
+
+# Generate DEB (cleaning any previous package)
+cd $WORKSPACE/ngsi_event_broker
+rm -f *.deb
+tools/integration/develenv/jenkins.sh package
+DEB_FILE=$(find $WORKSPACE/ngsi_event_broker -name &quot;*.deb&quot;)
+
+# Upload to artifacts repository
+uploadPkg.py --os-username=$OS_USERNAME --os-password=$OS_PASSWORD --os-tenant-name=$OS_TENANT_NAME $DEB_FILE
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.4.0">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
+</project>
