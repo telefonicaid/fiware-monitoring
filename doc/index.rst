@@ -33,9 +33,9 @@ This documentation offers deeper information on FIWARE Monitoring:
 .. toctree::
    :maxdepth: 1
 
-   README
-   doc/manuals/user/README
-   doc/manuals/admin/README
+   ../README
+   manuals/user/README
+   manuals/admin/README
 
 
 See also
