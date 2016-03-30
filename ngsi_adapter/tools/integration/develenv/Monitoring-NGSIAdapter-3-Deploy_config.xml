@@ -3,7 +3,7 @@
   <actions/>
   <description>&lt;ul style=&quot;list-style-image: url(http://mirrors.jenkins-ci.org/art/jenkins-logo/32x32/headshot.png);&quot;&gt;&#xd;
   &lt;li&gt;&#xd;
-    Task to deploy component at experimentation environment (status: &lt;img src=&quot;/../jenkins/job/Monitoring-NGSIAdapter-3-Deploy/lastBuild/buildStatus&quot; width=&quot;16&quot;&gt;)&#xd;
+    Job to deploy this component at experimentation environment&#xd;
   &lt;/li&gt;&#xd;
 &lt;/ul&gt;&#xd;
 &lt;ul style=&quot;list-style-image: url(/../jenkins/plugin/build-flow-plugin/images/32x32/flow.png);&quot;&gt;&#xd;
@@ -15,6 +15,7 @@
   &lt;li&gt;Environment: &lt;i&gt;None&lt;/i&gt;&#xd;
   &lt;/li&gt;&#xd;
 &lt;/ul&gt;&#xd;
+&lt;br&gt;&#xd;
 </description>
   <keepDependencies>false</keepDependencies>
   <properties>

@@ -1,21 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>&lt;h3&gt;[QA] Acceptance tests - FIWARE Monitoring NGSI Adapter:&#xd;
-&lt;i style=&quot;color:#8E1C1C&quot;&gt;Component Test Cases&lt;/i&gt;&#xd;
-&lt;/h3&gt;&#xd;
-&#xd;
-&lt;ul style=&quot;list-style-image: url(http://mirrors.jenkins-ci.org/art/jenkins-logo/32x32/headshot.png);&quot;&gt;&#xd;
+  <description>&lt;ul style=&quot;list-style-image: url(http://mirrors.jenkins-ci.org/art/jenkins-logo/32x32/headshot.png);&quot;&gt;&#xd;
   &lt;li&gt;&#xd;
-    Task to execute acceptance tests (status: &lt;img src=&quot;/../jenkins/job/Monitoring-NGSIAdapter-4-Acceptance-comp/lastBuild/buildStatus&quot; width=&quot;16&quot;&gt;)&lt;br&gt;&#xd;
+    &lt;b&gt;[QA] Acceptance tests - FIWARE Monitoring NGSI Adapter: &lt;i style=&quot;color:#8E1C1C&quot;&gt;Component Test Cases&lt;/i&gt;&lt;/b&gt;&lt;br&gt;&#xd;
     &lt;br&gt;&#xd;
-    This task will execute &lt;a href=&quot;https://github.com/telefonicaid/fiware-monitoring/tree/develop/ngsi_adapter/test/acceptance&quot;&gt;&lt;b&gt;ngsi_adapter/src/test/acceptance&lt;/b&gt;&lt;/a&gt; test project:&#xd;
+    This job will execute &lt;a href=&quot;https://github.com/telefonicaid/fiware-monitoring/tree/develop/ngsi_adapter/test/acceptance&quot;&gt;&lt;b&gt;ngsi_adapter/test/acceptance&lt;/b&gt;&lt;/a&gt; test project:&#xd;
     &lt;ul style=&quot;list-style: disc;&quot;&gt;&#xd;
       &lt;li&gt;Functional test cases - API resources&lt;/li&gt;&#xd;
       &lt;li&gt;Remote logs validations&lt;/li&gt;&#xd;
     &lt;/ul&gt;&#xd;
     &lt;br&gt;&#xd;
-    Please note this task requires some resource files found at path defined by parameter &lt;b&gt;JENKINS_JOB_RESOURCES_PATH&lt;/b&gt;&#xd;
+    Please note job requires some resource files found at path defined by parameter &lt;b&gt;JENKINS_JOB_RESOURCES_PATH&lt;/b&gt;&#xd;
   &lt;/li&gt;&#xd;
 &lt;/ul&gt;&#xd;
 &lt;ul style=&quot;list-style-image: url(/../jenkins/plugin/build-flow-plugin/images/32x32/flow.png);&quot;&gt;&#xd;
@@ -32,6 +28,7 @@
     &lt;/dl&gt; &#xd;
   &lt;/li&gt;&#xd;
 &lt;/ul&gt;&#xd;
+&lt;br&gt;&#xd;
 </description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>15</daysToKeep>
