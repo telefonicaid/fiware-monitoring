@@ -5,12 +5,7 @@
   &lt;li&gt;&#xd;
     &lt;b&gt;[QA] Acceptance tests - FIWARE Monitoring NGSI Event Broker: &lt;i style=&quot;color:#8E1C1C&quot;&gt;Component Test Cases&lt;/i&gt;&lt;/b&gt;&lt;br&gt;&#xd;
     &lt;br&gt;&#xd;
-    This job will execute &lt;a href=&quot;https://github.com/telefonicaid/fiware-monitoring/tree/develop/ngsi_event_broker/test/acceptance&quot;&gt;&lt;b&gt;ngsi_event_broker/test/acceptance&lt;/b&gt;&lt;/a&gt; test project:&#xd;
-    &lt;ul style=&quot;list-style: disc;&quot;&gt;&#xd;
-      &lt;li&gt;TO-DO&lt;/li&gt;&#xd;
-    &lt;/ul&gt;&#xd;
-    &lt;br&gt;&#xd;
-    Please note job requires some resource files found at path defined by parameter &lt;b&gt;JENKINS_JOB_RESOURCES_PATH&lt;/b&gt;&#xd;
+    This job will execute &lt;b&gt;ngsi_event_broker/test/acceptance &lt;i&gt;(TO-DO)&lt;/i&gt;&lt;/b&gt; test project&#xd;
   &lt;/li&gt;&#xd;
 &lt;/ul&gt;&#xd;
 &lt;ul style=&quot;list-style-image: url(/../jenkins/plugin/build-flow-plugin/images/32x32/flow.png);&quot;&gt;&#xd;
@@ -61,11 +56,6 @@ Values:
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>JENKINS_JOB_RESOURCES_PATH</name>
-          <description></description>
-          <defaultValue>/home/develenv/fiware_cloud_job_resources/Monitoring-NGSIEventBroker-Acceptance</defaultValue>
-        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
     <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.25"/>
@@ -84,50 +74,10 @@ Values:
 </command>
     </hudson.tasks.Shell>
   </builders>
-  <publishers>
-    <hudson.tasks.ArtifactArchiver>
-      <artifacts>$ACCEPTANCE_TEST_PROJECT_PATH/logs/**</artifacts>
-      <allowEmptyArchive>true</allowEmptyArchive>
-      <onlyIfSuccessful>false</onlyIfSuccessful>
-      <fingerprint>false</fingerprint>
-      <defaultExcludes>true</defaultExcludes>
-    </hudson.tasks.ArtifactArchiver>
-    <xunit plugin="xunit@1.91">
-      <types>
-        <JUnitType>
-          <pattern>$ACCEPTANCE_TEST_PROJECT_PATH/testreport/*.xml</pattern>
-          <skipNoTestFiles>false</skipNoTestFiles>
-          <failIfNotNew>true</failIfNotNew>
-          <deleteOutputFiles>true</deleteOutputFiles>
-          <stopProcessingIfError>true</stopProcessingIfError>
-        </JUnitType>
-      </types>
-      <thresholds>
-        <org.jenkinsci.plugins.xunit.threshold.FailedThreshold>
-          <unstableThreshold></unstableThreshold>
-          <unstableNewThreshold></unstableNewThreshold>
-          <failureThreshold></failureThreshold>
-          <failureNewThreshold></failureNewThreshold>
-        </org.jenkinsci.plugins.xunit.threshold.FailedThreshold>
-        <org.jenkinsci.plugins.xunit.threshold.SkippedThreshold>
-          <unstableThreshold></unstableThreshold>
-          <unstableNewThreshold></unstableNewThreshold>
-          <failureThreshold></failureThreshold>
-          <failureNewThreshold></failureNewThreshold>
-        </org.jenkinsci.plugins.xunit.threshold.SkippedThreshold>
-      </thresholds>
-      <thresholdMode>0</thresholdMode>
-      <extraConfiguration>
-        <testTimeMargin>3000</testTimeMargin>
-      </extraConfiguration>
-    </xunit>
-  </publishers>
+  <publishers/>
   <buildWrappers>
     <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.4.0">
       <colorMapName>xterm</colorMapName>
     </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
-    <hudson.plugins.setenv.SetEnvBuildWrapper plugin="setenv@1.1">
-      <localVarText>ACCEPTANCE_TEST_PROJECT_PATH=ngsi_event_broker/test/acceptance</localVarText>
-    </hudson.plugins.setenv.SetEnvBuildWrapper>
   </buildWrappers>
 </project>
