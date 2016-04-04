@@ -164,22 +164,14 @@ directory (usually ``/opt/fiware/ngsi_adapter/``):
 
 You can use these command line options (available typing ``adapter --help``):
 
--l, --logLevel
-   Verbosity of log messages
--H, --listenHost
-   The hostname or address at which NGSI Adapter listens
--p, --listenPort
-   The port number at which NGSI Adapter listens
--u, --udpEndpoints
-   Optional list of UDP endpoints (host:port:parser)
--P, --parsersPath
-   Colon-separated path with directories to look for parsers
--b, --brokerUrl
-   The URL of the Context Broker instance to publish data to
--m, --maxRequests
-   Maximum number of simultaneous outgoing requests to Context Broker
--r, --retries
-   Number of times a request to Context Broker is retried, in case of error
+-l, --logLevel=LEVEL        Verbosity of log messages
+-H, --listenHost=NAME       The hostname or address at which NGSI Adapter listens
+-p, --listenPort=PORT       The port number at which NGSI Adapter listens
+-u, --udpEndpoints=LIST     Optional list of UDP endpoints (host:port:parser)
+-P, --parsersPath=PATH      Colon-separated path with directories to look for parsers
+-b, --brokerUrl=URL         The URL of the Context Broker instance to publish data to
+-m, --maxRequests=VALUE     Maximum number of simultaneous outgoing requests to Context Broker
+-r, --retries=VALUE         Number of times a request to Context Broker is retried, in case of error
 
 
 Sanity check procedures
