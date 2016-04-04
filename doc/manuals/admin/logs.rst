@@ -76,6 +76,6 @@ parameters.
 .. REFERENCES
 
 .. _Splunk: http://www.splunk.com/
-,. _Fluentd: http://www.fluentd.org/
+.. _Fluentd: http://www.fluentd.org/
 .. _logrotate: http://linux.die.net/man/8/logrotate
 .. _FIWARE Monitoring release 4.1.1: https://github.com/telefonicaid/fiware-monitoring/releases/tag/v4.1.1

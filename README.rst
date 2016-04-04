@@ -82,9 +82,9 @@ Requirements
 ------------
 
 - System resources: see `these recommendations
-  <doc/manuals/admin/README.rst#resource-availability>`_.
-- Operating systems: CentOS (or RedHat) and Ubuntu (or Debian), being CentOS 6.3
-  the reference operating system.
+  <doc/manuals/admin/index.rst#resource-availability>`_.
+- Operating systems: CentOS (or RedHat) and Ubuntu (or Debian),
+  being CentOS 6.3 the reference operating system.
 - Package dependencies: some required packages may not be present in official
   repositories, or their versions are too old (for example, ``nodejs``). In any
   case, checking for such dependencies and configuration of alternative sources
@@ -182,7 +182,7 @@ command line or as a system service (the latter only available if installed as
 a package). It is not recommended to mix both ways (e.g. start it manually but
 use the service scripts to stop it). This section assumes you are using the
 system service (recommended): for the command line alternative, please refer
-to `this document <doc/manuals/admin/README.rst#from-the-command-line>`_.
+to `this document <doc/manuals/admin/index.rst#from-the-command-line>`_.
 
 In order to start the adapter service, run::
 
@@ -234,7 +234,7 @@ The configuration used by the adapter service is optionally read from the file
 
 
 Most of these attributes map to options of the `command line interface
-<doc/manuals/admin/README.rst#from-the-command-line>`_ as follows:
+<doc/manuals/admin/index.rst#from-the-command-line>`_ as follows:
 
 - ``ADAPTER_LOGLEVEL`` maps to ``-l`` or ``--logLevel`` option
 - ``ADAPTER_LISTEN_HOST`` maps to ``-H`` or ``--listenHost`` option
@@ -282,7 +282,7 @@ of an entity of type ``host`` identified by ``myhostname`` with a new
 attribute ``cpuLoadPct`` with value ``5.00``.
 
 Please have a look at the `API Reference Documentation`_ section bellow and
-at the `programmer guide <doc/manuals/user/README.rst#programmer-guide>`_.
+at the `programmer guide <doc/manuals/user/index.rst#programmer-guide>`_.
 
 
 API Reference Documentation
@@ -300,7 +300,7 @@ End-to-end tests
 ----------------
 
 Please refer to the `Installation and administration guide
-<doc/manuals/admin/README.rst#end-to-end-testing>`_ for details.
+<doc/manuals/admin/index.rst#end-to-end-testing>`_ for details.
 
 
 Unit tests
@@ -340,20 +340,20 @@ Advanced topics
 - `Installation and administration <doc/manuals/admin/README.rst>`_
 
   * `Building from sources <doc/manuals/admin/build_source.rst>`_
-  * `Running Adapter from command line <doc/manuals/admin/README.rst#from-the-command-line>`_
+  * `Running Adapter from command line <doc/manuals/admin/index.rst#from-the-command-line>`_
   * `Logs <doc/manuals/admin/logs.rst>`_
-  * `Resources & I/O Flows <doc/manuals/admin/README.rst#resource-availability>`_
+  * `Resources & I/O Flows <doc/manuals/admin/index.rst#resource-availability>`_
 
 - `User and programmers guide <doc/manuals/user/README.rst>`_
 
-  * `NGSI Adapter custom probe parsers <doc/manuals/user/README.rst#ngsi-adapter-parsers>`_
-  * `Retrieval of historical data <doc/manuals/user/README.rst#monitoring-api>`_
+  * `NGSI Adapter custom probe parsers <doc/manuals/user/index.rst#ngsi-adapter-parsers>`_
+  * `Retrieval of historical data <doc/manuals/user/index.rst#monitoring-api>`_
 
 
 License
 =======
 
-\(c) 2013-2015 Telefónica I+D, Apache License 2.0
+\(c) 2013-2016 Telefónica I+D, Apache License 2.0
 
 
 .. IMAGES

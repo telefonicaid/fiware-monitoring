@@ -33,4 +33,5 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'FIWARE Monitoring'
+project = u'FIWARE Monitoring'
+copyright = u'2016, Telefónica I+D'
