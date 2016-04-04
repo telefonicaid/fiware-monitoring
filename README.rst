@@ -377,7 +377,7 @@ License
 .. REFERENCES
 
 .. _FIWARE: http://www.fiware.org
-.. _FIWARE Catalogue - Monitoring GE: http://catalogue.fiware.org/enablers/monitoring-ge-fiware-implementation
+.. _FIWARE Catalogue - Monitoring GE: http://catalogue.fiware.org/enablers/monitoring-ge-sextant
 .. _FIWARE Monitoring - GitHub issues: https://github.com/telefonicaid/fiware-monitoring/issues/new
 .. _FIWARE Monitoring - User and Programmers Guide: https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Monitoring_-_User_and_Programmers_Guide
 .. _FIWARE Monitoring - Installation and Administration Guide: https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Monitoring_-_Installation_and_Administration_Guide
