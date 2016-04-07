@@ -3,7 +3,7 @@
 import os
 
 # The paths that contain custom static files (such as style sheets).
-html_static_path = ['_static']
+html_static_path = ['_static', 'doc/_static']
 
 # Check whether we are on readthedocs.org
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
@@ -22,7 +22,7 @@ else:
     # Override default css to get a larger width for ReadTheDoc build
     html_context = {
         'css_files': [
-            'doc/_static/mystyle.css',
+            'mystyle.css',
         ],
     }
 
