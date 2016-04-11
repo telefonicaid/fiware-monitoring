@@ -187,6 +187,11 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Mon Apr 11 2016 Telefónica I+D <opensource@tid.es> 1.4.0-1
+- Fix context update requests to use JSON instead XML
+- Add continuous integration support files
+- Update documentation and ReadTheDocs stylesheet
+
 * Tue Nov 24 2015 Telefónica I+D <opensource@tid.es> 1.3.0-1
 - Add option to set maximum number of simultaneous outgoing requests
 - Add an option to specify a list of directories to look for parsers
