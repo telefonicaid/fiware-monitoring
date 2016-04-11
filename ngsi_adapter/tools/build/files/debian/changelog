@@ -1,3 +1,11 @@
+fiware-monitoring-ngsi-adapter (1.4.0-1) precise; urgency=low
+
+  * Fix context update requests to use JSON instead XML.
+  * Add continuous integration support files.
+  * Update documentation and ReadTheDocs stylesheet.
+
+ -- Telefónica I+D <opensource@tid.es>  Mon, 11 Apr 2016 14:30:12 +0000
+
 fiware-monitoring-ngsi-adapter (1.3.0-1) precise; urgency=low
   * Add option to set maximum number of simultaneous outgoing requests
   * Add an option to specify a list of directories to look for parsers
