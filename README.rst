@@ -73,8 +73,8 @@ Adaptation layer
 Build and Install
 =================
 
-The recommended procedure is to install using RPM packages in CentOS 6.x,
-or DEB packages in Ubuntu 12.04/14.04 LTS. If you are interested in building
+The recommended procedure is to install using *rpm* packages in CentOS 6.x,
+or *deb* packages in Ubuntu 12.04/14.04 LTS. If you are interested in building
 from sources, check `this document <doc/manuals/admin/build_source.rst>`_.
 
 
@@ -82,10 +82,10 @@ Requirements
 ------------
 
 - System resources: see `these recommendations
-  <doc/manuals/admin/README.rst#resource-availability>`_.
-- Operating systems: CentOS (RedHat) and Ubuntu (Debian), being CentOS 6.3 the
-  reference operating system.
-- RPM/DEB dependencies: some required packages may not be present in official
+  <doc/manuals/admin/index.rst#resource-availability>`_.
+- Operating systems: CentOS (or RedHat) and Ubuntu (or Debian),
+  being CentOS 6.3 the reference operating system.
+- Package dependencies: some required packages may not be present in official
   repositories, or their versions are too old (for example, ``nodejs``). In any
   case, checking for such dependencies and configuration of alternative sources
   is automatically managed by the package installation scripts when using the
@@ -103,11 +103,16 @@ repository where FIWARE packages are available (and update cache, if needed):
 
 **CentOS** ::
 
-    http://repositories.testbed.fiware.org/repo/rpm/x86_64
+    [fiware]
+    name=FIWARE Repository
+    baseurl=http://repositories.lab.fiware.org/repo/rpm/$releasever
+    gpgcheck=0
+    enabled=1
 
 **Ubuntu** ::
 
-    http://repositories.testbed.fiware.org/repo/deb
+    deb http://repositories.lab.fiware.org/repo/deb <your_release> main
+    deb-src http://repositories.lab.fiware.org/repo/deb <your_release> main
 
 Then, use the proper tool to install the packages (this depends on monitoring
 framework used in the cloud infrastructure, but at least NGSI Adapter will be
@@ -126,8 +131,8 @@ being used as the framework to gather monitoring data, then we may install
 the package ``fiware-monitoring-ngsi-event-broker`` (see Components_ above).
 
 
-Using the RPM/DEB files
-~~~~~~~~~~~~~~~~~~~~~~~
+Using the .rpm/.deb files
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Download the package(s) from the `FIWARE Files area`__ and use the proper
 tool to install it. Take into account that you may need to manually install
@@ -138,8 +143,8 @@ __ `FIWARE Monitoring - Forge files area`_
 
 **CentOS** ::
 
-    $ sudo rpm -i fiware-monitoring-ngsi-adapter-X.Y.Z-1.noarch.rpm
-    $ sudo rpm -i fiware-monitoring-ngsi-event-broker-X.Y.Z-1.x86_64.rpm
+    $ sudo rpm -i fiware-monitoring-ngsi-adapter-X.Y.Z.noarch.rpm
+    $ sudo rpm -i fiware-monitoring-ngsi-event-broker-X.Y.Z.x86_64.rpm
 
 **Ubuntu** ::
 
@@ -177,7 +182,7 @@ command line or as a system service (the latter only available if installed as
 a package). It is not recommended to mix both ways (e.g. start it manually but
 use the service scripts to stop it). This section assumes you are using the
 system service (recommended): for the command line alternative, please refer
-to `this document <doc/manuals/admin/README.rst#from-the-command-line>`_.
+to `this document <doc/manuals/admin/index.rst#from-the-command-line>`_.
 
 In order to start the adapter service, run::
 
@@ -229,7 +234,7 @@ The configuration used by the adapter service is optionally read from the file
 
 
 Most of these attributes map to options of the `command line interface
-<doc/manuals/admin/README.rst#from-the-command-line>`_ as follows:
+<doc/manuals/admin/index.rst#from-the-command-line>`_ as follows:
 
 - ``ADAPTER_LOGLEVEL`` maps to ``-l`` or ``--logLevel`` option
 - ``ADAPTER_LISTEN_HOST`` maps to ``-H`` or ``--listenHost`` option
@@ -266,7 +271,7 @@ then the request would look like:
 
 ::
 
-    curl "{adapter_endpoint}/check_load?id={myhostname}&type=host" -s -S
+    $ curl "{adapter_endpoint}/check_load?id={myhostname}&type=host" -s -S \
     --header 'Content-Type: text/plain' -X POST -d @- <<-EOF
     OK - load average: 5.00, 7.01, 7.05|load1=5.000;10.000;10.000;0;
     load5=7.010;15.000;15.000;0; load15=7.050;30.000;30.000;0;
@@ -277,7 +282,7 @@ of an entity of type ``host`` identified by ``myhostname`` with a new
 attribute ``cpuLoadPct`` with value ``5.00``.
 
 Please have a look at the `API Reference Documentation`_ section bellow and
-at the `programmer guide <doc/manuals/user/README.rst#programmer-guide>`_.
+at the `programmer guide <doc/manuals/user/index.rst#programmer-guide>`_.
 
 
 API Reference Documentation
@@ -295,7 +300,7 @@ End-to-end tests
 ----------------
 
 Please refer to the `Installation and administration guide
-<doc/manuals/admin/README.rst#end-to-end-testing>`_ for details.
+<doc/manuals/admin/index.rst#end-to-end-testing>`_ for details.
 
 
 Unit tests
@@ -335,20 +340,20 @@ Advanced topics
 - `Installation and administration <doc/manuals/admin/README.rst>`_
 
   * `Building from sources <doc/manuals/admin/build_source.rst>`_
-  * `Running Adapter from command line <doc/manuals/admin/README.rst#from-the-command-line>`_
+  * `Running Adapter from command line <doc/manuals/admin/index.rst#from-the-command-line>`_
   * `Logs <doc/manuals/admin/logs.rst>`_
-  * `Resources & I/O Flows <doc/manuals/admin/README.rst#resource-availability>`_
+  * `Resources & I/O Flows <doc/manuals/admin/index.rst#resource-availability>`_
 
 - `User and programmers guide <doc/manuals/user/README.rst>`_
 
-  * `NGSI Adapter custom probe parsers <doc/manuals/user/README.rst#ngsi-adapter-parsers>`_
-  * `Retrieval of historical data <doc/manuals/user/README.rst#monitoring-api>`_
+  * `NGSI Adapter custom probe parsers <doc/manuals/user/index.rst#ngsi-adapter-parsers>`_
+  * `Retrieval of historical data <doc/manuals/user/index.rst#monitoring-api>`_
 
 
 License
 =======
 
-\(c) 2013-2015 Telefónica I+D, Apache License 2.0
+\(c) 2013-2016 Telefónica I+D, Apache License 2.0
 
 
 .. IMAGES
@@ -372,7 +377,7 @@ License
 .. REFERENCES
 
 .. _FIWARE: http://www.fiware.org
-.. _FIWARE Catalogue - Monitoring GE: http://catalogue.fiware.org/enablers/monitoring-ge-fiware-implementation
+.. _FIWARE Catalogue - Monitoring GE: http://catalogue.fiware.org/enablers/monitoring-ge-sextant
 .. _FIWARE Monitoring - GitHub issues: https://github.com/telefonicaid/fiware-monitoring/issues/new
 .. _FIWARE Monitoring - User and Programmers Guide: https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Monitoring_-_User_and_Programmers_Guide
 .. _FIWARE Monitoring - Installation and Administration Guide: https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Monitoring_-_Installation_and_Administration_Guide
