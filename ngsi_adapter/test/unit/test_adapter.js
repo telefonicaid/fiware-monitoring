@@ -278,7 +278,7 @@ suite('adapter', function () {
             serverResponse.setEncoding = sinon.stub();
             serverResponse.statusCode = 200;
             callback(serverResponse);
-            serverResponse.emit('data');
+            serverResponse.emit('data', '{"key": "value"}');
             serverResponse.emit('end');
             clientRequest.end = sinon.stub();
             return clientRequest;
@@ -418,14 +418,14 @@ suite('adapter', function () {
             serverResponse.setEncoding = sinon.stub();
             serverResponse.statusCode = 200;
             callback(serverResponse);
-            serverResponse.emit('data');
+            serverResponse.emit('data', '{"key": "value"}');
             serverResponse.emit('end');
             clientRequest.end = sinon.stub();
             httpRequest.restore();
             factoryGetParserByName.restore();
             done();
         });
-        this.timeout(500);
+        self.timeout(500);
         client.send(message, 0, message.length, self.udpPort, self.udpHost, function (err, bytes) {
             client.close();
             assert.equal(err, null);
