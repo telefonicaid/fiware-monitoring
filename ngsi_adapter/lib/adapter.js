@@ -26,7 +26,7 @@
 
 
 'use strict';
-/* jshint -W030 */
+/* jshint -W030,-W072 */
 
 
 var http = require('http'),
@@ -64,7 +64,7 @@ function updateContext(reqdomain, callback) {
             updateReqOpts = {
                 hostname: remoteUrl.hostname,
                 port: remoteUrl.port,
-                path: '/v1/updateContext',
+                path: '/NGSI10/updateContext',
                 method: 'POST',
                 headers: {
                    'Accept': updateReqType,
@@ -88,7 +88,7 @@ function updateContext(reqdomain, callback) {
                     responseBody += chunk;
                 });
                 response.on('end', function () {
-                    callback(null, response.statusCode, responseBody);
+                    callback(null, response.statusCode, responseBody, updateReqType);
                 });
             });
             updateReq.on('error', function(err) {
@@ -110,16 +110,20 @@ function updateContext(reqdomain, callback) {
  * Callback for requests to updateContext().
  *
  * @callback RequestCallback
- * @param {Error}   err                The error occurred in request, or null.
- * @param {Number} [responseStatus]    The response status code.
- * @param {String} [responseBody]      The response body contents.
+ * @param {Error}   err                     The error occurred in request, or null.
+ * @param {Number} [responseStatus]         The response status code.
+ * @param {String} [responseBody]           The response body contents.
+ * @param {String} [responseContentType]    The response content type.
  */
-function updateContextCallback(err, responseStatus, responseBody) {
+function updateContextCallback(err, responseStatus, responseBody, responseContentType) {
     if (err) {
         logger.error(err.message);
     } else {
-        logger.info('Response status %d %s', responseStatus, http.STATUS_CODES[responseStatus]);
-        logger.debug('%s', {
+        var response = (responseContentType === 'application/json') ? JSON.parse(responseBody) : {},
+            status = (response.orionError) ? response.orionError.code : responseStatus,
+            log = (status === 200) ? logger.debug : logger.error;
+        logger.info('Response status %d %s', status, http.STATUS_CODES[status]);
+        log('%s', {
             toString: function () {
                 return responseBody.split('\n').map(function (line) {
                     return line.trim();
