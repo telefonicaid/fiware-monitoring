@@ -31,4 +31,4 @@ __ `changelog`_
 License
 =======
 
-\(c) 2013-2015 Telefónica I+D, Apache License 2.0
+\(c) 2013-2016 Telefónica I+D, Apache License 2.0

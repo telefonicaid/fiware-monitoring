@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Telefónica I+D
+ * Copyright 2013-2016 Telefónica I+D
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -24,9 +24,14 @@
 
 
 'use strict';
+/* jshint -W069 */
 
 
-var defaults = require('../lib/common').defaults;
+var fs = require('fs'),
+    path = require('path'),
+    util = require('util'),
+    defaults = require('../lib/common').defaults,
+    absoluteBaseDir = path.normalize(__dirname + path.sep + '..');
 
 
 /**
@@ -82,15 +87,49 @@ var opts = require('optimist')
     .demand([]);
 
 
-// Do not allow extra options/arguments
-var extra = (opts.argv._.length > 0) || (Object.keys(opts.argv).length !== 2 + 2 * (Object.keys(defaults).length + 1));
-if (opts.argv.help || extra) {
-    opts.showHelp();
-    process.exit(1);
+/**
+ * Command line options, only considering last value of duplicated ones.
+ */
+var config = module.exports = opts.argv;
+for (var name in config) {
+    if ((name !== '_') && (opts.argv[name] instanceof Array)) {
+        config[name] = config[name].pop();
+    }
 }
 
 
 /**
- * Command line options.
+ * Check configuration and normalize values when needed.
+ *
+ * @function check
+ * @memberof config
+ * @this config
+ * @param {Function} callback   Callback invoked with the first error condition found.
  */
-module.exports = opts.argv;
+config.check = function (callback) {
+    // Show help or abort if extra options/arguments given: expected = short,long * (N opts + h,help) + 3 fixed attrs
+    var expectedKeyCount = 2 * (Object.keys(defaults).length + 1) + 3;
+    if (this.help || (this._.length > 0) || (Object.keys(this).length !== expectedKeyCount)) {
+        opts.showHelp();
+        process.exit(1);
+    }
+
+    // Convert parsersPath to list of unique absolute directories and check whether they are accessible
+    var list = [],
+        lastDir = null,
+        notFound = (this.parsersPath + ':' + defaults.parsersPath).split(':').some(function (dir) {
+            try {
+                fs.readdirSync(lastDir = path.resolve(absoluteBaseDir, dir));
+                list.push(lastDir);
+                return false;
+            } catch (ex) {
+                return true;
+            }
+        });
+    if (notFound) {
+        var processUser = require('userid').username(process.getuid());
+        callback(util.format('Server user "%s" cannot access parsers directory "%s"', processUser, lastDir));
+    } else {
+        this.parsersPath = list.filter(function (item, index) { return list.indexOf(item) === index; }).join(':');
+    }
+};

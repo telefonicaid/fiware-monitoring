@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Telefónica I+D
+ * Copyright 2013-2016 Telefónica I+D
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -37,14 +37,14 @@ var http = require('http'),
     cuid = require('cuid'),
     logger = require('./logger'),
     common = require('./common'),
-    parser = require('./parsers/common/factory'),
-    opts = require('../config/options');
+    config = require('./config'),
+    parser = require('./parsers/common/factory');
 
 
 /**
  * Restrict the number of simultaneous outgoing requests.
  */
-http.globalAgent.maxSockets = opts.maxRequests;
+http.globalAgent.maxSockets = config.maxRequests;
 
 
 /**
@@ -58,7 +58,7 @@ function updateContext(reqdomain, callback) {
         reqdomain.context.op = 'Parse';
         logger.debug('Probe data "%s"', reqdomain.body);
         var parser = reqdomain.parser,
-            remoteUrl = url.parse(opts.brokerUrl),
+            remoteUrl = url.parse(config.brokerUrl),
             updateReqType = parser.getContentType(),
             updateReqBody = parser.updateContextRequest(reqdomain),
             updateReqOpts = {
@@ -74,10 +74,10 @@ function updateContext(reqdomain, callback) {
             };
         updateReqOpts.headers[common.txIdHttpHeader] = reqdomain.context.trans;
         /* jshint unused: false */
-        var operation = retry.operation({ retries: opts.retries });
+        var operation = retry.operation({ retries: config.retries });
         operation.attempt(function(currentAttempt) {
             reqdomain.context.op = 'UpdateContext';
-            logger.info('Request to ContextBroker at %s...', opts.brokerUrl);
+            logger.info('Request to ContextBroker at %s...', config.brokerUrl);
             logger.debug('%s', { toString: function () {
                 return updateReqBody.split('\n').map(function (line) {return line.trim();}).join('');
             }});
@@ -247,15 +247,20 @@ function main() {
         process.exit();
     });
 
-    http.createServer(asyncRequestListener).listen(opts.listenPort, opts.listenHost, function () {
+    config.check(function (err) {
+        logger.error({op: 'Init'}, err);
+        process.exit(1);
+    });
+
+    http.createServer(asyncRequestListener).listen(config.listenPort, config.listenHost, function () {
         logger.info({op: 'Init'}, 'Server listening at http://%s:%d/', this.address().address, this.address().port);
     });
 
     /* Optionally bind this Adapter to a list of UDP endpoints, forwarding requests to the corresponding parser */
-    opts.udpEndpoints && opts.udpEndpoints.split(',').map(function (item) {
+    config.udpEndpoints && config.udpEndpoints.split(',').map(function (item) {
         var itemElements = item.split(':'),
-            udpListenHost = itemElements[0] || opts.listenHost,
-            udpListenPort = parseInt(itemElements[1] || opts.listenPort, 10),
+            udpListenHost = itemElements[0] || config.listenHost,
+            udpListenPort = parseInt(itemElements[1] || config.listenPort, 10),
             udpParserName = itemElements[2];
 
         if (udpParserName) {

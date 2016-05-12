@@ -32,6 +32,7 @@ process.argv = [];
 
 var url = require('url'),
     util = require('util'),
+    path = require('path'),
     http = require('http'),
     dgram = require('dgram'),
     sinon = require('sinon'),
@@ -40,23 +41,33 @@ var url = require('url'),
     factory = require('../../lib/parsers/common/factory'),
     parser = require('../../lib/parsers/common/base').parser,
     logger = require('../../lib/logger'),
-    adapter = require('../../lib/adapter'),
-    opts = require('../../config/options');
+    config = require('../../lib/config'),
+    adapter = require('../../lib/adapter');
 
 
 /* jshint multistr: true */
 suite('adapter', function () {
 
     suiteSetup(function () {
+        this.processEvents = ['SIGINT', 'SIGTERM', 'uncaughtException', 'exit'];
+        this.baseurl = 'http://hostname:1234';
+        this.resource = 'check_load';
+        this.body = 'invalid load data';
+        this.headers = {};
+        this.udpParser = 'udp_parser';
+        this.udpHost = 'localhost';
+        this.udpPort = 1234;
+        config.udpEndpoints = util.format('%s:%d:%s', this.udpHost, this.udpPort, this.udpParser);
+        config.parsersPath = path.normalize(__dirname);  // include current directory in search
+        logger.stream = require('dev-null')();
+        logger.setLevel('DEBUG');
+    });
+
+    suiteTeardown(function () {
+    });
+
+    setup(function () {
         var self = this;
-        self.processEvents = ['SIGINT', 'SIGTERM', 'uncaughtException', 'exit'];
-        self.baseurl = 'http://hostname:1234';
-        self.resource = 'check_load';
-        self.body = 'invalid load data';
-        self.headers = {};
-        self.udpParser = 'udp_parser';
-        self.udpHost = 'localhost';
-        self.udpPort = 1234;
         sinon.stub(http, 'createServer', function () {
             self.httpListener = arguments[0];
             return {
@@ -81,98 +92,97 @@ suite('adapter', function () {
             udpSocket.close = sinon.stub();
             return udpSocket;
         });
-        opts.udpEndpoints = util.format('%s:%d:%s', self.udpHost, self.udpPort, self.udpParser);
-        logger.stream = require('dev-null')();
-        logger.setLevel('DEBUG');
-    });
-
-    suiteTeardown(function () {
-        http.createServer.restore();
-        dgram.createSocket.restore();
-    });
-
-    setup(function () {
+        self.request = new Emitter();
+        self.request.headers = self.headers;
+        self.request.method = 'POST';
         adapter.main();
-        this.request = new Emitter();
-        this.request.headers = this.headers;
-        this.request.method = 'POST';
     });
 
     teardown(function () {
-        delete this.request;
+        http.createServer.restore();
+        dgram.createSocket.restore();
         this.udpServer.removeAllListeners();
         this.processEvents.map(function (event) { process.removeListener(event, process.listeners(event).pop()); });
+        delete this.request;
+        delete this.udpServer;
+        delete this.httpListener;
     });
 
     test('request_fails_if_not_post_method', function () {
-        var self = this;
         var response = {
             writeHead: sinon.stub(),
             end: sinon.stub()
         };
-        self.request.url = self.baseurl;
-        self.request.method = 'GET';
-        self.httpListener(self.request, response);
+        this.request.url = this.baseurl;
+        this.request.method = 'GET';
+        this.httpListener(this.request, response);
         assert(response.writeHead.calledOnce);
         assert.equal(response.writeHead.args[0][0], 405);  // not allowed
     });
 
     test('request_fails_missing_entity_id', function () {
-        var self = this;
         var response = {
             writeHead: sinon.stub(),
             end: sinon.stub()
         };
-        self.request.url = self.baseurl + '?type=type';
-        self.httpListener(self.request, response);
+        this.request.url = this.baseurl + '?type=type';
+        this.httpListener(this.request, response);
         assert(response.writeHead.calledOnce);
         assert.equal(response.writeHead.args[0][0], 400);  // bad request
     });
 
     test('request_fails_missing_entity_type', function () {
-        var self = this;
         var response = {
             writeHead: sinon.stub(),
             end: sinon.stub()
         };
-        self.request.url = self.baseurl + '?id=id';
-        self.httpListener(self.request, response);
+        this.request.url = this.baseurl + '?id=id';
+        this.httpListener(this.request, response);
         assert(response.writeHead.calledOnce);
         assert.equal(response.writeHead.args[0][0], 400);  // bad request
     });
 
     test('request_fails_missing_url_resource', function () {
-        var self = this;
         var response = {
             writeHead: sinon.stub(),
             end: sinon.stub()
         };
-        self.request.url = self.baseurl + '/' + '?id=id&type=type';
-        self.httpListener(self.request, response);
+        this.request.url = this.baseurl + '/' + '?id=id&type=type';
+        this.httpListener(this.request, response);
         assert(response.writeHead.calledOnce);
         assert.equal(response.writeHead.args[0][0], 404);  // not found
     });
 
     test('request_fails_unknown_url_resource', function () {
-        var self = this;
         var response = {
             writeHead: sinon.stub(),
             end: sinon.stub()
         };
-        self.request.url = self.baseurl + '/invalid_resource' + '?id=id&type=type';
-        self.httpListener(self.request, response);
+        this.request.url = this.baseurl + '/unknown_resource' + '?id=id&type=type';
+        this.httpListener(this.request, response);
+        assert(response.writeHead.calledOnce);
+        assert.equal(response.writeHead.args[0][0], 404);  // not found
+    });
+
+    test('request_fails_valid_url_resource_loading_invalid_parser', function () {
+        var resource = path.basename(__filename, '.js');   // current file as invalid module for parser
+        var response = {
+            writeHead: sinon.stub(),
+            end: sinon.stub()
+        };
+        this.request.url = this.baseurl + '/' + resource + '?id=id&type=type';
+        this.httpListener(this.request, response);
         assert(response.writeHead.calledOnce);
         assert.equal(response.writeHead.args[0][0], 404);  // not found
     });
 
     test('request_ok_valid_url_resource', function () {
-        var self = this;
         var response = {
             writeHead: sinon.stub(),
             end: sinon.stub()
         };
-        self.request.url = self.baseurl + '/' + self.resource + '?id=id&type=type';
-        self.httpListener(self.request, response);
+        this.request.url = this.baseurl + '/' + this.resource + '?id=id&type=type';
+        this.httpListener(this.request, response);
         assert(response.writeHead.calledOnce);
         assert.equal(response.writeHead.args[0][0], 200);  // ok
     });
@@ -224,7 +234,7 @@ suite('adapter', function () {
         self.request.emit('end');
     });
 
-    test('request_asynchronous_callback_error_after_all_retries', function (done) {
+    test('request_asynchronous_callback_error_after_all_cb_connection_retries', function (done) {
         var self = this;
         var response = {
             writeHead: sinon.stub(),
@@ -253,8 +263,55 @@ suite('adapter', function () {
                 done();
             });
         }());
-        opts.retries = 1;
+        config.retries = 1;
         self.timeout(1500);
+        self.request.url = self.baseurl + '/' + self.resource + '?id=id&type=type';
+        self.httpListener(self.request, response);
+        self.request.emit('data', self.body);
+        self.request.emit('end');
+    });
+
+    test('request_asynchronous_callback_cb_error_response', function (done) {
+        var self = this;
+        var response = {
+            writeHead: sinon.stub(),
+            end: sinon.stub()
+        };
+        var factoryGetParser = sinon.stub(factory, 'getParser', function () {
+            var mockParser = Object.create(parser);
+            mockParser.updateContextRequest = sinon.stub().returns('');
+            return mockParser;
+        });
+        var httpRequest = sinon.stub(http, 'request', function (opts, callback) {
+            var clientRequest = new Emitter();
+            var serverResponse = new Emitter();
+            serverResponse.setEncoding = sinon.stub();
+            serverResponse.statusCode = 200;
+            callback(serverResponse);
+            serverResponse.emit('data', '{"orionError": {"code": 500}}');
+            serverResponse.emit('end');
+            clientRequest.end = sinon.stub();
+            return clientRequest;
+        });
+        var loggerError = sinon.spy(logger, 'error');
+        var callback = (function () {
+            var original = adapter.updateContextCallback;
+            return sinon.stub(adapter, 'updateContextCallback', function () {
+                original.apply(null, arguments);
+                callback.restore();
+                httpRequest.restore();
+                factoryGetParser.restore();
+                loggerError.restore();
+                assert(callback.calledOnce);
+                var err = callback.args[0][0];
+                var status = callback.args[0][1];
+                assert.equal(err, null);
+                assert.equal(status, 200);
+                assert(loggerError.calledOnce);
+                done();
+            });
+        }());
+        self.timeout(500);
         self.request.url = self.baseurl + '/' + self.resource + '?id=id&type=type';
         self.httpListener(self.request, response);
         self.request.emit('data', self.body);
@@ -283,6 +340,7 @@ suite('adapter', function () {
             clientRequest.end = sinon.stub();
             return clientRequest;
         });
+        var loggerError = sinon.spy(logger, 'error');
         var callback = (function () {
             var original = adapter.updateContextCallback;
             return sinon.stub(adapter, 'updateContextCallback', function () {
@@ -290,11 +348,13 @@ suite('adapter', function () {
                 callback.restore();
                 httpRequest.restore();
                 factoryGetParser.restore();
+                loggerError.restore();
                 assert(callback.calledOnce);
                 var err = callback.args[0][0];
                 var status = callback.args[0][1];
                 assert.equal(err, null);
                 assert.equal(status, 200);
+                assert(loggerError.notCalled);
                 done();
             });
         }());

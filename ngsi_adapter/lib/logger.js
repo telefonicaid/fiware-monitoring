@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Telefónica I+D
+ * Copyright 2013-2016 Telefónica I+D
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -30,10 +30,10 @@
 var util = require('util'),
     domain = require('domain'),
     logger = require('logops'),
-    opts = require('../config/options');
+    config = require('./config');
 
 
-logger.setLevel(opts.logLevel);
+logger.setLevel(config.logLevel);
 
 
 /**
