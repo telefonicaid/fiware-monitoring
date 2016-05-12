@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Telefónica I+D
+ * Copyright 2013-2016 Telefónica I+D
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -30,11 +30,8 @@
 var url = require('url'),
     util = require('util'),
     path = require('path'),
-    opts = require('../../../config/options'),
-    defaults = require('../../common').defaults,
-    baseParser = require('./base').parser,
-    parsersPath = opts.parsersPath + ':' + defaults.parsersPath,
-    absoluteBaseDir = path.normalize(__dirname + path.sep + '..' + path.sep + '..' + path.sep + '..');
+    config = require('../../config'),
+    baseParser = require('./base').parser;
 
 
 /**
@@ -51,11 +48,13 @@ var parsersCache = {};
  * @returns {Object} The parser been loaded according to given module name.
  */
 function getParserByName(name) {
-    var parser = parsersCache[name];
-    parser || parsersPath.split(':').some(function (dir) {
+    var parser = parsersCache[name],
+        errorCode = 'MODULE_NOT_FOUND';
+
+    parser || config.parsersPath.split(':').some(function (dir) {
         try {
             /* jshint -W103,-W106 */
-            var prototype = require(path.join(path.resolve(absoluteBaseDir, dir), util.format('%s.js', name))).parser;
+            var prototype = require(path.join(dir, util.format('%s.js', name))).parser;
             if (prototype.__proto__ === null) {
                 prototype.__proto__ = baseParser;  // ensure baseParser is part of the prototype chain
             }
@@ -63,11 +62,15 @@ function getParserByName(name) {
             parsersCache[name] = parser;
             return true;
         } catch (err) {
+            errorCode = (err.code === 'MODULE_NOT_FOUND') ? errorCode : 'INVALID';
             return false;
         }
     });
     if (!parser) {
-        throw new Error(util.format('Parser from module "%s" could not be found at path %s', name, parsersPath));
+        var errorMsg = (errorCode === 'MODULE_NOT_FOUND') ?
+            util.format('Module "%s.js" could not be found at path %s', name, config.parsersPath) :
+            util.format('Invalid parser module "%s.js" found at path %s', name, config.parsersPath);
+        throw new Error(errorMsg);
     }
     return parser;
 }

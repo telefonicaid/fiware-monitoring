@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Telefónica I+D
+s * Copyright 2015-2016 Telefónica I+D
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -19,15 +19,15 @@
 /**
  * Module that defines unit tests for the configuration options of the adapter.
  *
- * @module test_options
+ * @module test_config
  */
 
 
 'use strict';
 
 
-/** Fake command line arguments (required to load `adapter` without complaining) */
-process.argv = [];
+/** Command line with duplicated options */
+process.argv = [ '--retries=9999', '--retries=1' ];
 
 
 var util = require('util'),
@@ -38,21 +38,29 @@ var util = require('util'),
     Emitter = require('events').EventEmitter,
     defaults = require('../../lib/common').defaults,
     logger = require('../../lib/logger'),
-    adapter = require('../../lib/adapter'),
-    opts = require('../../config/options');
+    config = require('../../lib/config'),
+    adapter = require('../../lib/adapter');
 
 
 /* jshint multistr: true */
-suite('options', function () {
+suite('config', function () {
 
     suiteSetup(function () {
+        this.baseurl = 'http://hostname:1234';
+        this.resource = 'check_load';
+        this.body = 'invalid load data';
+        this.headers = {};
+        this.availPort = 1234;
+        this.boundPort = 4321;
+        logger.stream = require('dev-null')();
+        logger.setLevel('DEBUG');
+    });
+
+    suiteTeardown(function () {
+    });
+
+    setup(function () {
         var self = this;
-        self.baseurl = 'http://hostname:1234';
-        self.resource = 'check_load';
-        self.body = 'invalid load data';
-        self.headers = {};
-        self.availPort = 1234;
-        self.boundPort = 4321;
         sinon.stub(http, 'createServer', function () {
             self.httpListener = arguments[0];
             self.serverListen = sinon.spy(function (port, host, callback) {
@@ -81,20 +89,31 @@ suite('options', function () {
             self.udpServer.close = sinon.stub();
             return self.udpServer;
         });
-        logger.stream = require('dev-null')();
-        logger.setLevel('DEBUG');
-    });
-
-    suiteTeardown(function () {
-        http.createServer.restore();
-        dgram.createSocket.restore();
-    });
-
-    setup(function () {
     });
 
     teardown(function () {
+        http.createServer.restore();
+        dgram.createSocket.restore();
         delete this.udpServer;
+    });
+
+    test('adapter_takes_last_value_of_duplicated_command_line_options', function () {
+        adapter.main();
+        assert.notEqual(config.retries, 9999);
+    });
+
+    test('adapter_shows_help_message_when_required_at_command_line', function (done) {
+        config.help = true;
+        sinon.stub(console, 'error');
+        sinon.stub(process, 'exit', function (code) {
+            config.help = false;
+            assert(console.error.calledOnce);
+            assert.notEqual(code, 0);
+            console.error.restore();
+            process.exit.restore();
+            done();
+        });
+        adapter.main();
     });
 
     test('adapter_starts_listening_to_http_requests_at_default_port', function () {
@@ -106,14 +125,14 @@ suite('options', function () {
     test('adapter_starts_but_logs_warning_message_when_invalid_udp_endpoints', function () {
         var self = this,
             udpEndpointNoParser = 'host:port:',
-            optsUdpEndpointsSave = opts.udpEndpoints,
+            configUdpEndpointsSave = config.udpEndpoints,
             logWarn = sinon.stub(logger, 'warn', function () {
                 self.logWarnErrMsg = util.format.apply(null, arguments);
                 logWarn.restore();
             });
-        opts.udpEndpoints = udpEndpointNoParser;
+        config.udpEndpoints = udpEndpointNoParser;
         adapter.main();
-        opts.udpEndpoints = optsUdpEndpointsSave;
+        config.udpEndpoints = configUdpEndpointsSave;
         assert(this.serverListen.calledOnce);
         assert(!this.udpServer);
         assert.notEqual(this.logWarnErrMsg.indexOf('Ignoring UDP endpoint'), -1);
@@ -121,14 +140,13 @@ suite('options', function () {
     });
 
     test('adapter_starts_listening_to_both_http_and_udp_requests', function () {
-        var self = this,
-            udpParser = 'parser',
+        var udpParser = 'parser',
             udpHost = 'localhost',
-            udpPort = self.availPort,
-            optsUdpEndpointsSave = opts.udpEndpoints;
-        opts.udpEndpoints = util.format('%s:%d:%s', udpHost, udpPort, udpParser);
+            udpPort = this.availPort,
+            configUdpEndpointsSave = config.udpEndpoints;
+        config.udpEndpoints = util.format('%s:%d:%s', udpHost, udpPort, udpParser);
         adapter.main();
-        opts.udpEndpoints = optsUdpEndpointsSave;
+        config.udpEndpoints = configUdpEndpointsSave;
         assert(this.serverListen.calledOnce);
         assert(this.serverListen.args[0][0], defaults.listenPort);
         assert(this.udpServer.bind.calledOnce);
@@ -137,20 +155,35 @@ suite('options', function () {
     });
 
     test('adapter_starts_but_logs_error_when_udp_bind_fails', function () {
-        var self = this,
-            udpParser = 'parser',
+        var udpParser = 'parser',
             udpHost = 'localhost',
-            udpPort = self.boundPort,
-            optsUdpEndpointsSave = opts.udpEndpoints;
-        opts.udpEndpoints = util.format('%s:%d:%s', udpHost, udpPort, udpParser);
+            udpPort = this.boundPort,
+            configUdpEndpointsSave = config.udpEndpoints;
+        config.udpEndpoints = util.format('%s:%d:%s', udpHost, udpPort, udpParser);
         sinon.spy(logger, 'error');
         adapter.main();
-        opts.udpEndpoints = optsUdpEndpointsSave;
+        config.udpEndpoints = configUdpEndpointsSave;
         assert(this.serverListen.calledOnce);
         assert(this.serverListen.args[0][0], defaults.listenPort);
         assert(this.udpServer.bind.calledOnce);
         assert(logger.error.calledOnce);
         logger.error.restore();
+    });
+
+    test('adapter_does_not_start_if_inaccessible_parsers_path', function (done) {
+        var configParsersPathSave = config.parsersPath;
+        config.parsersPath = '/invalid/path';
+        sinon.spy(logger, 'error');
+        sinon.stub(process, 'exit', function (code) {
+            config.parsersPath = configParsersPathSave;
+            assert(http.createServer.notCalled);
+            assert(logger.error.calledOnce);
+            assert.notEqual(code, 0);
+            logger.error.restore();
+            process.exit.restore();
+            done();
+        });
+        adapter.main();
     });
 
 });
