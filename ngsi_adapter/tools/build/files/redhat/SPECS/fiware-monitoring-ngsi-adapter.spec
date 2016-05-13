@@ -38,7 +38,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %install
 mkdir -p $RPM_BUILD_ROOT/%{_adapter_dir}; set +x
-INCLUDE='lib|config|package.json|.npmrc|LICENSE|README.*|adapter$'
+INCLUDE='lib|package.json|.npmrc|LICENSE|README.*|adapter$'
 PATTERN='* .npmrc'
 FILES=$(cd %{_basedir}; for i in $PATTERN; do echo $i; done | egrep "$INCLUDE")
 for I in $FILES; do cp -R %{_basedir}/$I $RPM_BUILD_ROOT/%{_adapter_dir}; done
@@ -50,8 +50,12 @@ echo "FILES:"; cat %{_topdir}/MANIFEST
 %config /etc/sysconfig/%{_adapter_srv}
 
 %pre
-# preinst ($1 == 1)
-if [ $1 -eq 1 ]; then
+# pre install ($1 == 1) or upgrade ($1 == 2)
+if [ $1 -ge 1 ]; then
+	NODE_REQ_VERSION=%{_node_req_ver}
+	MAJOR=${NODE_REQ_VERSION%%.*}
+	MINOR=$(expr ${NODE_REQ_VERSION%.*} : '0\.\(.*\)' '|' 'x')
+
 	# Function to compare version strings (in `x.y.z' format)
 	valid_version() {
 		local CUR=$1
@@ -72,7 +76,7 @@ if [ $1 -eq 1 ]; then
 		# prepare sources list configuration for the next `yum' command
 		# (this requires removing the lock to allow access to the repositories configuration)
 		find /var/lib/rpm -name "*.lock" -exec rm -f {} \;
-		curl -sL https://rpm.nodesource.com/setup | bash - >/dev/null
+		curl -sL https://rpm.nodesource.com/setup_$MAJOR.$MINOR | bash - >/dev/null
 		if [ $? -eq 0 ]; then fmt --width=${COLUMNS:-$(tput cols)} 1>&2 <<-EOF
 
 			Please run \`sudo yum -y install nodejs' to install/upgrade version
@@ -88,7 +92,6 @@ if [ $1 -eq 1 ]; then
 		fi
 	}
 
-	NODE_REQ_VERSION=%{_node_req_ver}
 	NODE_CUR_VERSION=$(node -pe 'process.versions.node' 2>/dev/null)
 	if ! valid_version ${NODE_CUR_VERSION:-0.0.0} $NODE_REQ_VERSION; then
 		setup_nodesource
@@ -98,8 +101,8 @@ if [ $1 -eq 1 ]; then
 fi
 
 %post
-# postinst ($1 == 1)
-if [ $1 -eq 1 ]; then
+# post install ($1 == 1) or upgrade ($1 == 2)
+if [ $1 -ge 1 ]; then
 	# actual values of installation variables
 	FIWARE_USR=%{_fiware_usr}
 	FIWARE_GRP=%{_fiware_grp}
