@@ -1,5 +1,4 @@
-#!/bin/sh
-set -a
+#!/bin/sh -a
 
 ### BEGIN INIT INFO
 # Provides:          ngsi_adapter

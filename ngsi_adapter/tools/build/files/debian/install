@@ -4,4 +4,3 @@ README.rst /opt/fiware/ngsi_adapter
 package.json /opt/fiware/ngsi_adapter
 .npmrc /opt/fiware/ngsi_adapter
 lib/* /opt/fiware/ngsi_adapter/lib
-config/* /opt/fiware/ngsi_adapter/config
