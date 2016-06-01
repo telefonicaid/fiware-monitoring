@@ -27,9 +27,33 @@
 
 
 /**
+ * Name of the timestamp attribute added automatically to any update context request.
+ */
+exports.timestampAttrName = '_timestamp';
+
+
+/**
  * HTTP header for transaction id.
  */
 exports.txIdHttpHeader = 'txId';
+
+
+/**
+ * Context Broker API 'v0' (i.e. NGSI10).
+ */
+exports.BROKER_API_V0 = 'ngsi10';
+
+
+/**
+ * Context Broker API 'v1'.
+ */
+exports.BROKER_API_V1 = 'v1';
+
+
+/**
+ * Context Broker API 'v2'.
+ */
+exports.BROKER_API_V2 = 'v2';
 
 
 /**
@@ -39,6 +63,7 @@ exports.txIdHttpHeader = 'txId';
  * @property {Object} defaults              Default values for configuration options.
  * @property {String} defaults.logLevel     Default logging level.
  * @property {String} defaults.brokerUrl    Default Context Broker URL.
+ * @property {String} defaults.brokerApi    Default Context Broker API version.
  * @property {String} defaults.listenHost   Default adapter HTTP listen host.
  * @property {Number} defaults.listenPort   Default adapter HTTP listen port.
  * @property {String} defaults.udpEndpoints Default list of UDP endpoints (host:port:parser).
@@ -49,6 +74,7 @@ exports.txIdHttpHeader = 'txId';
 exports.defaults = {
     logLevel: 'INFO',
     brokerUrl: 'http://127.0.0.1:1026/',
+    brokerApi: exports.BROKER_API_V0,
     listenHost: '0.0.0.0',
     listenPort: 1337,
     udpEndpoints: null,

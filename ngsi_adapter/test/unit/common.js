@@ -26,8 +26,9 @@
 'use strict';
 
 
-var assert = require('assert'),
-    timestamp = require('../../lib/parsers/common/base').parser.timestampAttrName;
+var cuid = require('cuid'),
+    assert = require('assert'),
+    timestampAttrName = require('../../lib/common').timestampAttrName;
 
 
 /**
@@ -40,6 +41,7 @@ function assertIsNumber(value) {
     assert(!isNaN(value) && !isNaN(parseFloat(value)));
 }
 
+
 /**
  * Asserts given JSON is well formed according to test suite data.
  *
@@ -51,7 +53,7 @@ function assertValidUpdateJSON(updateJSON, testSuite) {
     assert.ok(testSuite.entityType);
     assert.ok(testSuite.entityData);
     // feature #4: automatically add request timestamp to entity attributes
-    assert.ok(testSuite.entityData[timestamp]);
+    assert.ok(testSuite.entityData[timestampAttrName]);
     assertIsNumber(testSuite.entityId);
     var update = JSON.parse(updateJSON);
     // check id element
@@ -70,6 +72,23 @@ function assertValidUpdateJSON(updateJSON, testSuite) {
     assert.ok(update.updateAction === 'APPEND');
 }
 
+
+/**
+ * Returns a new request domain.
+ *
+ * @function domain
+ * @param {Object} testSuite    The test suite that will use the domain.
+ */
+function domain(testSuite) {
+    return {
+        context: {trans: cuid()},
+        timestamp: Date.now(),
+        entityId: testSuite.entityId,
+        entityType: testSuite.entityType
+    };
+}
+
+
 /**
  * assertIsNumber.
  */
@@ -80,3 +99,15 @@ exports.assertIsNumber = assertIsNumber;
  * assertValidUpdateJSON.
  */
 exports.assertValidUpdateJSON = assertValidUpdateJSON;
+
+
+/**
+ * domain.
+ */
+exports.domain = domain;
+
+
+/**
+ * timestampAttrName.
+ */
+exports.timestampAttrName = timestampAttrName;

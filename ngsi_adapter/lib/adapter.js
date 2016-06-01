@@ -17,16 +17,15 @@
 
 
 /**
- * Module that implements a HTTP asynchronous server processing requests for
- * adaptation from raw monitoring data into NGSI format, then using the results
- * to invoke ContextBroker.
+ * Module that implements a HTTP asynchronous server processing requests for adaptation from raw monitoring data into
+ * NGSI format, then using the results to invoke ContextBroker.
  *
  * @module adapter
  */
 
 
 'use strict';
-/* jshint -W030,-W072 */
+/* jshint -W030,-W072,-W069 */
 
 
 var http = require('http'),
@@ -48,7 +47,7 @@ http.globalAgent.maxSockets = config.maxRequests;
 
 
 /**
- * Asynchronously process incoming requests and then invoke updateContext() on ContextBroker.
+ * Asynchronously process incoming requests and then invoke update context attributes operation on ContextBroker.
  *
  * @param {Domain}          reqdomain  Domain handling request (includes context, timestamp, id, type, body & parser).
  * @param {RequestCallback} callback   The callback for responses from ContextBroker.
@@ -57,41 +56,31 @@ function updateContext(reqdomain, callback) {
     try {
         reqdomain.context.op = 'Parse';
         logger.debug('Probe data "%s"', reqdomain.body);
+
         var parser = reqdomain.parser,
-            remoteUrl = url.parse(config.brokerUrl),
-            updateReqType = parser.getContentType(),
-            updateReqBody = parser.updateContextRequest(reqdomain),
-            updateReqOpts = {
-                hostname: remoteUrl.hostname,
-                port: remoteUrl.port,
-                path: '/NGSI10/updateContext',
-                method: 'POST',
-                headers: {
-                   'Accept': updateReqType,
-                   'Content-Type': updateReqType,
-                   'Content-Length': updateReqBody.length
-                }
-            };
-        updateReqOpts.headers[common.txIdHttpHeader] = reqdomain.context.trans;
+            updateReqBody = parser.getUpdateRequest(reqdomain),
+            updateReqOpts = reqdomain.options,
+            responseType = updateReqOpts.headers['Accept'];
+
         /* jshint unused: false */
         var operation = retry.operation({ retries: config.retries });
-        operation.attempt(function(currentAttempt) {
+        operation.attempt(function (currentAttempt) {
             reqdomain.context.op = 'UpdateContext';
             logger.info('Request to ContextBroker at %s...', config.brokerUrl);
-            logger.debug('%s', { toString: function () {
+            logger.debug('%s %s %s', updateReqOpts.method, updateReqOpts.path, { toString: function () {
                 return updateReqBody.split('\n').map(function (line) {return line.trim();}).join('');
             }});
             var updateReq = http.request(updateReqOpts, function (response) {
                 var responseBody = '';
                 response.setEncoding('utf8');
-                response.on('data', function(chunk) {
+                response.on('data', function (chunk) {
                     responseBody += chunk;
                 });
                 response.on('end', function () {
-                    callback(null, response.statusCode, responseBody, updateReqType);
+                    callback(null, response.statusCode, responseBody, responseType);
                 });
             });
-            updateReq.on('error', function(err) {
+            updateReq.on('error', function (err) {
                 if (operation.retry(err)) {
                     logger.info('Temporary error "%s". Retrying...', err.message);
                     return;
@@ -119,9 +108,10 @@ function updateContextCallback(err, responseStatus, responseBody, responseConten
     if (err) {
         logger.error(err.message);
     } else {
-        var response = (responseContentType === 'application/json') ? JSON.parse(responseBody) : {},
+        var response = (responseBody && responseContentType === 'application/json') ? JSON.parse(responseBody) : {},
             status = (response.orionError) ? response.orionError.code : responseStatus,
-            log = (status === 200) ? logger.debug : logger.error;
+            success = (config.brokerApi === common.BROKER_API_V2) ? 204 : 200,
+            log = (status === success) ? logger.debug : logger.error;
         logger.info('Response status %d %s', status, http.STATUS_CODES[status]);
         log('%s', {
             toString: function () {

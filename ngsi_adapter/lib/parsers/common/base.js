@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Telefónica I+D
+ * Copyright 2013-2016 Telefónica I+D
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -27,7 +27,10 @@
 /* jshint unused: false, laxbreak: true */
 
 
-var url = require('url');
+var url = require('url'),
+    util = require('util'),
+    common = require('../../common'),
+    config = require('../../config');
 
 
 /**
@@ -37,20 +40,11 @@ var baseParser = Object.create(null);
 
 
 /**
- * Name of the timestamp attribute added automatically to the resulting entity context attributes.
- *
- * @constant {String}
- * @memberof baseParser
- */
-baseParser.timestampAttrName = '_timestamp';
-
-
-/**
  * Gets the content type for Context Broker requests.
  *
  * @function getContentType
  * @memberof baseParser
- * @returns {String} The content type (the format) for Context Broker requests.
+ * @returns {String} The content type (the format) for ContextBroker requests.
  */
 baseParser.getContentType = function () {
     return 'application/json';
@@ -58,15 +52,15 @@ baseParser.getContentType = function () {
 
 
 /**
- * Returns the updateContext() request body.
+ * Returns request body and adds `reqdomain` the HTTP options to issue an update attributes operation in ContextBroker.
  *
- * @function updateContextRequest
+ * @function getUpdateRequest
  * @memberof baseParser
  * @this baseParser
- * @param {Domain} reqdomain   Domain handling current request (includes context, timestamp, id, type, body & parser).
+ * @param {Domain} reqdomain   Domain handling request (includes context, timestamp, id, type, body, parser & req_opts).
  * @returns {String} The request body in JSON format.
  */
-baseParser.updateContextRequest = function (reqdomain) {
+baseParser.getUpdateRequest = function (reqdomain) {
     var entityData = this.parseRequest(reqdomain),
         entityAttrs = this.getContextAttrs(entityData),
         entityId = reqdomain.entityId,
@@ -79,9 +73,35 @@ baseParser.updateContextRequest = function (reqdomain) {
     }
 
     // feature #4: automatically add request timestamp to entity attributes
-    entityAttrs[this.timestampAttrName] = reqdomain.timestamp;
+    entityAttrs[common.timestampAttrName] = reqdomain.timestamp;
 
-    return this.getUpdateContextJSON(entityId, entityType, entityAttrs);
+    // body and options for the HTTP request to ContextBroker
+    var contentType = this.getContentType(),
+        brokerUrl = url.parse(config.brokerUrl),
+        brokerPath = (config.brokerApi === common.BROKER_API_V2) ?
+            util.format('/%s/entities/%s/attrs?type=%s&options=append', config.brokerApi, entityId, entityType) :
+            util.format('/%s/updateContext', config.brokerApi);
+
+    var json = (config.brokerApi === common.BROKER_API_V2) ? this.getUpdateRequestJSONv2 : this.getUpdateRequestJSON,
+        requestBody = json(entityId, entityType, entityAttrs),
+        requestOptions = {
+            hostname: brokerUrl.hostname,
+            port: brokerUrl.port,
+            path: brokerPath,
+            method: 'POST',
+            headers: {
+                'Content-Length': requestBody.length,
+                'Content-Type': contentType,
+                'Accept': contentType
+            }
+        };
+
+    // add transaction id
+    requestOptions.headers[common.txIdHttpHeader] = reqdomain.context.trans;
+
+    // add options to `reqdomain` and return request body
+    reqdomain.options = requestOptions;
+    return requestBody;
 };
 
 
@@ -114,16 +134,16 @@ baseParser.getContextAttrs = function (data) {
 
 
 /**
- * Generates a JSON updateContext() request body.
+ * Returns the JSON payload for the body of an update context attributes request of ContextBroker API v0/v1.
  *
- * @function getUpdateContextJSON
+ * @function getUpdateRequestJSON
  * @memberof baseParser
  * @param {String} id          The entity identifier.
  * @param {String} type        The entity type.
  * @param {Object} attrs       The entity context attributes.
  * @returns {String} The request body in JSON format.
  */
-baseParser.getUpdateContextJSON = function (id, type, attrs) {
+baseParser.getUpdateRequestJSON = function (id, type, attrs) {
 
     var payload = {
         'contextElements': [
@@ -143,6 +163,30 @@ baseParser.getUpdateContextJSON = function (id, type, attrs) {
             'type': 'string',
             'value': attrs[name].toString()
         });
+    }
+
+    return JSON.stringify(payload);
+};
+
+
+/**
+ * Returns the JSON payload for the body of an update context attributes request of ContextBroker API v2.
+ *
+ * @function getUpdateRequestJSONv2
+ * @memberof baseParser
+ * @param {String} id          The entity identifier.
+ * @param {String} type        The entity type.
+ * @param {Object} attrs       The entity context attributes.
+ * @returns {String} The request body in JSON format.
+ */
+baseParser.getUpdateRequestJSONv2 = function (id, type, attrs) {
+
+    var payload = {};
+
+    for (var name in attrs) {
+        payload[name] = {
+            'value': attrs[name].toString()
+        };
     }
 
     return JSON.stringify(payload);

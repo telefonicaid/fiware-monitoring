@@ -28,9 +28,11 @@
 
 
 var fs = require('fs'),
+    url = require('url'),
     path = require('path'),
     util = require('util'),
     defaults = require('../lib/common').defaults,
+    optsCount = Object.keys(defaults).length - 1,  // brokerApi has default, but is not included in options
     absoluteBaseDir = path.normalize(__dirname + path.sep + '..');
 
 
@@ -108,7 +110,7 @@ for (var name in config) {
  */
 config.check = function (callback) {
     // Show help or abort if extra options/arguments given: expected = short,long * (N opts + h,help) + 3 fixed attrs
-    var expectedKeyCount = 2 * (Object.keys(defaults).length + 1) + 3;
+    var expectedKeyCount = 2 * (optsCount + 1) + 3;
     if (this.help || (this._.length > 0) || (Object.keys(this).length !== expectedKeyCount)) {
         opts.showHelp();
         process.exit(1);
@@ -132,4 +134,11 @@ config.check = function (callback) {
     } else {
         this.parsersPath = list.filter(function (item, index) { return list.indexOf(item) === index; }).join(':');
     }
+
+    // Get Context Broker API version from URL and normalize values
+    var urlobj = url.parse(this.brokerUrl),
+        urlpath = urlobj.pathname.replace(/(.+)\/$/, '$1').toLowerCase();
+    urlobj.pathname = '/';
+    this.brokerUrl = url.format(urlobj);
+    this.brokerApi = (urlpath === '/') ? defaults.brokerApi : urlpath.replace(/^\/(.+)/, '$1');
 };
