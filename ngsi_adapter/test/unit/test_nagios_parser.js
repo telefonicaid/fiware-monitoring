@@ -31,7 +31,6 @@ var util = require('util'),
     parser = require('../../lib/parsers/common/nagios').parser;
 
 
-/* jshint multistr: true */
 suite('nagios_parser', function () {
 
     suiteSetup(function () {

@@ -41,7 +41,6 @@ var util = require('util'),
     logger = require('../../lib/logger');
 
 
-/* jshint multistr: true */
 suite('logger', function() {
 
     suiteSetup(function() {

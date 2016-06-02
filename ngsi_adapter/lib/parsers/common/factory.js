@@ -24,7 +24,7 @@
 
 
 'use strict';
-/* jshint -W030 */
+/* jshint expr: true */
 
 
 var url = require('url'),
@@ -53,7 +53,7 @@ function getParserByName(name) {
 
     parser || config.parsersPath.split(':').some(function (dir) {
         try {
-            /* jshint -W103,-W106 */
+            /* jshint proto: true, camelcase: false */
             var prototype = require(path.join(dir, util.format('%s.js', name))).parser;
             if (prototype.__proto__ === null) {
                 prototype.__proto__ = baseParser;  // ensure baseParser is part of the prototype chain

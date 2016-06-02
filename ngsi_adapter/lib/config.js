@@ -24,7 +24,7 @@
 
 
 'use strict';
-/* jshint -W069 */
+/* jshint sub: true */
 
 
 var fs = require('fs'),

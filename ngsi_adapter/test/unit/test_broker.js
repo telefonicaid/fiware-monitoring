@@ -24,7 +24,7 @@
 
 
 'use strict';
-/* jshint -W098,-W069 */
+/* jshint sub: true, unused: false */
 
 
 /** Fake command line arguments (required to load `adapter` without complaining) */
@@ -44,7 +44,6 @@ var util = require('util'),
     adapter = require('../../lib/adapter');
 
 
-/* jshint multistr: true */
 suite('broker', function () {
 
     suiteSetup(function () {

@@ -24,6 +24,7 @@
 
 
 'use strict';
+/* jshint maxparams: 6 */
 
 
 /** Fake command line arguments (required to load `adapter` without complaining) */
@@ -45,7 +46,6 @@ var url = require('url'),
     adapter = require('../../lib/adapter');
 
 
-/* jshint multistr: true */
 suite('adapter', function () {
 
     suiteSetup(function () {
@@ -85,7 +85,6 @@ suite('adapter', function () {
                 this.address = sinon.stub().returns({ address: host, port: port });
                 callback.call(this);
             };
-            /* jshint -W072 */
             udpSocket.send = function (buf, offset, length, port, address, callback) {
                 self.udpServer.emit('message', buf.toString('utf8', offset, length - offset));
                 callback.call(this, null, length - offset);
