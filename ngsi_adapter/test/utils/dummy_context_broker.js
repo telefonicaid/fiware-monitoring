@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*
  * Copyright 2013 Telefónica I+D
  * All Rights Reserved.
@@ -42,31 +43,52 @@ var defaults = {
 
 
 function doPost(request, response) {
-    var responseBody = '<ngsi>OK</ngsi>';
-    var responseCode = 200;
-    if (request.url !== '/NGSI10/updateContext') {
-        responseBody = util.format('<ngsi>Invalid resource %s</ngsi>', request.url);
-        responseCode = 404;
-    } else if (!request.headers['content-length']) {
-        responseBody = '<ngsi>Missing Content-Length header</ngsi>';
-        responseCode = 500;
+    var contentType = request.headers['content-type'],
+        brokerApi = (request.url.indexOf('/v2') !== -1) ? common.BROKER_API_V2 : common.BROKER_API_V1,
+        responseCode = null,
+        responseBody = null;
+    switch (brokerApi) {
+        case common.BROKER_API_V2:
+            responseCode = (request.url.match(/\/entities\/\S+\/attrs.*[?&]type=\S+/)) ? 204 : 400;
+            responseBody = (responseCode === 204) ? '' : '{"error": "BadRequest"}';
+            break;
+        default:
+            var code = (request.url.match(/\/(NGSI10|ngsi10|v1)\/updateContext/)) ? 200 : 400;
+            var body = (contentType === 'application/xml') ?
+                util.format('<orionError><code>%d</code></orionError>', code) :
+                util.format('{"orionError": {"code": %d}}', code);
+            responseCode = 200;
+            responseBody = (code === 400) ? body : request.body;
     }
     response.writeHead(responseCode, {
         'Content-Length': responseBody.length,
-        'Content-Type': 'application/xml'
+        'Content-Type': contentType
     });
     response.end(responseBody, 'utf8');
-    logger.info('Response %d %s', response.statusCode, http.STATUS_CODES[response.statusCode]);
-    logger.debug('%s', { toString: function() {
-        return responseBody.split('\n').map(function(line) {return line.trim();}).join('');
+    logger.info('Response status %d %s', response.statusCode, http.STATUS_CODES[response.statusCode]);
+    logger.debug('Response "%s"', { toString: function () {
+        return responseBody.split('\n').map(function (line) {return line.trim();}).join('');
     }});
 }
 
 
 function doError(request, response, status) {
-    response.writeHead(status);
-    response.end();
-    logger.info('Response %d %s', response.statusCode, http.STATUS_CODES[response.statusCode]);
+    var contentType = request.headers['content-type'],
+        brokerApi = (request.url.indexOf('/v2') !== -1) ? common.BROKER_API_V2 : common.BROKER_API_V1,
+        responseBody = null;
+    switch (brokerApi) {
+        case common.BROKER_API_V2:
+            responseBody = util.format('{"error": "%s"}', http.STATUS_CODES[response.status]);
+            break;
+        default:
+            responseBody = '';
+    }
+    response.writeHead(status, {
+        'Content-Length': responseBody.length,
+        'Content-Type': contentType
+    });
+    response.end(responseBody, 'utf8');
+    logger.error('Response status %d %s %s', response.statusCode, http.STATUS_CODES[response.statusCode], responseBody);
 }
 
 
@@ -81,12 +103,12 @@ function syncRequestListener(request, response) {
         trans: requestTxId || cuid(),
         op: request.method
     };
-    reqd.on('error', function(err) {
+    reqd.on('error', function (err) {
         logger.error(err.message);
         doError(request, response, 500);  // server error
     });
-    reqd.run(function() {
-        logger.info('Request %s, Content-Type=%s Content-Length=%s %s=%s',
+    reqd.run(function () {
+        logger.info('Request to resource %s, Content-Type=%s Content-Length=%s %s=%s',
             request.url,
             contentType || 'n/a',
             contentLen || 'n/a',
@@ -96,12 +118,12 @@ function syncRequestListener(request, response) {
             doError(request, response, 405);  // not allowed
         } else {
             request.body = '';
-            request.on('data', function(chunk) {
+            request.on('data', function (chunk) {
                 request.body += chunk;
             });
-            request.on('end', function() {
-                logger.debug('%s', { toString: function() {
-                    return request.body.split('\n').map(function(line) {return line.trim();}).join('');
+            request.on('end', function () {
+                logger.debug('Request "%s"', { toString: function () {
+                    return request.body.split('\n').map(function (line) {return line.trim();}).join('');
                 }});
                 doPost(request, response);
             });
@@ -110,41 +132,42 @@ function syncRequestListener(request, response) {
 }
 
 
-exports.main = function() {
+exports.main = function () {
     // Parse command line options (do not allow extra options/arguments)
     var opts = require('optimist')
         .options('H', { alias: 'listenHost', 'default': defaults.listenHost, describe: 'Context Broker listen host' })
         .options('p', { alias: 'listenPort', 'default': defaults.listenPort, describe: 'Context Broker listen port' })
         .options('l', { alias: 'logLevel',   'default': defaults.logLevel,   describe: 'Logging level'              })
         .options('h', { alias: 'help',       'boolean': true,                describe: 'Show help'                  })
-        .demand([]);
-    var extra = (opts.argv._.length > 0) || (Object.keys(opts.argv).length !== 2 + 2 * (Object.keys(defaults).length + 1));
-    if (opts.argv.help || extra) {
+        .demand([]),
+        optsCount = Object.keys(defaults).length,
+        expectedKeyCount = 2 * (optsCount + 1) + 2;
+    if (opts.argv.help || (opts.argv._.length > 0) || (Object.keys(opts.argv).length !== expectedKeyCount)) {
         opts.showHelp();
         process.exit(1);
     } else {
         opts = opts.argv;
         logger.setLevel(opts.logLevel);
-        logger.getContext = function() {
+        logger.getContext = function () {
             return (domain.active) ? domain.active.context : {};
         };
     }
 
     // Create HTTP server
-    process.on('uncaughtException', function(err) {
+    process.on('uncaughtException', function (err) {
         logger.error({op: 'Exit'}, err.message);
         process.exit(1);
     });
-    process.on('exit', function() {
+    process.on('exit', function () {
         logger.info({op: 'Exit'}, 'Context Broker stopped');
     });
-    process.on('SIGINT', function() {
+    process.on('SIGINT', function () {
         process.exit();
     });
-    process.on('SIGTERM', function() {
+    process.on('SIGTERM', function () {
         process.exit();
     });
-    http.createServer(syncRequestListener).listen(opts.listenPort, opts.listenHost, function() {
+    http.createServer(syncRequestListener).listen(opts.listenPort, opts.listenHost, function () {
         logger.info({op: 'Init'}, 'Context Broker listening at http://%s:%d/', this.address().address, this.address().port);
     });
 };

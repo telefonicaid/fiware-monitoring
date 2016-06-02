@@ -49,11 +49,12 @@ var url = require('url'),
 suite('adapter', function () {
 
     suiteSetup(function () {
+        this.contentType = parser.getContentType();
         this.processEvents = ['SIGINT', 'SIGTERM', 'uncaughtException', 'exit'];
         this.baseurl = 'http://hostname:1234';
         this.resource = 'check_load';
-        this.body = 'invalid load data';
-        this.headers = {};
+        this.body = 'some load data';
+        this.headers = {'Content-Type': this.contentType, 'Accept': this.contentType};
         this.udpParser = 'udp_parser';
         this.udpHost = 'localhost';
         this.udpPort = 1234;
@@ -93,8 +94,8 @@ suite('adapter', function () {
             return udpSocket;
         });
         self.request = new Emitter();
-        self.request.headers = self.headers;
         self.request.method = 'POST';
+        self.request.headers = {};
         adapter.main();
     });
 
@@ -106,6 +107,7 @@ suite('adapter', function () {
         delete this.request;
         delete this.udpServer;
         delete this.httpListener;
+        delete config.brokerApi;
     });
 
     test('request_fails_if_not_post_method', function () {
@@ -242,7 +244,10 @@ suite('adapter', function () {
         };
         var factoryGetParser = sinon.stub(factory, 'getParser', function () {
             var mockParser = Object.create(parser);
-            mockParser.updateContextRequest = sinon.stub().returns('');
+            mockParser.getUpdateRequest = function (reqdomain) {
+                reqdomain.options = {headers: self.headers};
+                return '';
+            };
             return mockParser;
         });
         var httpRequest = sinon.stub(http, 'request', function () {
@@ -279,7 +284,10 @@ suite('adapter', function () {
         };
         var factoryGetParser = sinon.stub(factory, 'getParser', function () {
             var mockParser = Object.create(parser);
-            mockParser.updateContextRequest = sinon.stub().returns('');
+            mockParser.getUpdateRequest = function (reqdomain) {
+                reqdomain.options = {headers: self.headers};
+                return '';
+            };
             return mockParser;
         });
         var httpRequest = sinon.stub(http, 'request', function (opts, callback) {
@@ -326,7 +334,10 @@ suite('adapter', function () {
         };
         var factoryGetParser = sinon.stub(factory, 'getParser', function () {
             var mockParser = Object.create(parser);
-            mockParser.updateContextRequest = sinon.stub().returns('');
+            mockParser.getUpdateRequest = function (reqdomain) {
+                reqdomain.options = {headers: self.headers};
+                return '';
+            };
             return mockParser;
         });
         var httpRequest = sinon.stub(http, 'request', function (opts, callback) {

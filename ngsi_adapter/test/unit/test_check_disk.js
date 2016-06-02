@@ -35,7 +35,6 @@ var util = require('util'),
 suite('check_disk', function () {
 
     suiteSetup(function () {
-        this.timestampName = require('../../lib/parsers/common/base').parser.timestampAttrName;
         this.factory = require('../../lib/parsers/common/factory');
 
         this.baseurl = 'http://hostname:1234/check_disk';
@@ -75,18 +74,14 @@ suite('check_disk', function () {
         this.request = {
             url: this.baseurl + '?id=' + this.entityId + '&type=' + this.entityType
         };
-        this.reqdomain = {
-            timestamp: Date.now(),
-            entityId: this.entityId,
-            entityType: this.entityType
-        };
-        this.entityData[this.timestampName] = this.reqdomain.timestamp;
+        this.reqdomain = common.domain(this);
+        this.entityData[common.timestampAttrName] = this.reqdomain.timestamp;
     });
 
     teardown(function () {
         delete this.request;
         delete this.reqdomain;
-        delete this.entityData[this.timestampName];
+        delete this.entityData[common.timestampAttrName];
     });
 
     test('get_update_request_fails_with_invalid_check_disk_content', function () {
@@ -95,7 +90,7 @@ suite('check_disk', function () {
         var parser = this.factory.getParser(self.request);
         assert.throws(
             function () {
-                return parser.updateContextRequest(self.reqdomain);
+                return parser.getUpdateRequest(self.reqdomain);
             }
         );
     });
@@ -109,7 +104,7 @@ suite('check_disk', function () {
         var parser = this.factory.getParser(self.request);
         assert.throws(
             function () {
-                return parser.updateContextRequest(self.reqdomain);
+                return parser.getUpdateRequest(self.reqdomain);
             }
         );
     });
@@ -120,7 +115,7 @@ suite('check_disk', function () {
             this.probeBody.singleGroup.perf
         );
         var parser = this.factory.getParser(this.request);
-        var update = parser.updateContextRequest(this.reqdomain);
+        var update = parser.getUpdateRequest(this.reqdomain);
         common.assertValidUpdateJSON(update, this);
     });
 

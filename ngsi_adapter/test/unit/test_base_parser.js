@@ -51,11 +51,7 @@ suite('base_parser', function () {
         this.request = {
             url: this.baseurl + '?id=' + this.entityId + '&type=' + this.entityType
         };
-        this.reqdomain = {
-            timestamp: Date.now(),
-            entityId: this.entityId,
-            entityType: this.entityType
-        };
+        this.reqdomain = common.domain(this);
         this.entityData[parser.timestampAttrName] = this.reqdomain.timestamp;
         this.parseRequestFunction = parser.parseRequest;
         this.getContextAttrsFunction = parser.getContextAttrs;
@@ -74,7 +70,7 @@ suite('base_parser', function () {
         parser.getContextAttrs = sinon.spy(function () { return {}; });
         assert.throws(
             function () {
-                return parser.updateContextRequest(self.reqdomain);
+                return parser.getUpdateRequest(self.reqdomain);
             },
             /implement/
         );
@@ -85,7 +81,7 @@ suite('base_parser', function () {
         parser.parseRequest = sinon.spy(function () { return {}; });
         assert.throws(
             function () {
-                return parser.updateContextRequest(self.reqdomain);
+                return parser.getUpdateRequest(self.reqdomain);
             },
             /implement/
         );
@@ -99,7 +95,7 @@ suite('base_parser', function () {
         self.reqdomain.body = '';
         assert.throws(
             function() {
-                return parser.updateContextRequest(self.reqdomain);
+                return parser.getUpdateRequest(self.reqdomain);
             }
         );
     });
@@ -108,7 +104,7 @@ suite('base_parser', function () {
         var self = this;
         parser.parseRequest = sinon.spy(function () { return {}; });
         parser.getContextAttrs = sinon.spy(function () { return self.entityData; });
-        var update = parser.updateContextRequest(self.reqdomain);
+        var update = parser.getUpdateRequest(self.reqdomain);
         common.assertValidUpdateJSON(update, self);
     });
 

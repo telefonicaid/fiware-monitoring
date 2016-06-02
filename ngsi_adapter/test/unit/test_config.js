@@ -36,10 +36,11 @@ var util = require('util'),
     sinon = require('sinon'),
     assert = require('assert'),
     Emitter = require('events').EventEmitter,
-    defaults = require('../../lib/common').defaults,
+    common = require('../../lib/common'),
     logger = require('../../lib/logger'),
     config = require('../../lib/config'),
-    adapter = require('../../lib/adapter');
+    adapter = require('../../lib/adapter'),
+    defaults = common.defaults;
 
 
 /* jshint multistr: true */
@@ -95,11 +96,60 @@ suite('config', function () {
         http.createServer.restore();
         dgram.createSocket.restore();
         delete this.udpServer;
+        delete config.brokerApi;
     });
 
-    test('adapter_takes_last_value_of_duplicated_command_line_options', function () {
-        adapter.main();
+    test('config_takes_last_value_of_duplicated_command_line_options', function () {
+        config.check(sinon.stub());
         assert.notEqual(config.retries, 9999);
+    });
+
+    test('config_assumes_broker_api_v0_by_default', function () {
+        config.brokerUrl = 'http://localhost:1234';
+        config.check(sinon.stub());
+        assert.equal(config.brokerApi, common.BROKER_API_V0);
+    });
+
+    test('config_assumes_broker_api_v0_by_default_url_with_slash', function () {
+        config.brokerUrl = 'http://localhost:1234/';
+        config.check(sinon.stub());
+        assert.equal(config.brokerApi, common.BROKER_API_V0);
+    });
+
+    test('config_detects_broker_api_v0_from_given_url_lowercase', function () {
+        config.brokerUrl = 'http://localhost:1234/ngsi10/';
+        config.check(sinon.stub());
+        assert.equal(config.brokerApi, common.BROKER_API_V0);
+    });
+
+    test('config_detects_broker_api_v0_from_given_url_uppercase', function () {
+        config.brokerUrl = 'http://localhost:1234/NGSI10/';
+        config.check(sinon.stub());
+        assert.equal(config.brokerApi, common.BROKER_API_V0);
+    });
+
+    test('config_detects_broker_api_v1_from_given_url', function () {
+        config.brokerUrl = 'http://localhost:1234/v1';
+        config.check(sinon.stub());
+        assert.equal(config.brokerApi, common.BROKER_API_V1);
+    });
+
+    test('config_detects_broker_api_v1_from_given_url_with_slash', function () {
+        config.brokerUrl = 'http://localhost:1234/v1/';
+        config.check(sinon.stub());
+        assert.equal(config.brokerApi, common.BROKER_API_V1);
+    });
+
+    test('config_detects_broker_api_v2_from_given_url', function () {
+        config.brokerUrl = 'http://localhost:1234/v2';
+        config.check(sinon.stub());
+        assert.equal(config.brokerApi, common.BROKER_API_V2);
+    });
+
+    test('config_detects_broker_api_v2_from_given_url_with_slash', function () {
+        config.brokerUrl = 'http://localhost:1234/v2/';
+        config.check(sinon.stub());
+        assert.equal(config.brokerApi, common.BROKER_API_V2);
     });
 
     test('adapter_shows_help_message_when_required_at_command_line', function (done) {
