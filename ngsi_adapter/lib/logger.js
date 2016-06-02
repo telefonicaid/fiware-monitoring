@@ -24,7 +24,7 @@
 
 
 'use strict';
-/* jshint -W072 */
+/* jshint maxparams: 4 */
 
 
 var util = require('util'),

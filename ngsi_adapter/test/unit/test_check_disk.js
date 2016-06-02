@@ -24,7 +24,6 @@
 
 
 'use strict';
-/* jshint -W101, laxbreak: true */
 
 
 var util = require('util'),

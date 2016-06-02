@@ -32,7 +32,6 @@ var sinon = require('sinon'),
     parser = require('../../lib/parsers/common/base').parser;
 
 
-/* jshint multistr: true */
 suite('base_parser', function () {
 
     suiteSetup(function () {

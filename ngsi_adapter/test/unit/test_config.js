@@ -24,6 +24,7 @@ s * Copyright 2015-2016 Telefónica I+D
 
 
 'use strict';
+/* jshint maxparams: 6 */
 
 
 /** Command line with duplicated options */
@@ -43,7 +44,6 @@ var util = require('util'),
     defaults = common.defaults;
 
 
-/* jshint multistr: true */
 suite('config', function () {
 
     suiteSetup(function () {
@@ -82,7 +82,6 @@ suite('config', function () {
                     callback.call(this);
                 }
             });
-            /* jshint -W072 */
             self.udpServer.send = function (buf, offset, length, port, address, callback) {
                 this.emit('message', buf.toString('utf8', offset, length - offset));
                 callback.call(this, null, length - offset);

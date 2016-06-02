@@ -30,7 +30,7 @@
 
 
 'use strict';
-/* jshint -W101, unused: false */
+/* jshint unused: false, maxlen: 150 */
 
 
 var nagios = require('../common/nagios');

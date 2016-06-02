@@ -31,7 +31,6 @@ var util = require('util'),
     common = require('./common');
 
 
-/* jshint laxbreak: true */
 suite('check_mem.sh', function () {
 
     suiteSetup(function () {

@@ -25,7 +25,7 @@
 
 
 'use strict';
-/* jshint -W030,-W072,-W069 */
+/* jshint expr: true, sub: true, maxparams: 4 */
 
 
 var http = require('http'),
