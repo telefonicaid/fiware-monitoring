@@ -15,7 +15,7 @@ Summary: Adapter to transform data from monitoring probes to NGSI context attrib
 URL: https://github.com/telefonicaid/fiware-monitoring/tree/master/ngsi_adapter
 Name: %{_name}
 Version: %{_version}
-Release: %{_release}%{?dist}
+Release: %{_release}%{?dist}.1
 License: Apache
 Group: Applications/Engineering
 Vendor: Telefónica I+D
@@ -190,6 +190,12 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Fri Jun 24 2016 Telefónica I+D <opensource@tid.es> %{_version}-%{_release}
+- Add initial config check
+- Add support to node.js 4.x and 6.x as prerequisite
+- Add support to NGSI v2 CB API
+- Fix path to invoke CB and error processing of the response
+
 * Mon Apr 11 2016 Telefónica I+D <opensource@tid.es> 1.4.0-1
 - Fix context update requests to use JSON instead XML
 - Add continuous integration support files
