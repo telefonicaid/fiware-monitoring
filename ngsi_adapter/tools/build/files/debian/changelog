@@ -1,12 +1,3 @@
-fiware-monitoring-ngsi-adapter (1.4.1-2) precise; urgency=low
-
-  * Add initial config check
-  * Add support to node.js 4.x and 6.x as prerequisite
-  * Add support to NGSI v2 CB API
-  * Fix path to invoke CB and error processing of the response
-
- -- Telefónica I+D <opensource@tid.es>  Fri, 24 Jun 2016 11:17:41 +0000
-
 fiware-monitoring-ngsi-adapter (1.4.1-1) precise; urgency=low
 
   * Add initial config check

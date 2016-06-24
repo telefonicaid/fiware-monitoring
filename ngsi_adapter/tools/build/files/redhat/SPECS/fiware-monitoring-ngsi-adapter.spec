@@ -190,7 +190,7 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
-* Fri Jun 24 2016 Telefónica I+D <opensource@tid.es> %{_version}-%{_release}
+* Fri Jun 24 2016 Telefónica I+D <opensource@tid.es> 1.4.1-1
 - Add initial config check
 - Add support to node.js 4.x and 6.x as prerequisite
 - Add support to NGSI v2 CB API
