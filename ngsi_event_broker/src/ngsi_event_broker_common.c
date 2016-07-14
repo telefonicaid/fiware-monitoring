@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Telefónica I+D
+ * Copyright 2013-2016 Telefónica I+D
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -135,12 +135,12 @@ int init_module_variables(char* args, context_t* context)
 		for (i = 0; opts[i].opt != NO_CHAR; i++) {
 			switch(opts[i].opt) {
 				case 'u': { /* adapter URL without trailing slash */
-					size_t len = strlen(adapter_url = strdup(opts[i].val));
+					size_t len = strlen(adapter_url = STRDUP(opts[i].val));
 					if ((len > 0) && (adapter_url[len-1] == '/')) adapter_url[len-1] = '\0';
 					break;
 				}
 				case 'r': { /* region id */
-					region_id = strdup(opts[i].val);
+					region_id = STRDUP(opts[i].val);
 					break;
 				}
 				case MISSING_VALUE: {
@@ -168,7 +168,7 @@ int init_module_variables(char* args, context_t* context)
 		logging(LOG_ERROR, context, "Cannot get localhost address");
 		result = NEB_ERROR;
 	} else {
-		host_addr = strdup(addr); /* keep a global copy of addr string */
+		host_addr = STRDUP(addr); /* keep a global copy of addr string */
 	}
 
 	free_option_list(opts);
@@ -254,11 +254,11 @@ char* find_plugin_command_name(nebstruct_service_check_data* data, char** args, 
 		char* last;
 		char* command_name;
 		char* command_args;
-		char* service_check_command = strdup(check_service->service_check_command);
+		char* service_check_command = STRDUP(SERVICE_CHECK_COMMAND(check_service));
 		command_name = strtok_r(service_check_command, "!", &command_args);
-		/* plugin command */
+		/* finds plugin command */
 		if ((check_command = find_command(command_name)) != NULL) {
-			/* plugin arguments */
+			/* fill in plugin arguments */
 			if (args != NULL) {
 				nagios_macros	mac;
 				char*		raw = NULL;
@@ -270,21 +270,21 @@ char* find_plugin_command_name(nebstruct_service_check_data* data, char** args, 
 				                       check_service->service_check_command,
 				                       &raw, 0);
 				if (raw == NULL) {
-					*args = strdup("");
+					*args = NULL;
 				} else {
 					char* exec;
 					process_macros_r(&mac, raw, &cmd, 0);
 					strtok_r(cmd, " \t", &last);
 					ptr = strrchr(cmd, '/');
 					exec = (ptr) ? ++ptr : cmd;
-					*args = strdup(last);
+					*args = STRDUP(last);
 					is_nrpe = !strcmp(exec, NRPE_PLUGIN);
 				}
 				my_free(raw);
 				my_free(cmd);
 			}
 			/* command name (after resolving NRPE remote command) */
-			result = strdup((is_nrpe) ? command_args : command_name);
+			result = STRDUP((is_nrpe) ? command_args : command_name);
 		}
 		free(service_check_command);
 		service_check_command = NULL;
@@ -292,7 +292,6 @@ char* find_plugin_command_name(nebstruct_service_check_data* data, char** args, 
 	/* output arguments */
 	if (nrpe != NULL) *nrpe = is_nrpe;
 	if (serv != NULL) *serv = check_service;
-
 	return result;
 }
 
@@ -335,6 +334,7 @@ int callback_service_check(int callback_type, void* data)
 	mktemp(txId);
 	memcpy(txId, txPrefix, strlen(txPrefix));
 	txHdr[HDRLEN - 1] = '\0';
+	logging(LOG_DEBUG, &context, "New service check");
 
 	/* Async POST request to NGSI Adapter */
 	if ((request_url = get_adapter_request(check_data, &context)) == ADAPTER_REQUEST_INVALID) {
@@ -366,7 +366,6 @@ int callback_service_check(int callback_type, void* data)
 		curl_easy_cleanup(curl_handle);
 		curl_handle = NULL;
 	}
-
 	free(request_url);
 	request_url = NULL;
 	return result;
