@@ -52,7 +52,7 @@ using namespace std;
 
 
 /// Initialization of `std::string` to non-null character strings
-#define NON_NULL(s)	((s) ? (s):"")
+#define NON_NULL(s)	((s) ? (s) : "")
 
 
 /// C++ version of option_value

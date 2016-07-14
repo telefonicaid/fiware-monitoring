@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Telefónica I+D
+ * Copyright 2013-2016 Telefónica I+D
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -34,7 +34,7 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include "config.h"
+#include "suite_config.h"
 #include "ngsi_event_broker_common.h"
 #include "neberrors.h"
 #include "curl/curl.h"
@@ -52,22 +52,6 @@ using CppUnit::TextTestRunner;
 using CppUnit::XmlOutputter;
 using CppUnit::BriefTestProgressListener;
 using namespace std;
-
-
-/// Some region id
-#define REGION_ID			"some_region"
-
-
-/// Fake adapter URL
-#define ADAPTER_URL			"http://adapter_host:5000"
-
-
-/// Fake local host address
-#define LOCALHOST_ADDR			"10.95.0.6"
-
-
-/// Fake local host name
-#define LOCALHOST_NAME			"my_local_host"
 
 
 // Stubs for global module constants and variables
