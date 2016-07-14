@@ -99,20 +99,23 @@ char* get_adapter_request(nebstruct_service_check_data* data, context_t* context
 		const char*		type = NULL;
 		customvariablesmember*	vars = serv->custom_variables;
 
-		/* get entity type, either explicitly from custom variable or implicitly,
-		   assuming that:
+		/* get entity type, either explicitly from custom variable or implicitly, assuming that:
 		 * - SNMP plugin implies NPM monitoring
 		 * - NRPE plugin implies DEM remote instance monitoring
 		 * - None of the above implies DEM local host monitoring
 		 */
 		if ((vars != NULL) && !strcmp(vars->variable_name, CUSTOM_VAR_ENTITY_TYPE)) {
 			type = vars->variable_value;
+			logging(LOG_DEBUG, context, "Explicit entity type %s from custom variables", type);
 		} else if (!strcmp(name, SNMP_PLUGIN)) {
 			type = NPM_DEFAULT_ENTITY_TYPE;
+			logging(LOG_DEBUG, context, "Implicit entity type %s for plugin %s", type, name);
 		} else if (nrpe) {
 			type = DEM_ENTITY_TYPE_HOST_REMOTE;
+			logging(LOG_DEBUG, context, "Implicit entity type %s when using NRPE", type);
 		} else {
 			type = DEM_ENTITY_TYPE_HOST_LOCAL;
+			logging(LOG_DEBUG, context, "Implicit entity type %s for local plugin %s", type, name);
 		}
 
 		/* get request URL */
