@@ -20,7 +20,12 @@
  * @file   ngsi_event_broker_fiware.c
  * @brief  FIWARE Lab-specific Event Broker implementation
  *
- * This file consists of the implementation of [FIWARE Lab](@FIWARE_Lab_ref)-specific [Event Broker](@NagiosModule_ref).
+ * This file consists of the implementation of [FIWARE Lab](@FIWARE_Lab_ref)-specific [Event Broker](@NagiosModule_ref),
+ * which is used to monitor the following resources:
+ *
+ * - [FIWARE GEri global instances](@FIWARE_GEri_ref). There are no restrictions on the command names and the plugins to
+ *   be used, but the resulting NGSI entity type must be explicitly given with a custom variable "_entity_type" in the
+ *   service definition (or using a service template). Entity identifier will be "{region}:{host_name}:{service_desc}".
  */
 
 

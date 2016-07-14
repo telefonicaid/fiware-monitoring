@@ -3,10 +3,11 @@
 ===================
 
 Nagios event broker (NEB_) module to forward plugin data to `NGSI Adapter
-<../ngsi_adapter/README.rst>`_. Currently, the broker is particularized for
-XIFI_ monitoring:
+<../ngsi_adapter/README.rst>`_. Current release comprises two customizations:
 
-- *ngsi\_event\_broker\_xifi* to process plugin executions for XIFI
+- *ngsi\_event\_broker\_fiware* to process plugin executions for `FIWARE Lab`_
+  monitoring.
+- *ngsi\_event\_broker\_xifi* used in XIFI_ project.
 
 
 Installation
@@ -23,16 +24,16 @@ Usage
 
 Nagios should be instructed to load this module on startup. First, stop Nagios
 service and then edit configuration file at ``/etc/nagios/nagios.cfg`` to add
-the new broker module with its arguments: the id of the region__ that current
-infrastructure belongs to, and the endpoint of NGSI Adapter component to
-request:
+the new broker module with its arguments: the id of the region__ (i.e. domain)
+that monitored resources belong to, and the endpoint of NGSI Adapter component
+to request:
 
 __ `OpenStack region`_
 
 .. code::
 
    event_broker_options=-1
-   broker_module=/path/ngsi_event_broker_xifi.so -r region -u http://host:port
+   broker_module=/path/ngsi_event_broker_fiware.so -r region -u http://host:port
 
 The module will use such information given as arguments together with data taken
 from the `Nagios service definition`_ to issue a request to NGSI Adapter. In
@@ -55,7 +56,7 @@ Assuming this Nagios host definition:
 
    define host{
        use                     linux-server
-       host_name               myhostname
+       host_name               my_host_name
        alias                   linux_server
        address                 192.168.0.2
        }
@@ -66,8 +67,8 @@ then a typical Nagios service definition would look like this:
 
    define service{
        use                     generic-service
-       host_name               myhostname
-       service_description     my service description
+       host_name               my_host_name
+       service_description     my_service_description
        check_command           check_name!arguments
        ...
        }
@@ -79,50 +80,36 @@ Requests to NGSI Adapter issued by this broker will all follow the pattern
 
 -  ``http://{host}:{port}`` is the endpoint taken from broker arguments
 -  ``{check_name}`` is taken from Nagios command specified at service definition
+   (for plugins executed remotely via NRPE, it will be taken from the arguments
+   of ``check_nrpe``)
 -  ``{region}`` is taken from broker arguments
--  ``{uniqueid}`` is taken from service definition, depending on the command
-     plugin
--  ``{type}`` is also taken from service definition, also depending on the
-     command
+-  ``{uniqueid}`` is taken from service definition, and may depend on the
+   command
+-  ``{type}`` is also taken from service definition, and may also depend on
+   the command
 
-For *SNMP monitoring* a Nagios command named ``check_snmp`` should be used.
-Entity type ``interface`` is assumed by default and ``{uniqueid}`` consists
-of the address and port number given as command arguments (see ``check_snmp``
-manpage). Entity id in requests would be ``{region}:{ifaddr}/{ifport}``
-
-For *host service monitoring* there are no restrictions on the command names
-and the plugins to be used. The ``{uniqueid}`` consists of the hostname and
-description of the service, resulting an entity id
-``{region}:{hostname}:{servicedesc}``. However, the exact entity type must be
-explicitly given with a custom variable ``_entity_type`` at service definition
-(or using templates, as follows):
+For *GEri global instance monitoring* there are no restrictions on the command
+names and the plugins to be used. The ``{uniqueid}`` will result from the
+concatenation of the ``host_name`` and ``service_description``  defined in
+the corresponding Nagios service, while ``{type}`` must be explicitly given
+with a custom variable ``_entity_type`` in the service definition (or using
+templates, as follows):
 
 .. code::
 
    define service{
        use                     generic-service
-       name                    host-service
-       _entity_type            host_service
+       name                    fiware-ge-service
+       _entity_type            ge
        }
 
    define service{
-       use                     host-service
-       host_name               myhostname
-       service_description     my service description
+       use                     fiware-ge-service
+       host_name               my_host_name
+       service_description     my_service_description
        check_command           check_name!arguments
        ...
        }
-
-For *any other plugin executed locally* the entity id will include the local
-address and a ``host`` entity type will be assumed, resulting a request like
-``http://{host}:{port}/{check_name}?id={region}:{localaddr}&type=host``
-
-For *any other plugin executed remotely via NRPE* the entity id will include
-the remote address instead, a ``vm`` entity type will be assumed and the
-``{check_name}`` will be taken from arguments of ``check_nrpe`` plugin.
-
-Default entity types may be superseded in any case by including in the service
-definition the aforementioned custom variable ``_entity_type``.
 
 
 Changelog
@@ -134,13 +121,14 @@ Please refer to `FIWARE Monitoring releases changelog`_.
 License
 =======
 
-\(c) 2013-2015 Telefónica I+D, Apache License 2.0
+\(c) 2013-2016 Telefónica I+D, Apache License 2.0
 
 
 .. REFERENCES
 
-.. _XIFI: https://www.fi-xifi.eu/home.html
 .. _NEB: http://nagios.sourceforge.net/download/contrib/documentation/misc/NEB%202x%20Module%20API.pdf
 .. _Nagios service definition: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service
 .. _OpenStack region: http://docs.openstack.org/glossary/content/glossary.html#region
 .. _FIWARE Monitoring releases changelog: https://github.com/telefonicaid/fiware-monitoring/releases
+.. _FIWARE Lab: https://www.fiware.org/lab/
+.. _XIFI: https://www.fi-xifi.eu/home.html
