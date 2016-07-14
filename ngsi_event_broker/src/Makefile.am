@@ -6,13 +6,13 @@ COMMON_SOURCES				= ngsi_event_broker_common.c ngsi_event_broker_common.h \
 
 ngsi_event_broker_fiware_la_SOURCES	= $(COMMON_SOURCES) ngsi_event_broker_fiware.c ngsi_event_broker_fiware.h
 ngsi_event_broker_fiware_la_CPPFLAGS	= -DNDEBUG
-ngsi_event_broker_fiware_la_CFLAGS	= -Wall -Wno-nonnull -Wno-address
+ngsi_event_broker_fiware_la_CFLAGS	= -Wall -Wno-nonnull -Wno-address -Wno-unused
 ngsi_event_broker_fiware_la_LDFLAGS	= -module -avoid-version
 ngsi_event_broker_fiware_la_LIBADD	= -lcurl
 
 ngsi_event_broker_xifi_la_SOURCES	= $(COMMON_SOURCES) ngsi_event_broker_xifi.c ngsi_event_broker_xifi.h
 ngsi_event_broker_xifi_la_CPPFLAGS	= -DNDEBUG
-ngsi_event_broker_xifi_la_CFLAGS	= -Wall
+ngsi_event_broker_xifi_la_CFLAGS	= -Wall -Wno-nonnull -Wno-address -Wno-unused
 ngsi_event_broker_xifi_la_LDFLAGS	= -module -avoid-version
 ngsi_event_broker_xifi_la_LIBADD	= -lcurl
 
