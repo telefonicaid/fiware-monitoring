@@ -24,9 +24,9 @@ Usage
 
 Nagios should be instructed to load this module on startup. First, stop Nagios
 service and then edit configuration file at ``/etc/nagios/nagios.cfg`` to add
-the new broker module with its arguments: the id of the region__ (i.e. domain)
-that monitored resources belong to, and the endpoint of NGSI Adapter component
-to request:
+the new broker module with its arguments: option ``-r`` with the name of the
+region__ (i.e. domain) that monitored resources belong to, and option ``-u``
+with the endpoint of NGSI Adapter component to request:
 
 __ `OpenStack region`_
 
@@ -44,7 +44,8 @@ slight changes in those service definitions (see below).
 Once main configuration file and service definitions have been reviewed, then
 start Nagios service. Check log files for module initialization (may fail for
 missing arguments, for example). Also check that requests are sent to Adapter
-server in response to plugin executions.
+server in response to plugin executions. Logging level may be set to a higher
+verbosity using ``-l`` option (for instance, ``-l DEBUG``).
 
 
 Service definitions

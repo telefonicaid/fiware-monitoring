@@ -117,7 +117,8 @@ class BrokerCommonTest: public TestFixture
 	void init_fails_when_cannot_resolve_host_address();
 	void init_fails_when_curl_cannot_be_initialized();
 	void init_fails_when_callback_cannot_be_registered();
-	void init_ok_with_valid_args();
+	void init_ok_with_valid_mandatory_args();
+	void init_ok_with_optional_logging_arg();
 
 public:
 	static void suiteSetUp();
@@ -135,7 +136,8 @@ public:
 	CPPUNIT_TEST(init_fails_when_cannot_resolve_host_address);
 	CPPUNIT_TEST(init_fails_when_curl_cannot_be_initialized);
 	CPPUNIT_TEST(init_fails_when_callback_cannot_be_registered);
-	CPPUNIT_TEST(init_ok_with_valid_args);
+	CPPUNIT_TEST(init_ok_with_valid_mandatory_args);
+	CPPUNIT_TEST(init_ok_with_optional_logging_arg);
 	CPPUNIT_TEST_SUITE_END();
 };
 
@@ -494,7 +496,7 @@ void BrokerCommonTest::init_fails_when_callback_cannot_be_registered()
 }
 
 
-void BrokerCommonTest::init_ok_with_valid_args()
+void BrokerCommonTest::init_ok_with_valid_mandatory_args()
 {
 	// given
 	int	flags	= 0;
@@ -513,4 +515,28 @@ void BrokerCommonTest::init_ok_with_valid_args()
 	CPPUNIT_ASSERT(url == ::adapter_url);
 	CPPUNIT_ASSERT(region == ::region_id);
 	CPPUNIT_ASSERT(::host_addr != NULL);
+}
+
+
+void BrokerCommonTest::init_ok_with_optional_logging_arg()
+{
+	// given
+	int	flags	= 0,
+		level	= LOG_DEBUG;
+	string	url	= ADAPTER_URL,
+		region	= REGION_ID,
+		argline	= ((ostringstream&)(ostringstream().flush()
+		<<        "-u" << url
+		<< ' ' << "-r" << region
+		<< ' ' << "-l" << loglevel_names[level]
+		)).str();
+
+	// when
+	bool init_error = nebmodule_init(flags, argline, module_handle) == NEB_ERROR;
+
+	// then
+	CPPUNIT_ASSERT(!init_error);
+	CPPUNIT_ASSERT(url == ::adapter_url);
+	CPPUNIT_ASSERT(region == ::region_id);
+	CPPUNIT_ASSERT(::log_level == level);
 }

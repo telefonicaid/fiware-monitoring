@@ -130,7 +130,7 @@ int init_module_variables(char* args, context_t* context)
 	int		result	= NEB_OK;
 
 	/* process arguments passed to module in Nagios configuration file */
-	if ((opts = parse_args(args, ":u:r:")) != NULL) {
+	if ((opts = parse_args(args, ":u:r:l:")) != NULL) {
 		size_t	i;
 		for (i = 0; opts[i].opt != NO_CHAR; i++) {
 			switch(opts[i].opt) {
@@ -141,6 +141,13 @@ int init_module_variables(char* args, context_t* context)
 				}
 				case 'r': { /* region id */
 					region_id = STRDUP(opts[i].val);
+					break;
+				}
+				case 'l': { /* loglevel */
+					size_t lvl;
+					char** ptr = (char**) loglevel_names;
+					for (lvl = 0; *ptr && strcmp(*ptr, opts[i].val); ptr++, lvl++);
+					if (*ptr) log_level = lvl;
 					break;
 				}
 				case MISSING_VALUE: {
