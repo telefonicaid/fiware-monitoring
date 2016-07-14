@@ -1,9 +1,7 @@
 UNITTESTS_PROGS				= suite_argument_parser \
 					  suite_broker_common \
-					  suite_broker_xifi \
-					  suite_broker_xifi_dem \
-					  suite_broker_xifi_npm \
-					  suite_broker_xifi_srv
+					  suite_broker_fiware \
+					  suite_broker_xifi
 
 UNITTESTS_NAGIOS_MAIN			= nagios_main.c
 
@@ -28,13 +26,13 @@ UNITTESTS_BROKER_COMMON_MOCKS		= gethostname \
 					  curl_global_init \
 					  curl_global_cleanup
 
-UNITTESTS_BROKER_XIFI_MOCKS		= $(UNITTESTS_BROKER_COMMON_MOCKS) \
-					  $(UNITTESTS_NAGIOS_MOCKS) \
-					  $(UNITTESTS_CURL_EASY_MOCKS)
-
-UNITTESTS_BROKER_XIFI_ALT_MOCKS		= gethostname \
+UNITTESTS_BROKER_MINIMAL_MOCKS		= gethostname \
 					  gethostbyname \
 					  $(UNITTESTS_NAGIOS_MOCKS)
+
+UNITTESTS_BROKER_ALL_MOCKS		= $(UNITTESTS_BROKER_COMMON_MOCKS) \
+					  $(UNITTESTS_NAGIOS_MOCKS) \
+					  $(UNITTESTS_CURL_EASY_MOCKS)
 
 noinst_PROGRAMS				= $(UNITTESTS_PROGS)
 check_PROGRAMS				= $(UNITTESTS_PROGS)
@@ -49,52 +47,32 @@ NAGIOS_LIBS				= $(shell awk '/^(MATH|PERL|SOCKET|THREAD|BROKER)LIBS/ {sub(/.*=/
 suite_argument_parser_SOURCES		= suite_argument_parser.cc
 suite_argument_parser_CXXFLAGS		= -Wall @CPPUNIT_CFLAGS@
 suite_argument_parser_LDADD		= @CPPUNIT_LIBS@ \
-					  $(top_builddir)/src/ngsi_event_broker_xifi_la-argument_parser.lo
+					  $(top_builddir)/src/ngsi_event_broker_fiware_la-argument_parser.lo
 
 suite_broker_common_SOURCES		= suite_broker_common.cc
 nodist_suite_broker_common_SOURCES	= $(UNITTESTS_NAGIOS_MAIN)
 suite_broker_common_CXXFLAGS		= -fpermissive -w @CPPUNIT_CFLAGS@ \
 					  $(foreach FN,$(UNITTESTS_BROKER_COMMON_MOCKS),-Wl,--wrap,$(FN))
 suite_broker_common_LDADD		= -lcurl $(NAGIOS_LIBS) @CPPUNIT_LIBS@ \
-					  $(top_builddir)/src/ngsi_event_broker_xifi_la-ngsi_event_broker_common.lo \
-					  $(top_builddir)/src/ngsi_event_broker_xifi_la-argument_parser.lo \
+					  $(top_builddir)/src/ngsi_event_broker_fiware_la-ngsi_event_broker_common.lo \
+					  $(top_builddir)/src/ngsi_event_broker_fiware_la-argument_parser.lo \
+					  $(NAGIOS_OBJECTS)
+
+suite_broker_fiware_SOURCES		= suite_broker_fiware.cc
+nodist_suite_broker_fiware_SOURCES	= $(UNITTESTS_NAGIOS_MAIN)
+suite_broker_fiware_CXXFLAGS		= -fpermissive -w @CPPUNIT_CFLAGS@ \
+					  $(foreach FN,$(UNITTESTS_BROKER_ALL_MOCKS),-Wl,--wrap,$(FN))
+suite_broker_fiware_LDADD		= -lcurl $(NAGIOS_LIBS) @CPPUNIT_LIBS@ \
+					  $(top_builddir)/src/ngsi_event_broker_fiware_la-ngsi_event_broker_common.lo \
+					  $(top_builddir)/src/ngsi_event_broker_fiware_la-ngsi_event_broker_fiware.lo \
+					  $(top_builddir)/src/ngsi_event_broker_fiware_la-argument_parser.lo \
 					  $(NAGIOS_OBJECTS)
 
 suite_broker_xifi_SOURCES		= suite_broker_xifi.cc
 nodist_suite_broker_xifi_SOURCES	= $(UNITTESTS_NAGIOS_MAIN)
 suite_broker_xifi_CXXFLAGS		= -fpermissive -w @CPPUNIT_CFLAGS@ \
-					  $(foreach FN,$(UNITTESTS_BROKER_XIFI_MOCKS),-Wl,--wrap,$(FN))
+					  $(foreach FN,$(UNITTESTS_BROKER_MINIMAL_MOCKS),-Wl,--wrap,$(FN))
 suite_broker_xifi_LDADD			= -lcurl $(NAGIOS_LIBS) @CPPUNIT_LIBS@ \
-					  $(top_builddir)/src/ngsi_event_broker_xifi_la-ngsi_event_broker_common.lo \
-					  $(top_builddir)/src/ngsi_event_broker_xifi_la-ngsi_event_broker_xifi.lo \
-					  $(top_builddir)/src/ngsi_event_broker_xifi_la-argument_parser.lo \
-					  $(NAGIOS_OBJECTS)
-
-suite_broker_xifi_dem_SOURCES		= suite_broker_xifi_dem.cc
-nodist_suite_broker_xifi_dem_SOURCES	= $(UNITTESTS_NAGIOS_MAIN)
-suite_broker_xifi_dem_CXXFLAGS		= -fpermissive -w @CPPUNIT_CFLAGS@ \
-					  $(foreach FN,$(UNITTESTS_BROKER_XIFI_ALT_MOCKS),-Wl,--wrap,$(FN))
-suite_broker_xifi_dem_LDADD		= -lcurl $(NAGIOS_LIBS) @CPPUNIT_LIBS@ \
-					  $(top_builddir)/src/ngsi_event_broker_xifi_la-ngsi_event_broker_common.lo \
-					  $(top_builddir)/src/ngsi_event_broker_xifi_la-ngsi_event_broker_xifi.lo \
-					  $(top_builddir)/src/ngsi_event_broker_xifi_la-argument_parser.lo \
-					  $(NAGIOS_OBJECTS)
-
-suite_broker_xifi_npm_SOURCES		= suite_broker_xifi_npm.cc
-nodist_suite_broker_xifi_npm_SOURCES	= $(UNITTESTS_NAGIOS_MAIN)
-suite_broker_xifi_npm_CXXFLAGS		= -fpermissive -w @CPPUNIT_CFLAGS@ \
-					  $(foreach FN,$(UNITTESTS_BROKER_XIFI_ALT_MOCKS),-Wl,--wrap,$(FN))
-suite_broker_xifi_npm_LDADD		= -lcurl $(NAGIOS_LIBS) @CPPUNIT_LIBS@ \
-					  $(top_builddir)/src/ngsi_event_broker_xifi_la-ngsi_event_broker_common.lo \
-					  $(top_builddir)/src/ngsi_event_broker_xifi_la-ngsi_event_broker_xifi.lo \
-					  $(top_builddir)/src/ngsi_event_broker_xifi_la-argument_parser.lo \
-					  $(NAGIOS_OBJECTS)
-
-suite_broker_xifi_srv_SOURCES		= suite_broker_xifi_srv.cc
-nodist_suite_broker_xifi_srv_SOURCES	= $(UNITTESTS_NAGIOS_MAIN)
-suite_broker_xifi_srv_CXXFLAGS		= -fpermissive -w @CPPUNIT_CFLAGS@ \
-					  $(foreach FN,$(UNITTESTS_BROKER_XIFI_ALT_MOCKS),-Wl,--wrap,$(FN))
-suite_broker_xifi_srv_LDADD		= -lcurl $(NAGIOS_LIBS) @CPPUNIT_LIBS@ \
 					  $(top_builddir)/src/ngsi_event_broker_xifi_la-ngsi_event_broker_common.lo \
 					  $(top_builddir)/src/ngsi_event_broker_xifi_la-ngsi_event_broker_xifi.lo \
 					  $(top_builddir)/src/ngsi_event_broker_xifi_la-argument_parser.lo \
