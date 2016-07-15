@@ -73,7 +73,7 @@
 #define SOME_CHECK_OUTPUT_DATA	"some_data"
 
 
-/// Some check output data
+/// Some check performance data
 #define SOME_CHECK_PERF_DATA	"some_perf_data"
 
 
