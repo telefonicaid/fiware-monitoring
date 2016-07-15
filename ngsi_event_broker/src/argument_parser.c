@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Telefónica I+D
+ * Copyright 2013-2016 Telefónica I+D
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -59,7 +59,7 @@ option_list_t parse_args(const char* args, const char* optstr)
 	}
 
 	/* fill option_value structs */
-	optind  = 1;
+	optind  = 0;
 	optlist = (option_list_t) malloc(argc * sizeof(struct option_value));
 	while ((opt = getopt(argc, argv, optstr)) != -1) {
 		const int dash = (optarg != NULL && optarg[0] == '-');

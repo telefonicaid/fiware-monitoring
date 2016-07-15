@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Telefónica I+D
+ * Copyright 2013-2016 Telefónica I+D
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -34,6 +34,7 @@ extern "C" {
 #endif
 
 
+#include "objects.h"
 #include "nebmodules.h"
 #include "nebstructs.h"
 
@@ -47,6 +48,9 @@ extern "C" {
 #ifndef MAXBUFLEN
 #define MAXBUFLEN			512
 #endif /*MAXBUFLEN*/
+
+/** Safe string duplication */
+#define STRDUP(s)			((s) ? strdup(s) : NULL)
 
 /**@}*/
 
@@ -93,12 +97,30 @@ typedef struct {
 
 
 /**
+ * @name Nagios API macros
+ * @{
+ */
+
+/** Macro to get service check command from Nagios 3.x and 4.x APIs */
+#if (CURRENT_OBJECT_STRUCTURE_VERSION < 400)
+#define SERVICE_CHECK_COMMAND(ptr)	(ptr)->service_check_command
+#else
+#define SERVICE_CHECK_COMMAND(ptr)	(ptr)->check_command
+#endif
+
+/**@}*/
+
+
+/**
  * @name Nagios plugins macros
  * @{
  */
 
 /** Name of the SNMP plugin */
 #define SNMP_PLUGIN			"check_snmp"
+
+/** Name of the HTTP plugin */
+#define HTTP_PLUGIN			"check_http"
 
 /** Name of the NRPE plugin (remote plugin executions) */
 #define NRPE_PLUGIN			"check_nrpe"

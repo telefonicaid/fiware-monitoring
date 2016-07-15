@@ -1,9 +1,7 @@
 suite_argument_parser
 suite_broker_common
+suite_broker_fiware
 suite_broker_xifi
-suite_broker_xifi_dem
-suite_broker_xifi_npm
-suite_broker_xifi_srv
 nagios_main.c
 *.trs
 *.log

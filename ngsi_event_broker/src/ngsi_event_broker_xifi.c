@@ -20,9 +20,28 @@
  * @file   ngsi_event_broker_xifi.c
  * @brief  XIFI-specific Event Broker implementation
  *
- * This file consists of the implementation of [XIFI](@XIFI_ref)-specific
- * [Event Broker](@NagiosModule_ref) (needed by XIFI modules [DEM](@DEM_ref)
- * and [NPM](@NPM_ref)).
+ * This file consists of the implementation of [XIFI](@XIFI_ref)-specific [Event Broker](@NagiosModule_ref), which is
+ * used to monitor the following resources:
+ *
+ * - Instances (i.e. VMs), as part of the XIFI [DEM](@XIFI_DEM_ref) module.
+ * - Network elements, as part of the XIFI [NPM](@XIFI_NPM_ref) module.
+ * - OpenStack services.
+ *
+ * Monitoring of network elements requires using Nagios plugin "check_snmp". The entity type "interface" is assumed by
+ * default (unless explicitly given with a custom variable "_entity_type" in the service definition) and the resulting
+ * entity identifier will be "{region}:{ifaddr}/{ifport}", taking address and port from the check command arguments.
+ *
+ * For host service (i.e. OpenStack service) monitoring, there are no restrictions on the command names and the plugins
+ * to be used. The entity identifier will be "{region}:{host_name}:{service_desc}" and the entity type "host_service"
+ * should be explicitly given with a custom variable "_entity_type" at service definition (or using a service template).
+ *
+ * For any other plugin executed locally, the entity type "host" will be assumed and resulting entity identifier will be
+ * "{region}:{localaddr}". But if plugin is executed remotely via NRPE, we will assume an instance (i.e. VM) is being
+ * monitored: entity type "vm" will be taken by default and entity identifier will consist of "{region}:{remoteaddr}"
+ * (the name of the resource won't be "check_nrpe" but the remote plugin name included in its arguments).
+ *
+ * Default entity types may be superseded in any case by including in the service definition the aforementioned custom
+ * variable "_entity_type".
  */
 
 
@@ -99,20 +118,23 @@ char* get_adapter_request(nebstruct_service_check_data* data, context_t* context
 		const char*		type = NULL;
 		customvariablesmember*	vars = serv->custom_variables;
 
-		/* get entity type, either explicitly from custom variable or implicitly,
-		   assuming that:
+		/* get entity type, either explicitly from custom variable or implicitly, assuming that:
 		 * - SNMP plugin implies NPM monitoring
 		 * - NRPE plugin implies DEM remote instance monitoring
 		 * - None of the above implies DEM local host monitoring
 		 */
 		if ((vars != NULL) && !strcmp(vars->variable_name, CUSTOM_VAR_ENTITY_TYPE)) {
 			type = vars->variable_value;
+			logging(LOG_DEBUG, context, "Explicit entity type %s from custom variables", type);
 		} else if (!strcmp(name, SNMP_PLUGIN)) {
 			type = NPM_DEFAULT_ENTITY_TYPE;
+			logging(LOG_DEBUG, context, "Implicit entity type %s for plugin %s", type, name);
 		} else if (nrpe) {
 			type = DEM_ENTITY_TYPE_HOST_REMOTE;
+			logging(LOG_DEBUG, context, "Implicit entity type %s when using NRPE", type);
 		} else {
 			type = DEM_ENTITY_TYPE_HOST_LOCAL;
+			logging(LOG_DEBUG, context, "Implicit entity type %s for local plugin %s", type, name);
 		}
 
 		/* get request URL */
