@@ -12,7 +12,7 @@ Summary: Nagios event broker (NEB) module to forward plugin data to NGSI Adapter
 URL: https://github.com/telefonicaid/fiware-monitoring/tree/master/ngsi_event_broker
 Name: %{_name}
 Version: %{_version}
-Release: %{_release}%{?dist}
+Release: %{_release}%{?dist}.1
 License: Apache
 Group: Applications/Engineering
 Vendor: Telefónica I+D
@@ -115,6 +115,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Tue Aug 09 2016 Telefónica I+D <opensource@tid.es> %{_version}-%{_release}
+- New Nagios Event Broker to monitor FIWARE GEri global instances
+
 * Fri Mar 27 2015 Telefónica I+D <opensource@tid.es> 1.4.3-1
 - Fix problems when uninstalling package
 
