@@ -115,7 +115,7 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
-* Tue Aug 09 2016 Telefónica I+D <opensource@tid.es> %{_version}-%{_release}
+* Tue Aug 09 2016 Telefónica I+D <opensource@tid.es> 2.0.0-1
 - New Nagios Event Broker to monitor FIWARE GEri global instances
 
 * Fri Mar 27 2015 Telefónica I+D <opensource@tid.es> 1.4.3-1
