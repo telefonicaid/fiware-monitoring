@@ -1,3 +1,9 @@
+fiware-monitoring-ngsi-event-broker (2.0.0-1) precise; urgency=low
+
+  * New Nagios Event Broker to monitor FIWARE GEri global instances
+
+ -- Telefónica I+D <opensource@tid.es>  Tue, 09 Aug 2016 10:27:02 +0000
+
 fiware-monitoring-ngsi-event-broker (1.4.3-1) precise; urgency=low
 
   * Fix problems when uninstalling package
