@@ -34,6 +34,8 @@ cover more advanced topics:
 
 __ `FIWARE Monitoring GitHub README`_
 
+.. title:: Home
+
 .. toctree::
    :maxdepth: 1
 

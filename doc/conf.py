@@ -28,12 +28,28 @@ else:
         ],
     }
 
-# The suffix of source filenames.
+# The suffix of source filenames
 source_suffix = '.rst'
 
-# The master toctree document.
+# The master toctree document
 master_doc = 'index'
 
-# General information about the project.
-project = u'FIWARE Monitoring'
+# General information about the project
 copyright = u'2016, Telefónica I+D'
+project_prefix = u'FIWARE'
+project_name = u'Monitoring'
+project = u'\n '.join([project_prefix, project_name])
+version = ''
+release = ''
+
+# HTML configuration
+html_title = project_prefix + ' ' + project_name
+html_favicon = '_static/favicon.ico'
+html_show_sphinx = True
+html_show_copyright = False
+
+# Custom sidebar templates
+html_sidebars = {
+    '**': ['globaltoc.html', 'sourcelink.html', 'searchbox.html'],
+    'using/windows': ['windowssidebar.html', 'searchbox.html'],
+}
