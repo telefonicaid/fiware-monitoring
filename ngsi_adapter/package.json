@@ -28,7 +28,7 @@
     "test": "grunt test"
   },
   "engines": {
-   "node": "4.5.0"
+    "node": "4.5.0"
   },
   "dependencies": {
     "logops": "~0.2.0",
