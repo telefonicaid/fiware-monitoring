@@ -28,14 +28,14 @@
     "test": "grunt test"
   },
   "engines": {
-    "node": ">=0.10.18"
+    "node": "4.5.0"
   },
   "dependencies": {
     "logops": "~0.2.0",
     "optimist": ">=0.6.0",
     "retry": ">=0.6.0",
     "cuid": "~1.2.4",
-    "userid": "~0.2.0"
+    "username": "~2.2.2"
   },
   "devDependencies": {
     "mocha": "~1.13.0",

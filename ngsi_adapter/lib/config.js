@@ -129,7 +129,7 @@ config.check = function (callback) {
             }
         });
     if (notFound) {
-        var processUser = require('userid').username(process.getuid());
+        var processUser = require('username').sync();
         callback(util.format('Server user "%s" cannot access parsers directory "%s"', processUser, lastDir));
     } else {
         this.parsersPath = list.filter(function (item, index) { return list.indexOf(item) === index; }).join(':');

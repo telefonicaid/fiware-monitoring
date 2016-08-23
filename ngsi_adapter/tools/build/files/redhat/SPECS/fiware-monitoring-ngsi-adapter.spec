@@ -8,7 +8,8 @@
 %define _adapter_grp %{_fiware_grp}
 %define _adapter_dir %{_fiware_dir}/%{_adapter_srv}
 %define _logging_dir /var/log/%{_adapter_srv}
-%define _node_req_ver %(awk '/"node":/ {split($0,v,/["~=<>]/); print v[6]}' %{_basedir}/package.json)
+%define _node_req_ver %(awk '/"node":/ {N=split($0,v,/["~=<>]/); print v[N-1]}' %{_basedir}/package.json)
+
 
 # Package main attributes (_topdir, _basedir, _version and _release must be given at command line)
 Summary: Adapter to transform data from monitoring probes to NGSI context attributes.
@@ -53,8 +54,8 @@ echo "FILES:"; cat %{_topdir}/MANIFEST
 # pre install ($1 == 1) or upgrade ($1 == 2)
 if [ $1 -ge 1 ]; then
 	NODE_REQ_VERSION=%{_node_req_ver}
-	MAJOR=${NODE_REQ_VERSION%%.*}
-	MINOR=$(expr ${NODE_REQ_VERSION%.*} : '0\.\(.*\)' '|' 'x')
+	MAJOR=${NODE_REQ_VERSION%%%%.*}
+	MINOR=$(expr ${NODE_REQ_VERSION%%.*} : '0\.\(.*\)' '|' 'x')
 
 	# Function to compare version strings (in `x.y.z' format)
 	valid_version() {
