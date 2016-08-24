@@ -17,13 +17,16 @@
 #
 
 #
-# Build and execute unit tests
+# Build, execute unit tests and generate coverage reports
 #
 # Usage:
 #     $0 [--help]
 #
 # Options:
 #     -h, --help	show this help message
+#
+# Environment:
+#     BRANCH		name of the git branch to build (optional)
 #
 
 OPTS='h(help)'
@@ -63,7 +66,7 @@ shift $(expr $OPTIND - 1)
 }
 
 # Project root at workspace
-PROJECT_DIR=$PWD
+PROJECT_DIR=$(readlink -f $(dirname $0)/../../)
 
 # Absolute directories
 LINT_REPORT_DIR=$PROJECT_DIR/report/lint
@@ -82,6 +85,10 @@ PROJECT_VERSION=$(sed -n '/"version"/ {s/.*:.*"\(.*\)".*/\1/; p; q}' $CFGFILE)
 SONAR_PROJECT_NAME="Monitoring NGSI Adapter"
 SONAR_PROJECT_KEY=com.telefonica.iot:monitoring-ngsi-adapter
 
+# Switch to a specific branch
+[ -n "$BRANCH" ] && git checkout $BRANCH
+git status
+
 # Install grunt
 npm install -g grunt-cli
 
@@ -91,15 +98,15 @@ npm install
 # Generate reports
 grunt lint-report test-report coverage-report
 
-# Fix reports with paths relative to $WORKSPACE root
-sed -i s:"$(readlink -f $PWD)":".":g $COVERAGE_REPORT_DIR/lcov.info
+# Fix reports with paths relative to project root
+sed -i s:"$PROJECT_DIR":".":g $COVERAGE_REPORT_DIR/lcov.info
 
 # SonarQube coverage reports
 SONAR_COVERAGE_REPORT_RELATIVE_PATH=${COVERAGE_REPORT_DIR#$PROJECT_DIR/}/cobertura-coverage.xml
 SONAR_LCOV_REPORT_RELATIVE_PATH=${COVERAGE_REPORT_DIR#$PROJECT_DIR/}/lcov.info
 
-# Prepare properties file for SonarQube (workaround: awk to remove leading spaces)
-awk '$1=$1' > $PROJECT_DIR/sonar-project.properties <<-EOF
+# Prepare properties file for SonarQube
+cat > $PROJECT_DIR/sonar-project.properties <<-EOF
 	product.area.name=$PRODUCT_AREA
 	product.name=$PRODUCT_NAME
 	product.release=$PRODUCT_RELEASE
