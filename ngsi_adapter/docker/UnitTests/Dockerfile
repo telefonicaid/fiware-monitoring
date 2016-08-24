@@ -4,7 +4,7 @@
 
 FROM centos:6.6
 RUN curl --silent --location https://rpm.nodesource.com/setup_4.x | bash
-RUN yum update; yum -y install git gcc-c++ make nodejs rpm-build initscripts crontabs
+RUN yum -y install git gcc-c++ make nodejs
 RUN git clone https://github.com/telefonicaid/fiware-monitoring /root/fiware-monitoring
 WORKDIR /root/fiware-monitoring/ngsi_adapter
 CMD docker/UnitTests/build.sh
