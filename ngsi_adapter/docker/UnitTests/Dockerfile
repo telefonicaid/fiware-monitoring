@@ -1,8 +1,6 @@
 # How to execute: 
 # $ docker build -t fiware-monitoring-ngsi-adapter-build .
 # $ docker run --name fiware-monitoring-ngsi-adapter-build fiware-monitoring-ngsi-adapter-build
-#
-# To build from a specific branch, define an environment variable BRANCH
 
 FROM centos:6.6
 RUN curl --silent --location https://rpm.nodesource.com/setup_4.x | bash
