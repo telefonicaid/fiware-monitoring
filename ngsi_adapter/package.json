@@ -1,11 +1,11 @@
 {
-  "version": "1.4.1",
+  "version": "1.5.0",
   "name": "ngsi_adapter",
   "description": "Generic NGSI Probe Adapter",
   "product": {
     "name": "fiware-monitoring",
     "area": "iotplatform",
-    "release": "5.3.3"
+    "release": "5.4.2"
   },
   "keywords": [
     "FIWARE",
