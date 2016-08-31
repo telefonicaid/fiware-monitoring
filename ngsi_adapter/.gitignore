@@ -1,6 +1,7 @@
 node_modules/
 report/
 site/
+CHANGELOG.md
 *.changes
 *.deb
 *.rpm
