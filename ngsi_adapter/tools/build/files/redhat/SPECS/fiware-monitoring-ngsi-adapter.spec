@@ -191,6 +191,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Web Aug 31 2016 Telefónica I+D <opensource@tid.es> 1.5.0-1
+- Change to node.js 4.x engine
+
 * Fri Jun 24 2016 Telefónica I+D <opensource@tid.es> 1.4.1-1
 - Add initial config check
 - Add support to node.js 4.x and 6.x as prerequisite
