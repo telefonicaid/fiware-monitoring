@@ -39,7 +39,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %install
 mkdir -p $RPM_BUILD_ROOT/%{_adapter_dir}; set +x
-INCLUDE='lib|package.json|.npmrc|LICENSE|README.*|adapter$'
+INCLUDE='lib|package.json|.npmrc|README.*|adapter$'
 PATTERN='* .npmrc'
 FILES=$(cd %{_basedir}; for i in $PATTERN; do echo $i; done | egrep "$INCLUDE")
 for I in $FILES; do cp -R %{_basedir}/$I $RPM_BUILD_ROOT/%{_adapter_dir}; done
@@ -139,6 +139,9 @@ if [ $1 -ge 1 ]; then
 		        --home-dir /nonexistent --no-create-home \
 		        --comment "FIWARE NGSI Adapter" $ADAPTER_USR
 	fi
+
+	# license file
+	wget http://www.apache.org/licenses/LICENSE-2.0.txt -q -O $ADAPTER_DIR/LICENSE
 
 	# change ownership
 	chown -R $FIWARE_USR:$FIWARE_GRP $FIWARE_DIR
