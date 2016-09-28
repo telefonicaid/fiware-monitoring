@@ -81,11 +81,12 @@ CUR_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
 # Package properties
 CHANGELOG=$TMPFILE.chg
-CFGFILE=$BASEDIR/configure.ac
-REPOURL=$(sed -n '/ARTIFACTS/ {s/.*\[.*\].*\[\(.*\)\].*/\1/; p}' $CFGFILE)
-PACKAGE=$(sed -n '/AC_INIT/ {s/.*\[PRODUCT_NAME-\(.*\)].*/\1/; p}' $CFGFILE)
-VERSION=$(sed -n '/AC_INIT/ {s/.*,[ \t]*\(.*\))/\1/; p}' $CFGFILE)
-RELEASE=$(sed -n '/PRODUCT_RELEASE/ {s/.*\[.*\].*\[\(.*\)\].*/\1/; p}' $CFGFILE)
+CFGFILE=$BASEDIR/package.json
+REPOURL=$(sed -n '/"artifacts"/,/}/ p' $CFGFILE | awk -F'{|"' '{printf $4}')
+PACKAGE=$(sed -n '/^{/,/{/ p' $CFGFILE | awk -F'{|"' '/"name"/ {printf $4}')
+VERSION=$(sed -n '/^{/,/{/ p' $CFGFILE | awk -F'{|"' '/"version"/ {printf $4}')
+PRODUCT=$(awk '/"product"/,/\}/' $CFGFILE)
+RELEASE=$(echo "$PRODUCT" | sed -n '/"release"/ {s/.*:.*"\(.*\)".*/\1/; p; q}')
 
 # Function to check current branch
 check_current_branch() {
@@ -103,7 +104,7 @@ check_current_branch() {
 
 # Function to get new changelog entries, edit interactively and write to file
 get_changelog_entries() {
-	local path="ngsi_event_broker"
+	local path="ngsi_adapter"
 	local latest_tag=$(git tag -l | tail -1)
 	local branch_types="hardening\|feature\|bug\|hotfix"
 	local branch_regex=".*\($branch_types\)\/\([A-Z_-]*[0-9]*\).*"
@@ -161,8 +162,8 @@ write_changelog_markdown() {
 
 # Function to update .deb package changelog
 update_deb_changelog() {
-	local pkgchangelog=$PROGDIR/files/debian/changelog
-	local pkgcontrol=$PROGDIR/files/debian/control
+	local pkgchangelog=$PROGDIR/debian/changelog
+	local pkgcontrol=$PROGDIR/debian/control
 	local pkgmaint="$(grep ^Maintainer $pkgcontrol | cut -d' ' -f2-)"
 	local pkgname="$(grep ^Package $pkgcontrol | cut -d' ' -f2-)"
 	local pkgdist=$(head -1 $pkgchangelog | awk -F'[ ;]' '{printf $3}')
@@ -185,7 +186,7 @@ update_deb_changelog() {
 
 # Function to update .rpm package changelog
 update_rpm_changelog() {
-	local pkgspec=$PROGDIR/files/redhat/SPECS/*.spec
+	local pkgspec=$PROGDIR/redhat/SPECS/*.spec
 	local pkgmaint="$(grep ^Packager $pkgspec | cut -d' ' -f2-)"
 	local pkgversion=$(awk '/^\*/ {printf $NF; exit}' $pkgspec)
 	local pkgrevision=$(expr "$pkgversion" : "$VERSION-\([0-9]*\)" '|' 0)
@@ -205,14 +206,14 @@ update_rpm_changelog() {
 # Function to change product release when needed
 bump_product_release() {
 	[ -n "$NEW_RELEASE_NUMBER" ] || return 0
-	cd $PROGDIR && bumpversion \
+	(cd $PROGDIR && bumpversion \
 		--commit --no-tag --allow-dirty \
 		--current-version=$RELEASE \
 		--new-version=$NEW_RELEASE_NUMBER \
 		--message='New product release {new_version}' \
-		--search='[PRODUCT_RELEASE], [{current_version}]' \
-		--replace='[PRODUCT_RELEASE], [{new_version}]' \
-		patch $CFGFILE
+		--search='"release": "{current_version}"' \
+		--replace='"release": "{new_version}"' \
+		patch $CFGFILE)
 }
 
 # Main
