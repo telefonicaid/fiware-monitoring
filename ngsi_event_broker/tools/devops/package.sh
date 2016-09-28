@@ -84,13 +84,13 @@ check_release() {
 # Function to create a .deb package
 create_deb_package() {
 	local pkgfile dpkg_files comment
-	local pkgchangelog=$PROGDIR/files/debian/changelog
+	local pkgchangelog=$PROGDIR/debian/changelog
 	local pkgversion=$(head -1 $pkgchangelog | awk -F'[()]' '{printf $2}')
 	local pkgrevision=$(expr "$pkgversion" : "$VERSION-\([0-9]*\)" '|' 0)
 	local pkgsnapshot=$(date '+%Y%m%d')git$CUR_COMMIT
 
 	# Make a copy of files for package generation
-	cp -r $PROGDIR/files/debian $BASEDIR
+	cp -r $PROGDIR/debian $BASEDIR
 	cd $BASEDIR
 
 	# Set snapshot changelog entries when appropriate
@@ -115,21 +115,21 @@ create_deb_package() {
 create_rpm_package() {
 	local pkgfile rpmbuild_file comment user
 	local topdir=$BASEDIR/redhat
-	local pkgspec=$PROGDIR/files/redhat/SPECS/*.spec
+	local pkgspec=$PROGDIR/redhat/SPECS/*.spec
 	local pkgversion=$(awk '/^\*/ {printf $NF; exit}' $pkgspec)
 	local pkgrevision=$(expr "$pkgversion" : "$VERSION-\([0-9]*\)" '|' 0)
 	local pkgsnapshot=$(date '+%Y%m%d')git$CUR_COMMIT
 	local pkgrelease=$pkgrevision
 
 	# Make a copy of files for package generation
-	cp -r $PROGDIR/files/redhat $BASEDIR
+	cp -r $PROGDIR/redhat $BASEDIR
 
 	# Set snapshot changelog entries when appropriate
 	if [ -z "$IS_RELEASE" ]; then
 		comment="New snapshot"
 		user=$(rpmdev-packager)
 		user=${user:-$(awk -F': ' '/Packager:/ {printf $2}' $pkgspec)}
-		pkgspec=$BASEDIR/files/redhat/SPECS/*.spec
+		pkgspec=$BASEDIR/redhat/SPECS/*.spec
 		pkgrelease=$pkgrevision.$pkgsnapshot
 		rpmdev-bumpspec -c "$comment" -u "$user" $pkgspec 2>/dev/null
 		sed -i 's/- \(%{_version}-%{_release}\)\.[0-9]*/\1/' $pkgspec
