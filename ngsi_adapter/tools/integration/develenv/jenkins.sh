@@ -44,7 +44,7 @@ ACTION=
 # Command line processing
 OPTERR=
 OPTSTR=$(echo :-:$OPTS | sed 's/([a-zA-Z0-9]*)//g')
-OPTHLP=$(sed -n '20,/^$/ { s/$0/'$PROG'/; s/^#[ ]\?//p }' $0)
+OPTHLP=$(sed -n -e 's/$0/'$PROG'/' -e '20,/^$/ s/^#[ ]\?//p' $0)
 while getopts $OPTSTR OPT; do while [ -z "$OPTERR" ]; do
 case $OPT in
 'h')	OPTERR="$OPTHLP";;
@@ -116,7 +116,7 @@ build)
 	grunt lint-report test-report coverage-report
 
 	# Fix reports with paths relative to $WORKSPACE root
-	sed -i s:"$(readlink -f $PWD)":".":g $COVERAGE_REPORT_DIR/lcov.info
+	sed -i s:"$PWD":".":g $COVERAGE_REPORT_DIR/lcov.info
 
 	# SonarQube coverage reports
 	SONAR_COVERAGE_REPORT_RELATIVE_PATH=${COVERAGE_REPORT_DIR#$PROJECT_DIR/}/cobertura-coverage.xml
