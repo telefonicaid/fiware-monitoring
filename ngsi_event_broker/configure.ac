@@ -2,7 +2,7 @@
 m4_define([DESCRIPTION], [Nagios module to forward plugin data to NGSI Adapter])
 m4_define([PRODUCT_NAME], [fiware-monitoring])
 m4_define([PRODUCT_AREA], [iotplatform])
-m4_define([PRODUCT_RELEASE], [5.4.1])
+m4_define([PRODUCT_RELEASE], [5.4.3])
 m4_define([ARTIFACTS_URL], [http://repositories.lab.fiware.org/repo])
 AC_INIT([PRODUCT_NAME-ngsi-event-broker], 2.1.0)
 AC_LANG(C)
