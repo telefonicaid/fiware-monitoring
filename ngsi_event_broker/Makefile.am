@@ -1,6 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = src test
-dist_noinst_DATA = LICENSE README.rst
+dist_noinst_DATA = README.rst
 distdir = @PACKAGE_NAME@-@VERSION@.src
 
 ## Custom targets ##
@@ -18,7 +18,7 @@ CPPCHECK_FLAGS += --suppress='*:/usr/include/*.h'
 CPPCHECK_FLAGS += --suppress='*:/usr/include/curl/*.h'
 CPPCHECK_FLAGS += --enable=all --max-configs=100
 
-XSLTPROC_FLAGS  = $(PROJECT_DIR)/tools/build/files/cppunit2xunit.xsl
+XSLTPROC_FLAGS  = $(PROJECT_DIR)/tools/build/cppunit2xunit.xsl
 
 # function to get relative path
 relpath = $(subst $(CURDIR)/,,$(1))

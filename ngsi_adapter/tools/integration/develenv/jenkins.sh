@@ -157,6 +157,6 @@ package)
 	fi
 
 	# Generate package
-	$PROJECT_DIR/tools/build/package.sh
+	$PROJECT_DIR/tools/devops/package.sh
 	;;
 esac
