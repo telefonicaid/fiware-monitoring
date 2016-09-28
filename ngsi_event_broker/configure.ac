@@ -57,7 +57,7 @@ AM_CONDITIONAL([GCOV_ENABLED], [test "$enableval" = "yes"])
 AC_ARG_WITH(nagios-srcdir,
    AC_HELP_STRING([--with-nagios-srcdir=DIR],
    [Sets path to Nagios sources @<:@default=/usr/local/src/nagios@:>@], 30),
-   nagios_srcdir=$(readlink -f $withval),
+   nagios_srcdir=$(cd $withval; pwd),
    nagios_srcdir=/usr/local/src/nagios)
 AC_SUBST([NAGIOS_SRCDIR],[$nagios_srcdir])
 if test -d $nagios_srcdir/include; then
@@ -71,7 +71,7 @@ if test -d $nagios_srcdir/include; then
    # Avoid including <syslog.h> in Nagios headers copy
    cp $nagios_srcdir/include/*.h $nagios_incdir
    sed -i 's/#define HAVE_SYSLOG_H 1/#undef HAVE_SYSLOG_H/' $nagios_incdir/config.h
-   CPPFLAGS="$CPPFLAGS -I$(readlink -f $nagios_incdir)"
+   CPPFLAGS="$CPPFLAGS -I$(cd $nagios_incdir; pwd)"
 fi
 
 # Library version spec (major:minor:revision).

@@ -44,7 +44,7 @@ ACTION=
 # Command line processing
 OPTERR=
 OPTSTR=$(echo :-:$OPTS | sed 's/([a-zA-Z0-9]*)//g')
-OPTHLP=$(sed -n '20,/^$/ { s/$0/'$PROG'/; s/^#[ ]\?//p }' $0)
+OPTHLP=$(sed -n -e 's/$0/'$PROG'/' -e '20,/^$/ s/^#[ ]\?//p' $0)
 while getopts $OPTSTR OPT; do while [ -z "$OPTERR" ]; do
 case $OPT in
 'h')	OPTERR="$OPTHLP";;
@@ -83,7 +83,7 @@ if [ -z "$JOB_URL" -o -z "$WORKSPACE" ]; then
 fi
 
 # Absolute path of metrics-queue-consumer's workspace
-METRICS_WORKSPACE=$(readlink -f $WORKSPACE/../../metrics-queue-consumer/workspace/workspace)
+METRICS_WORKSPACE=$(cd $WORKSPACE/../../metrics-queue-consumer/workspace/workspace; pwd)
 
 # Project root at Jenkins workspace
 PROJECT_DIR=$WORKSPACE/ngsi_event_broker

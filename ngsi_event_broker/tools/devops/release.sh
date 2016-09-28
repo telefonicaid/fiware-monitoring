@@ -41,7 +41,7 @@ NEW_RELEASE_NUMBER=
 # Command line processing
 OPTERR=
 OPTSTR=$(echo :-:$OPTS | sed 's/([a-zA-Z0-9]*)//g')
-OPTHLP=$(sed -n '20,/^$/ { s/$0/'$PROG'/; s/^#[ ]\?//p }' $0)
+OPTHLP=$(sed -n -e 's/$0/'$PROG'/' -e '20,/^$/ s/^#[ ]\?//p' $0)
 while getopts $OPTSTR OPT; do while [ -z "$OPTERR" ]; do
 case $OPT in
 'i')	INTERACTIVE=true;;
@@ -74,8 +74,8 @@ shift $(expr $OPTIND - 1)
 }
 
 # Common properties
-PROGDIR=$(readlink -f $(dirname $0))
-BASEDIR=$(readlink -f $PROGDIR/../..)
+PROGDIR=$(cd $(dirname $0); pwd)
+BASEDIR=$(cd $PROGDIR/../..; pwd)
 TMPFILE=$(mktemp --tmpdir $PROG_XXXXXX)
 CUR_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
