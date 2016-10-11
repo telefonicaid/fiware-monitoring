@@ -140,7 +140,7 @@ class BrokerFiwareTest: public TestFixture
 	void callback_skips_request_if_curl_initialization_fails();
 	void callback_skips_request_if_curl_perform_fails();
 	void callback_sends_request_if_curl_perform_succeeds();
-	void callback_sends_request_with_txid_and_content_type_headers();
+	void callback_sends_request_with_corr_and_content_type_headers();
 
 public:
 	static void suiteSetUp();
@@ -159,7 +159,7 @@ public:
 	CPPUNIT_TEST(callback_skips_request_if_curl_initialization_fails);
 	CPPUNIT_TEST(callback_skips_request_if_curl_perform_fails);
 	CPPUNIT_TEST(callback_sends_request_if_curl_perform_succeeds);
-	CPPUNIT_TEST(callback_sends_request_with_txid_and_content_type_headers);
+	CPPUNIT_TEST(callback_sends_request_with_corr_and_content_type_headers);
 	CPPUNIT_TEST_SUITE_END();
 };
 
@@ -360,7 +360,7 @@ CURL* __wrap_curl_easy_init(void)
 
 
 /// Flag variable for ::__wrap_curl_easy_setopt
-/// @brief True if required HTTP headers (`Content-Type` and ::TXID_HTTP_HEADER) are set
+/// @brief True if required HTTP headers (`Content-Type` and ::CORRELATOR_HTTP_HEADER) are set
 bool BrokerFiwareTest::__header_curl_easy_setopt = false;
 
 
@@ -372,7 +372,7 @@ CURLcode BrokerFiwareTest::__retval_curl_easy_setopt = CURLE_OK;
 CURLcode __wrap_curl_easy_setopt(CURL* handle, CURLoption option, ...)
 {
 	if ((BrokerFiwareTest::__retval_curl_easy_setopt == CURLE_OK) && (option == CURLOPT_HTTPHEADER)) {
-		bool		has_txid = false;
+		bool		has_corr = false;
 		bool		has_type = false;
 		curl_slist*	headers  = NULL;
 
@@ -381,15 +381,15 @@ CURLcode __wrap_curl_easy_setopt(CURL* handle, CURLoption option, ...)
 		headers = va_arg(ap, curl_slist*);
 		va_end(ap);
 
-		string txid(TXID_HTTP_HEADER);
+		string corr(CORRELATOR_HTTP_HEADER);
 		string type("Content-Type");
 		for (curl_slist* ptr = headers; ptr; ptr = ptr->next) {
 			string header(ptr->data);
-			has_txid = has_txid || (header.compare(0, txid.size(), txid) == 0);
+			has_corr = has_corr || (header.compare(0, corr.size(), corr) == 0);
 			has_type = has_type || (header.compare(0, type.size(), type) == 0);
 		}
 
-		BrokerFiwareTest::__header_curl_easy_setopt = (has_txid && has_type);
+		BrokerFiwareTest::__header_curl_easy_setopt = (has_corr && has_type);
 	}
 
 	return BrokerFiwareTest::__retval_curl_easy_setopt;
@@ -899,7 +899,7 @@ void BrokerFiwareTest::callback_sends_request_if_curl_perform_succeeds()
 }
 
 
-void BrokerFiwareTest::callback_sends_request_with_txid_and_content_type_headers()
+void BrokerFiwareTest::callback_sends_request_with_corr_and_content_type_headers()
 {
 	host					check_host;
 	service					check_service;

@@ -27,25 +27,25 @@ __author__ = 'jfernandez'
 import uuid
 from pkg_resources import resource_string
 from logger_utils import get_logger
-from constants import TRANSACTION_ID_PATTERN, RESOURCES_SAMPLEDATA_MODULE, RESOURCES_PARAMETER_PATTERN
+from constants import CORRELATOR_PATTERN, RESOURCES_SAMPLEDATA_MODULE, RESOURCES_PARAMETER_PATTERN
 
 logger = get_logger("utils")
 
 
-def generate_transaction_id():
+def generate_correlator():
     """
-    Generate a transaction ID value following defined pattern.
-    :return: New transactionId
+    Generate a correlator value following defined pattern.
+    :return: New correlator
     """
 
-    return TRANSACTION_ID_PATTERN.format(uuid=uuid.uuid4())
+    return CORRELATOR_PATTERN.format(uuid=uuid.uuid4())
 
 
 def get_probe_data_from_resource_file(filename, replacement_values=None):
     """
     Get probe data from resource files. If replacement_values is not empty,
     :param filename: Resource filename to be used for loading probe data
-    :param param_values: (key, value) pairs. (list of dict)
+    :param replacement_values: (key, value) pairs. (list of dict)
     :return: File content with param value replacements
     """
 

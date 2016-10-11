@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Telefónica I+D
+ * Copyright 2013-2016 Telefónica I+D
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -33,9 +33,9 @@ exports.timestampAttrName = '_timestamp';
 
 
 /**
- * HTTP header for transaction id.
+ * HTTP header for correlation in end-to-end operations.
  */
-exports.txIdHttpHeader = 'txId';
+exports.correlatorHttpHeader = 'Fiware-Correlator';
 
 
 /**

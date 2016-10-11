@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * Copyright 2013 Telefónica I+D
+ * Copyright 2013-2016 Telefónica I+D
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -31,7 +31,8 @@ var domain = require('domain'),
     logger = require('logops'),
     http = require('http'),
     util = require('util'),
-    cuid = require('cuid'),
+    txid = require('cuid'),
+    uuid = require('node-uuid').v1,
     common = require('../../lib/common');
 
 
@@ -43,7 +44,8 @@ var defaults = {
 
 
 function doPost(request, response) {
-    var contentType = request.headers['content-type'],
+    var correlator = request.domain.context.corr,
+        contentType = request.headers['content-type'],
         brokerApi = (request.url.indexOf('/v2') !== -1) ? common.BROKER_API_V2 : common.BROKER_API_V1,
         responseCode = null,
         responseBody = null;
@@ -60,10 +62,12 @@ function doPost(request, response) {
             responseCode = 200;
             responseBody = (code === 400) ? body : request.body;
     }
-    response.writeHead(responseCode, {
+    var responseHeaders = {
         'Content-Length': responseBody.length,
         'Content-Type': contentType
-    });
+    };
+    responseHeaders[common.correlatorHttpHeader] = correlator;
+    response.writeHead(responseCode, responseHeaders);
     response.end(responseBody, 'utf8');
     logger.info('Response status %d %s', response.statusCode, http.STATUS_CODES[response.statusCode]);
     logger.debug('Response "%s"', { toString: function () {
@@ -73,7 +77,8 @@ function doPost(request, response) {
 
 
 function doError(request, response, status) {
-    var contentType = request.headers['content-type'],
+    var correlator = request.domain.context.corr,
+        contentType = request.headers['content-type'],
         brokerApi = (request.url.indexOf('/v2') !== -1) ? common.BROKER_API_V2 : common.BROKER_API_V1,
         responseBody = null;
     switch (brokerApi) {
@@ -83,24 +88,27 @@ function doError(request, response, status) {
         default:
             responseBody = '';
     }
-    response.writeHead(status, {
+    var responseHeaders = {
         'Content-Length': responseBody.length,
         'Content-Type': contentType
-    });
+    };
+    responseHeaders[common.correlatorHttpHeader] = correlator;
+    response.writeHead(status, responseHeaders);
     response.end(responseBody, 'utf8');
     logger.error('Response status %d %s %s', response.statusCode, http.STATUS_CODES[response.statusCode], responseBody);
 }
 
 
 function syncRequestListener(request, response) {
-    var requestTxId = request.headers[common.txIdHttpHeader.toLowerCase()],
-        contentType = request.headers['content-type'],
+    var contentType = request.headers['content-type'],
         contentLen = request.headers['content-length'],
+        correlator = request.headers[common.correlatorHttpHeader.toLowerCase()] || uuid(),
         reqd = domain.create();
     reqd.add(request);
     reqd.add(response);
     reqd.context = {
-        trans: requestTxId || cuid(),
+        trans: txid(),
+        corr: correlator,
         op: request.method
     };
     reqd.on('error', function (err) {
@@ -108,12 +116,8 @@ function syncRequestListener(request, response) {
         doError(request, response, 500);  // server error
     });
     reqd.run(function () {
-        logger.info('Request to resource %s, Content-Type=%s Content-Length=%s %s=%s',
-            request.url,
-            contentType || 'n/a',
-            contentLen || 'n/a',
-            common.txIdHttpHeader,
-            requestTxId || 'n/a');
+        logger.info('Request to resource %s, Content-Type=%s Content-Length=%s',
+            request.url, contentType || 'n/a', contentLen || 'n/a');
         if (request.method !== 'POST') {
             doError(request, response, 405);  // not allowed
         } else {
@@ -168,7 +172,8 @@ exports.main = function () {
         process.exit();
     });
     http.createServer(syncRequestListener).listen(opts.listenPort, opts.listenHost, function () {
-        logger.info({op: 'Init'}, 'Context Broker listening at http://%s:%d/', this.address().address, this.address().port);
+        var bind = this.address();
+        logger.info({op: 'Init'}, 'Context Broker listening at http://%s:%d/', bind.address, bind.port);
     });
 };
 

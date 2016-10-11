@@ -2,7 +2,7 @@
 Feature: Sending probe data
   As a monitoring element (probe) user
   I want to be able to transform monitoring data from probes to NGSI context attributes
-  so that I can constantly check the status and performance of the cloud infrastructure using NGSI Context Broker.
+  so that I can constantly check the status and performance of the cloud infrastructure using Context Broker.
 
 
   @happy_path
@@ -130,16 +130,16 @@ Feature: Sending probe data
     | delete    |
 
 
-  Scenario Outline: NGSI-Adapter reuse the transaction-id header value given in the request
+  Scenario Outline: NGSI Adapter reuse the correlator header value given in the request
     Given the probe name "qa_probe"
     And   the monitored resource with id "qa:1234567890" and type "host"
-    And   the header Transaction-Id "<transaction_id>"
+    And   the header Correlator "<correlator>"
     When  I send raw data according to the selected probe
     Then  the response status code is "200"
-    And   the given Transaction-Id value is used in logs
+    And   the given Correlator value is used in logs
 
     Examples:
-    | transaction_id      |
+    | correlator          |
     | 1                   |
     | 1231asdfgasd        |
     | a/12345.qa          |

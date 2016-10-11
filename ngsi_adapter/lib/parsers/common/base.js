@@ -96,8 +96,8 @@ baseParser.getUpdateRequest = function (reqdomain) {
             }
         };
 
-    // add transaction id
-    requestOptions.headers[common.txIdHttpHeader] = reqdomain.context.trans;
+    // add correlator
+    requestOptions.headers[common.correlatorHttpHeader] = reqdomain.context.corr;
 
     // add options to `reqdomain` and return request body
     reqdomain.options = requestOptions;
