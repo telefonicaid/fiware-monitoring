@@ -217,9 +217,9 @@ void logging(loglevel_t level, context_t* context, const char* format, ...)
 		size_t	len;
 		va_list	ap;
 
-		len = snprintf(buffer, sizeof(buffer)-1, "lvl=%s | trans=%s | comp=%s | op=%s | msg=",
+		len = snprintf(buffer, sizeof(buffer)-1, "lvl=%s | corr=%s | comp=%s | op=%s | msg=",
 			loglevel_names[level],
-			(context && context->trans) ? context->trans : "n/a",
+			(context && context->corr) ? context->corr : "n/a",
 			module_name,
 			(context && context->op) ? context->op : "n/a");
 		va_start(ap, format);
@@ -314,18 +314,18 @@ int callback_service_check(int callback_type, void* data)
 	CURLcode			curl_result	= CURLE_OK;
 
 	#define HDRLEN			MAXBUFLEN
-	#define HDRSTRING		TXID_HTTP_HEADER ": " "n/a"
-	#define HDRTXOFFSET		(TXID_HTTP_HEADER_LEN + 2)	/* includes length of ": " separator */
-	#define TXID_PREFIX		"......"			/* six chars for the l64a prefix     */
-	#define TXID_PATTERN		"XXXXXX"			/* six chars for the mktemp pattern  */
+	#define HDRSTRING		CORRELATOR_HTTP_HEADER ": " "n/a"
+	#define HDRTXOFFSET		(CORRELATOR_HTTP_HEADER_LEN + 2)	/* includes length of ": " separator */
+	#define CORRELATOR_PREFIX	"......"				/* six chars for the l64a prefix     */
+	#define CORRELATOR_PATTERN	"XXXXXX"				/* six chars for the mktemp pattern  */
 
-	char				txHdr[HDRLEN]	= HDRSTRING;
-	char*				txPrefix	= NULL;
-	char*				txId		= txHdr + HDRTXOFFSET;
-	const char*			opId		= "NGSIAdapter";
-	context_t			context		= { .trans = txId, .op = opId };
+	char				corrHdr[HDRLEN]	= HDRSTRING;
+	char*				corrPrefix	= NULL;
+	char*				correlator	= corrHdr + HDRTXOFFSET;
+	const char*			operation	= "NGSIAdapter";
+	context_t			context		= { .corr = correlator, .op = operation };
 
-	assert(strlen(TXID_HTTP_HEADER) == TXID_HTTP_HEADER_LEN);
+	assert(strlen(CORRELATOR_HTTP_HEADER) == CORRELATOR_HTTP_HEADER_LEN);
 
 	assert(callback_type == NEBCALLBACK_SERVICE_CHECK_DATA);
 	check_data = (nebstruct_service_check_data*) data;
@@ -335,12 +335,12 @@ int callback_service_check(int callback_type, void* data)
 		return result;
 	}
 
-	/* Generate transation id */
-	strncpy(txId, TXID_PREFIX "" TXID_PATTERN, HDRLEN - HDRTXOFFSET - 1);
-	txPrefix = l64a((long) time(NULL));
-	mktemp(txId);
-	memcpy(txId, txPrefix, strlen(txPrefix));
-	txHdr[HDRLEN - 1] = '\0';
+	/* Generate correlator to include in a HTTP header for the request */
+	strncpy(correlator, CORRELATOR_PREFIX "" CORRELATOR_PATTERN, HDRLEN - HDRTXOFFSET - 1);
+	corrPrefix = l64a((long) time(NULL));
+	mktemp(correlator);
+	memcpy(correlator, corrPrefix, strlen(corrPrefix));
+	corrHdr[HDRLEN - 1] = '\0';
 	logging(LOG_DEBUG, &context, "New service check");
 
 	/* Async POST request to NGSI Adapter */
@@ -356,7 +356,7 @@ int callback_service_check(int callback_type, void* data)
 		         check_data->output, check_data->perf_data);
 		request_txt[sizeof(request_txt)-1] = '\0';
 		curl_headers = curl_slist_append(curl_headers, "Content-Type: text/plain");
-		curl_headers = curl_slist_append(curl_headers, txHdr);
+		curl_headers = curl_slist_append(curl_headers, corrHdr);
 		curl_easy_setopt(curl_handle, CURLOPT_URL, request_url);
 		curl_easy_setopt(curl_handle, CURLOPT_POST, 1);
 		curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, request_txt);

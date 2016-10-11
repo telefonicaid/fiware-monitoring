@@ -54,8 +54,8 @@ NEB_API_VERSION(CURRENT_NEB_API_VERSION)
  * @{
  */
 
-/** Module name (from package details defined by `config.h`) */
-#define MODULE_NAME			PACKAGE_NAME "_fiware"
+/** Module name (shortened from package name defined by `config.h`) */
+#define MODULE_NAME			"ngsi-event-broker-fiware"
 
 /** Module version (from package details defined by `config.h`) */
 #define MODULE_VERSION			PACKAGE_VERSION

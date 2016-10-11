@@ -93,15 +93,15 @@ def the_response_status_code_is(step, status_code):
     assert_equal(str(world.response.status_code), status_code)
 
 
-@step(u'the header Transaction-Id "(.*)"$')
-def the_header_transaction_id(step, transaction_id):
-    world.transaction_id = prepare_param(transaction_id)
-    world.ngsi_adapter_client.init_headers(transaction_id=world.transaction_id)
+@step(u'the header Correlator "(.*)"$')
+def the_header_correlator(step, correlator):
+    world.correlator = prepare_param(correlator)
+    world.ngsi_adapter_client.init_headers(correlator=world.correlator)
 
 
 @step(u'an auto-generated Transaction-Id value is used in logs')
-@step(u'the given Transaction-Id value is used in logs')
-def the_given_transaction_id_value_is_used_in_logs(step):
+@step(u'the given Correlator value is used in logs')
+def the_given_correlator_value_is_used_in_logs(step):
     log_utils = LogUtils()
 
     remote_log_local_path = world.config[PROPERTIES_CONFIG_ENV][PROPERTIES_CONFIG_ENV_LOCAL_PATH_REMOTE_LOGS]
@@ -110,14 +110,14 @@ def the_given_transaction_id_value_is_used_in_logs(step):
     # Wait for remote logging
     time.sleep(WAIT_FOR_REMOTE_LOGGING)
 
-    if world.transaction_id is not None and len(world.transaction_id) != 0:
-        log_value_transaction_id = {"TRANSACTION_ID": "trans={transaction_id}".format(
-            transaction_id=world.transaction_id)}
-        log_utils.search_in_log(remote_log_local_path, service_log_file_name, log_value_transaction_id)
+    if world.correlator is not None and len(world.correlator) != 0:
+        log_value_correlator = {"CORRELATOR": "corr={correlator}".format(
+            correlator=world.correlator)}
+        log_utils.search_in_log(remote_log_local_path, service_log_file_name, log_value_correlator)
     else:
         log_value_message = {"MESSAGE": "msg={probe}".format(probe=world.probe)}
         log_line = log_utils.search_in_log(remote_log_local_path, service_log_file_name, log_value_message)
 
-        transaction_id = log_line[log_utils.LOG_TAG["TRANSACTION_ID"].replace("=", "")]
-        assert_true(len(transaction_id) != 0,
-                    "Transaction-ID not found in logs. Expected value. Value in logs: " + transaction_id)
+        correlator = log_line[log_utils.LOG_TAG["CORRELATOR"].replace("=", "")]
+        assert_true(len(correlator) != 0,
+                    "Correlator not found in logs. Expected value. Value in logs: " + correlator)

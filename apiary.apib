@@ -35,12 +35,32 @@ http://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/FI-WARE_NGSI-10_
     + id (required, string, `myEntityId`) ... Identifier of the entity being monitored.
     + type (required, string, `myEntityType`) ... Type of entity being monitored.
 
+
 + Request (text/plain)
 
-        PROCS OK: 150 processes
+    + Body
+
+            PROCS OK: 150 processes
 
 + Response 200 (text/plain)
 
+    + Headers
+
+            Fiware-Correlator: 76e0b070-8c5e-11e6-80d8-f3aa1c3a2ceb
 
 
++ Request (text/plain)
 
+    + Headers
+
+            Fiware-Correlator: custom-txid-0001234
+
+    + Body
+
+            PROCS OK: 150 processes
+
++ Response 200 (text/plain)
+
+    + Headers
+
+            Fiware-Correlator: custom-txid-0001234

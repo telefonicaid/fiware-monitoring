@@ -83,15 +83,15 @@ static const char* loglevel_names[] = {
 
 /** Operations context */
 typedef struct {
-	const char* trans;		/**< The transaction id */
+	const char* corr;		/**< The correlation id */
 	const char* op;			/**< The operation name */
 } context_t;
 
-/** HTTP header for transaction id */
-#define TXID_HTTP_HEADER		"txId"
+/** HTTP header for correlation */
+#define CORRELATOR_HTTP_HEADER		"Fiware-Correlator"
 
-/** Length of ::TXID_HTTP_HEADER */
-#define TXID_HTTP_HEADER_LEN		4
+/** Length of ::CORRELATOR_HTTP_HEADER */
+#define CORRELATOR_HTTP_HEADER_LEN	17
 
 /**@}*/
 

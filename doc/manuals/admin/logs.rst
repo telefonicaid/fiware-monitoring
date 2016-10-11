@@ -30,9 +30,9 @@ by the pipe character (``|``). Example:
 
 ::
 
-    time=2015-08-01T08:00:00.511Z | lvl=INFO | trans=ci2627bx00000b42g8m2pxw3z | op=POST | msg=Request on resource /check_xxx with params id=xxx&type=xxx
-    time=2015-08-01T08:00:00.675Z | lvl=INFO | trans=ci2627bx00000b42g8m2pxw3z | op=POST | msg=Response status 200 OK
-    time=2015-08-01T08:00:00.922Z | lvl=INFO | trans=ci2627bx00000b42g8m2pxw3z | op=UpdateContext | msg=Request to ContextBroker at http://host:1026/...
+    time=2015-08-01T08:00:00.511Z | lvl=INFO | corr=7af94c40-8f9b-11e6-ae0c-97fdb974345e | trans=ci2627bx00000b42g8m2pxw3z | op=POST | msg=Request on resource /check_xxx with params id=xxx&type=xxx
+    time=2015-08-01T08:00:00.675Z | lvl=INFO | corr=7af94c40-8f9b-11e6-ae0c-97fdb974345e | trans=ci2627bx00000b42g8m2pxw3z | op=POST | msg=Response status 200 OK
+    time=2015-08-01T08:00:00.922Z | lvl=INFO | corr=7af94c40-8f9b-11e6-ae0c-97fdb974345e | trans=ci2627bx00000b42g8m2pxw3z | op=UpdateContext | msg=Request to ContextBroker at http://host:1026/...
 
 
 These are the different fields found in each line:
@@ -53,8 +53,14 @@ These are the different fields found in each line:
   * DEBUG: This level designates fine-grained informational events that are
     most useful to debug an application.
 
-- **trans (transaction id)**. Can be either "N/A" (for log messages "out of
-  transaction", as the ones corresponding to startup) or a unique string id.
+- **corr (correlator)**. Can be either "N/A" (in startup messages, for instance)
+  or a global unique identifier of each processed request within the whole
+  end-to-end environment. In services scenario, when a request is done, it
+  will normally go through several elements in which will be necessary to
+  trace the request without losing sight of the end-to-end process.
+
+- **trans (transaction id)**. Can be either "N/A" or a unique identifier of each
+  request processed within a specific element.
 
 - **op (operation)**. The function in the source code that generated the log
   message. This information is useful for developers only.

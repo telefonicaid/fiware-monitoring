@@ -33,7 +33,8 @@ var http = require('http'),
     url = require('url'),
     retry = require('retry'),
     domain = require('domain'),
-    cuid = require('cuid'),
+    uuid = require('node-uuid').v1,
+    txid = require('cuid'),
     logger = require('./logger'),
     common = require('./common'),
     config = require('./config'),
@@ -77,6 +78,8 @@ function updateContext(reqdomain, callback) {
                     responseBody += chunk;
                 });
                 response.on('end', function () {
+                    var context = logger.getContext();
+                    context.corr = response.headers[common.correlatorHttpHeader.toLowerCase()] || context.corr;
                     callback(null, response.statusCode, responseBody, responseType);
                 });
             });
@@ -131,7 +134,7 @@ function updateContextCallback(err, responseStatus, responseBody, responseConten
  *
  * - Request query string MUST include arguments `id` and `type`
  * - Request path will denote the name of the originating probe
- * - Request headers may include a transaction identifier ({@link common#txIdHttpHeader})
+ * - Request headers may include a correlation identifier ({@link common#correlatorHttpHeader})
  *
  * @param {http.IncomingMessage} request    The HTTP request to this server.
  * @param {http.ServerResponse}  response   The HTTP response from this server.
@@ -141,12 +144,15 @@ function asyncRequestListener(request, response) {
     reqdomain.add(request);
     reqdomain.add(response);
     reqdomain.context = {
-        trans: request.headers[common.txIdHttpHeader.toLowerCase()] || cuid(),
+        trans: txid(),
+        corr: request.headers[common.correlatorHttpHeader.toLowerCase()] || uuid(),
         op: request.method
     };
+    var responseHeaders = {};
+    responseHeaders[common.correlatorHttpHeader] = reqdomain.context.corr;
     reqdomain.on('error', function (err) {
         logger.error(err.message);
-        response.writeHead(500);  // server error
+        response.writeHead(500, responseHeaders);  // server error
         response.end();
     });
     reqdomain.run(function () {
@@ -179,7 +185,7 @@ function asyncRequestListener(request, response) {
             }
         }
         logger.info('Response status %d %s', status, http.STATUS_CODES[status]);
-        response.writeHead(status);
+        response.writeHead(status, responseHeaders);
         response.end();
     });
 }
@@ -196,7 +202,7 @@ function udpRequestListener(socket, message, parserName) {
     var reqdomain = domain.create();
     reqdomain.add(socket);
     reqdomain.context = {
-        trans: cuid(),
+        trans: txid(),
         op: 'UDP'
     };
     reqdomain.on('error', function (err) {

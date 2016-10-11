@@ -41,7 +41,7 @@ logger.setLevel(config.logLevel);
  *
  * @return {Object} The context object.
  */
-logger.getContext = function() {
+logger.getContext = function () {
     return (domain.active) ? domain.active.context : {};
 };
 
@@ -58,11 +58,12 @@ logger.getContext = function() {
  */
 logger.format = (process.env.NODE_ENV === 'development') ?
     logger.format :
-    function(level, context, message, args) {
+    function (level, context, message, args) {
         args.unshift(
-            'time=%s | lvl=%s | trans=%s | op=%s | msg=' + message,
+            'time=%s | lvl=%s | corr=%s | trans=%s | op=%s | msg=' + message,
             (new Date()).toISOString(),
             level,
+            context.corr || 'n/a',
             context.trans || 'n/a',
             context.op || 'n/a'
         );

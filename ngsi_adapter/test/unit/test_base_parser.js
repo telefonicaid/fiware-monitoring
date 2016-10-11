@@ -29,18 +29,21 @@
 var sinon = require('sinon'),
     assert = require('assert'),
     common = require('./common'),
-    parser = require('../../lib/parsers/common/base').parser;
+    parser = require('../../lib/parsers/common/base').parser,
+    corr = require('../../lib/common').correlatorHttpHeader;
 
 
 suite('base_parser', function () {
 
     suiteSetup(function () {
         this.baseurl = 'http://hostname:1234/path';
+        this.headers = {};
         this.entityId = '1';
         this.entityType = 'host';
         this.entityData = {
             attr: 4321
         };
+        this.headers[corr.toLowerCase()] = 'correlator-1234';
     });
 
     suiteTeardown(function () {
@@ -48,9 +51,11 @@ suite('base_parser', function () {
 
     setup(function () {
         this.request = {
-            url: this.baseurl + '?id=' + this.entityId + '&type=' + this.entityType
+            url: this.baseurl + '?id=' + this.entityId + '&type=' + this.entityType,
+            headers: this.headers
         };
         this.reqdomain = common.domain(this);
+        this.reqdomain.context.corr = this.request.headers[corr.toLowerCase()];
         this.entityData[parser.timestampAttrName] = this.reqdomain.timestamp;
         this.parseRequestFunction = parser.parseRequest;
         this.getContextAttrsFunction = parser.getContextAttrs;
@@ -105,6 +110,14 @@ suite('base_parser', function () {
         parser.getContextAttrs = sinon.spy(function () { return self.entityData; });
         var update = parser.getUpdateRequest(self.reqdomain);
         common.assertValidUpdateJSON(update, self);
+    });
+
+    test('get_update_request_ok_with_correlator_added', function () {
+        var self = this;
+        parser.parseRequest = sinon.spy(function () { return {}; });
+        parser.getContextAttrs = sinon.spy(function () { return self.entityData; });
+        parser.getUpdateRequest(self.reqdomain);
+        assert.equal(self.reqdomain.context.corr, self.request.headers[corr.toLowerCase()]);
     });
 
 });
