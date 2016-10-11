@@ -25,9 +25,8 @@ __author__ = 'jfernandez'
 
 
 from commons.rest_client_utils import RestClient, API_ROOT_URL_ARG_NAME
-from commons.constants import HEADER_REPRESENTATION_TEXTPLAIN, HEADER_CONTENT_TYPE, HEADER_TRANSACTION_ID, \
-    HTTP_VERB_POST
-from commons.utils import generate_transaction_id
+from commons.constants import HEADER_REPRESENTATION_TEXTPLAIN, HEADER_CONTENT_TYPE, HEADER_CORRELATOR, HTTP_VERB_POST
+from commons.utils import generate_correlator
 from commons.logger_utils import get_logger
 
 NGSI_ADAPTER_URI_BASE = "{" + API_ROOT_URL_ARG_NAME + "}"
@@ -55,11 +54,11 @@ class NgsiAdapterClient:
         self.init_headers()
         self.rest_client = RestClient(protocol, host, port, base_resource)
 
-    def init_headers(self, content_type=HEADER_REPRESENTATION_TEXTPLAIN, transaction_id=generate_transaction_id()):
+    def init_headers(self, content_type=HEADER_REPRESENTATION_TEXTPLAIN, correlator=generate_correlator()):
         """
         Init header to values (or default values)
         :param content_type: Content-Type header value. By default text/plain
-        :param transaction_id: txId header value. By default, generated value by Utils.generate_transaction_id()
+        :param correlator: correlator header value. By default, generated value by utils.generate_correlator()
         :return: None
         """
 
@@ -69,11 +68,11 @@ class NgsiAdapterClient:
         else:
             self.headers.update({HEADER_CONTENT_TYPE: content_type})
 
-        if transaction_id is None:
-            if HEADER_TRANSACTION_ID in self.headers:
-                del(self.headers[HEADER_TRANSACTION_ID])
+        if correlator is None:
+            if HEADER_CORRELATOR in self.headers:
+                del(self.headers[HEADER_CORRELATOR])
         else:
-            self.headers.update({HEADER_TRANSACTION_ID: transaction_id})
+            self.headers.update({HEADER_CORRELATOR: correlator})
 
     def set_headers(self, headers):
         """

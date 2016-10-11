@@ -26,7 +26,8 @@
 'use strict';
 
 
-var cuid = require('cuid'),
+var uuid = require('node-uuid').v1,
+    txid = require('cuid'),
     assert = require('assert'),
     timestampAttrName = require('../../lib/common').timestampAttrName;
 
@@ -81,10 +82,13 @@ function assertValidUpdateJSON(updateJSON, testSuite) {
  */
 function domain(testSuite) {
     return {
-        context: {trans: cuid()},
         timestamp: Date.now(),
         entityId: testSuite.entityId,
-        entityType: testSuite.entityType
+        entityType: testSuite.entityType,
+        context: {
+            corr: uuid(),
+            trans: txid()
+        }
     };
 }
 

@@ -34,84 +34,98 @@ process.argv = [];
 process.env.NODE_ENV = 'production';
 
 
-var util = require('util'),
-    cuid = require('cuid'),
+var uuid = require('node-uuid').v1,
+    txid = require('cuid'),
+    util = require('util'),
     sinon = require('sinon'),
     assert = require('assert'),
     logger = require('../../lib/logger');
 
 
-suite('logger', function() {
+suite('logger', function () {
 
-    suiteSetup(function() {
+    suiteSetup(function () {
         this.level = 'INFO';
         logger.setLevel(this.level);
         logger.stream = require('dev-null')();
     });
 
-    suiteTeardown(function() {
+    suiteTeardown(function () {
     });
 
-    setup(function() {
+    setup(function () {
     });
 
-    teardown(function() {
+    teardown(function () {
     });
 
-    test('logger_formatted_message_has_timestamp', function() {
-        var context = {};
-        var message = 'message';
-        var time = (new Date()).toISOString();
-        var copy = Date.prototype.toISOString;
+    test('logger_formatted_message_has_timestamp', function () {
+        var context = {},
+            message = 'message',
+            time = (new Date()).toISOString(),
+            copy = Date.prototype.toISOString;
         Date.prototype.toISOString = sinon.stub().returns(time);
         var formatted = logger.format(this.level, context, message, []);
         Date.prototype.toISOString = copy;
         assert(formatted.indexOf(util.format('time=%s |', time)) >= 0);
     });
 
-    test('logger_formatted_message_has_level', function() {
-        var context = {};
-        var message = 'message';
-        var formatted = logger.format(this.level, context, message, []);
-        assert(formatted.indexOf(util.format('| lvl=%s |', this.level)) >= 0);
+    test('logger_formatted_message_has_level', function () {
+        var context = {},
+            message = 'message',
+            formatted = logger.format(this.level, context, message, []);
+        assert(formatted.indexOf(util.format('lvl=%s |', this.level)) >= 0);
     });
 
-    test('logger_formatted_message_valid_with_no_context', function() {
-        var context = {};
-        var message = 'message';
-        var formatted = logger.format(this.level, context, message, []);
-        assert(formatted.indexOf('| trans=n/a | op=n/a |') >= 0);
+    test('logger_formatted_message_valid_with_no_context', function () {
+        var context = {},
+            message = 'message',
+            formatted = logger.format(this.level, context, message, []);
+        assert(formatted.indexOf('corr=n/a |') >= 0);
+        assert(formatted.indexOf('trans=n/a |') >= 0);
+        assert(formatted.indexOf('op=n/a |') >= 0);
     });
 
-    test('logger_formatted_message_valid_with_tx_id', function() {
-        var txid = cuid();
-        var context = { trans: txid };
-        var message = 'message';
-        var formatted = logger.format(this.level, context, message, []);
-        assert(formatted.indexOf(util.format('| trans=%s | op=n/a |', txid)) >= 0);
+    test('logger_formatted_message_valid_with_context_corr', function () {
+        var context = {corr: uuid()},
+            message = 'message',
+            formatted = logger.format(this.level, context, message, []);
+        assert(formatted.indexOf(util.format('corr=%s |', context.corr)) >= 0);
+        assert(formatted.indexOf(util.format('trans=%s |', 'n/a')) >= 0);
+        assert(formatted.indexOf(util.format('op=%s |', 'n/a')) >= 0);
     });
 
-    test('logger_formatted_message_valid_with_op_id', function() {
-        var opid = 'noop';
-        var context = { op: opid };
-        var message = 'message';
-        var formatted = logger.format(this.level, context, message, []);
-        assert(formatted.indexOf(util.format('| trans=n/a | op=%s |', opid)) >= 0);
+    test('logger_formatted_message_valid_with_context_trans', function () {
+        var context = {trans: txid()},
+            message = 'message',
+            formatted = logger.format(this.level, context, message, []);
+        assert(formatted.indexOf(util.format('corr=%s |', 'n/a')) >= 0);
+        assert(formatted.indexOf(util.format('trans=%s |', context.trans)) >= 0);
+        assert(formatted.indexOf(util.format('op=%s |', 'n/a')) >= 0);
     });
 
-    test('logger_formatted_message_valid_with_full_context', function() {
-        var txid = cuid();
-        var opid = 'noop';
-        var context = { trans: txid, op: opid };
-        var message = 'message';
-        var formatted = logger.format(this.level, context, message, []);
-        assert(formatted.indexOf(util.format('| trans=%s | op=%s |', txid, opid)) >= 0);
+    test('logger_formatted_message_valid_with_context_op', function () {
+        var context = {op: 'opname'},
+            message = 'message',
+            formatted = logger.format(this.level, context, message, []);
+        assert(formatted.indexOf(util.format('corr=%s |', 'n/a')) >= 0);
+        assert(formatted.indexOf(util.format('trans=%s |', 'n/a')) >= 0);
+        assert(formatted.indexOf(util.format('op=%s |', context.op)) >= 0);
     });
 
-    test('logger_formatted_message_has_message', function() {
-        var context = {};
-        var message = 'message';
-        var formatted = logger.format(this.level, context, message, []);
+    test('logger_formatted_message_valid_with_full_context', function () {
+        var context = {corr: uuid(), trans: txid(), op: 'opname'},
+            message = 'message',
+            formatted = logger.format(this.level, context, message, []);
+        assert(formatted.indexOf(util.format('corr=%s |', context.corr)) >= 0);
+        assert(formatted.indexOf(util.format('trans=%s |', context.trans)) >= 0);
+        assert(formatted.indexOf(util.format('op=%s |', context.op)) >= 0);
+    });
+
+    test('logger_formatted_message_ends_with_message', function () {
+        var context = {},
+            message = 'message',
+            formatted = logger.format(this.level, context, message, []);
         assert(formatted.indexOf(util.format('| msg=%s', message)) >= 0);
     });
 

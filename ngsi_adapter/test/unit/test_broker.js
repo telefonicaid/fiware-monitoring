@@ -51,8 +51,6 @@ suite('broker', function () {
         this.processEvents = ['SIGINT', 'SIGTERM', 'uncaughtException', 'exit'];
         this.brokerHost = '127.0.0.1';
         this.brokerPort = 1026;
-        this.brokerStatusCodeV1 = 200;
-        this.brokerStatusCodeV2 = 204;
         this.baseurl = 'http://hostname:1234';
         this.resource = 'check_load';
         this.body = 'some load data';
@@ -90,7 +88,7 @@ suite('broker', function () {
         delete config.brokerApi;
     });
 
-    test('v0_api_valid_request', function (done) {
+    test('v0_api_valid_update_context_request', function (done) {
         var self = this;
         var response = {
             writeHead: sinon.stub(),
@@ -126,7 +124,7 @@ suite('broker', function () {
         self.request.emit('end');
     });
 
-    test('v1_api_valid_request', function (done) {
+    test('v1_api_valid_update_context_request', function (done) {
         var self = this;
         var response = {
             writeHead: sinon.stub(),
@@ -162,7 +160,40 @@ suite('broker', function () {
         self.request.emit('end');
     });
 
-    test('v1_api_valid_status_code', function (done) {
+    test('v1_api_valid_update_context_correlator', function (done) {
+        var self = this;
+        var response = {
+            writeHead: sinon.stub(),
+            end: sinon.stub()
+        };
+        var factoryGetParser = sinon.stub(factory, 'getParser', function () {
+            var mockParser = Object.create(parser);
+            mockParser.parseRequest = function (reqdomain) {
+                self.reqdomain = reqdomain;
+            };
+            mockParser.getContextAttrs = function (data) {
+                return self.attrs;
+            };
+            return mockParser;
+        });
+        var httpRequest = sinon.stub(http, 'request', function (opts, callback) {
+            httpRequest.restore();
+            factoryGetParser.restore();
+            loggerError.restore();
+            assert(opts.headers[common.correlatorHttpHeader]);
+            done();
+        });
+        var loggerError = sinon.spy(logger, 'error');
+        config.brokerUrl = util.format('http://%s:%d/v1', self.brokerHost, self.brokerPort);
+        adapter.main();
+        self.timeout(500);
+        self.request.url = self.baseurl + '/' + self.resource + '?id=id&type=type';
+        self.httpListener(self.request, response);
+        self.request.emit('data', self.body);
+        self.request.emit('end');
+    });
+
+    test('v1_api_valid_update_context_status_code', function (done) {
         var self = this;
         var response = {
             writeHead: sinon.stub(),
@@ -179,10 +210,11 @@ suite('broker', function () {
         var httpRequest = sinon.stub(http, 'request', function (opts, callback) {
             var clientRequest = new Emitter();
             var serverResponse = new Emitter();
+            serverResponse.headers = opts.headers;
             serverResponse.setEncoding = sinon.stub();
-            serverResponse.statusCode = self.brokerStatusCodeV1;
+            serverResponse.statusCode = 200;
             callback(serverResponse);
-            serverResponse.emit('data', '{"key": "value"}');
+            serverResponse.emit('data', '{"contextResponses": [{"contextElement": {}, "statusCode": {}}]}');
             serverResponse.emit('end');
             clientRequest.end = sinon.stub();
             return clientRequest;
@@ -202,7 +234,7 @@ suite('broker', function () {
                 var responseBody = callback.args[0][2];
                 var responseType = callback.args[0][3];
                 assert.equal(err, null);
-                assert.equal(status, self.brokerStatusCodeV1);
+                assert.equal(status, 200);
                 assert.equal(responseType, self.headers['Accept']);
                 assert(responseBody);
                 assert(loggerError.notCalled);
@@ -218,7 +250,7 @@ suite('broker', function () {
         self.request.emit('end');
     });
 
-    test('v2_api_valid_request', function (done) {
+    test('v2_api_valid_update_context_request', function (done) {
         var self = this;
         var response = {
             writeHead: sinon.stub(),
@@ -255,7 +287,40 @@ suite('broker', function () {
         self.request.emit('end');
     });
 
-    test('v2_api_valid_status_code', function (done) {
+    test('v2_api_valid_update_context_correlator', function (done) {
+        var self = this;
+        var response = {
+            writeHead: sinon.stub(),
+            end: sinon.stub()
+        };
+        var factoryGetParser = sinon.stub(factory, 'getParser', function () {
+            var mockParser = Object.create(parser);
+            mockParser.parseRequest = function (reqdomain) {
+                self.reqdomain = reqdomain;
+            };
+            mockParser.getContextAttrs = function (data) {
+                return self.attrs;
+            };
+            return mockParser;
+        });
+        var httpRequest = sinon.stub(http, 'request', function (opts, callback) {
+            httpRequest.restore();
+            factoryGetParser.restore();
+            loggerError.restore();
+            assert(opts.headers[common.correlatorHttpHeader]);
+            done();
+        });
+        var loggerError = sinon.spy(logger, 'error');
+        config.brokerUrl = util.format('http://%s:%d/v2', self.brokerHost, self.brokerPort);
+        adapter.main();
+        self.timeout(500);
+        self.request.url = self.baseurl + '/' + self.resource + '?id=id&type=type';
+        self.httpListener(self.request, response);
+        self.request.emit('data', self.body);
+        self.request.emit('end');
+    });
+
+    test('v2_api_valid_update_context_status_code', function (done) {
         var self = this;
         var response = {
             writeHead: sinon.stub(),
@@ -272,10 +337,10 @@ suite('broker', function () {
         var httpRequest = sinon.stub(http, 'request', function (opts, callback) {
             var clientRequest = new Emitter();
             var serverResponse = new Emitter();
+            serverResponse.headers = opts.headers;
             serverResponse.setEncoding = sinon.stub();
-            serverResponse.statusCode = self.brokerStatusCodeV2;
+            serverResponse.statusCode = 204;
             callback(serverResponse);
-            //serverResponse.emit('data', '{"key": "value"}');
             serverResponse.emit('end');
             clientRequest.end = sinon.stub();
             return clientRequest;
@@ -294,7 +359,7 @@ suite('broker', function () {
                 var status = callback.args[0][1];
                 var responseBody = callback.args[0][2];
                 assert.equal(err, null);
-                assert.equal(status, self.brokerStatusCodeV2);
+                assert.equal(status, 204);  // no content
                 assert.equal(responseBody, '');
                 assert(loggerError.notCalled);
                 done();
