@@ -194,6 +194,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Fri Nov 11 2016 Telefónica I+D <opensource@tid.es> 2.0.0-1
+- Add correlator for traceability
+
 * Wed Aug 31 2016 Telefónica I+D <opensource@tid.es> 1.5.0-1
 - Change to node.js 4.x engine
 
