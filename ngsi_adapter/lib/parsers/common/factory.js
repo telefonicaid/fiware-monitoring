@@ -55,8 +55,8 @@ function getParserByName(name) {
         try {
             /* jshint proto: true, camelcase: false */
             var prototype = require(path.join(dir, util.format('%s.js', name))).parser;
-            if (prototype.__proto__ === null) {
-                prototype.__proto__ = baseParser;  // ensure baseParser is part of the prototype chain
+            if (Object.getPrototypeOf(prototype) === null) {
+                Object.setPrototypeOf(prototype, baseParser);  // ensure baseParser is part of the prototype chain
             }
             parser = Object.create(prototype);
             parsersCache[name] = parser;

@@ -203,6 +203,7 @@ function udpRequestListener(socket, message, parserName) {
     reqdomain.add(socket);
     reqdomain.context = {
         trans: txid(),
+        corr: 'n/a',
         op: 'UDP'
     };
     reqdomain.on('error', function (err) {
