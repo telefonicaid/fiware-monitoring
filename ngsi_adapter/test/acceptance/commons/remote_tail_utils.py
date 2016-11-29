@@ -24,10 +24,11 @@
 __author__ = 'jfernandez'
 
 
-from sshtail import SSHTailer, load_dss_key
+from paramiko.ssh_exception import SSHException
+from sshtail import SSHTailer, load_dss_key, load_rsa_key
+from logger_utils import get_logger
 import time
 import threading
-from logger_utils import get_logger
 
 
 logger = get_logger("remote_tail_utils")
@@ -78,7 +79,11 @@ class RemoteTail:
         :return: None
         """
 
-        private_key_loaded = load_dss_key(self.private_key)
+        try:
+            private_key_loaded = load_dss_key(self.private_key)
+        except SSHException:
+            private_key_loaded = load_rsa_key(self.private_key)
+
         connection_host = self.remote_host_user + '@' + self.remote_host_ip
         target_log_path = self.remote_log_path + self.remote_log_file_name
         logger.info("Remote Tailer: Connecting to remote host [host: %s, path: %s", connection_host,
