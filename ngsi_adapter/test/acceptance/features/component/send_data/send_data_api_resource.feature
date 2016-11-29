@@ -148,14 +148,14 @@ Feature: Sending probe data
     | ABC_1av             |
 
 
-  Scenario Outline: NGSI-Adapter generates new transaction-id value when header is missing or empty
+  Scenario Outline: NGSI Adapter generates new correlator value when header is missing or empty
     Given the probe name "<probe_name>"
     And   the monitored resource with id "qa:1234567890" and type "host"
-    And   the header Transaction-Id "<transaction_id>"
+    And   the header Correlator "<correlator>"
     When  I send raw data according to the selected probe
-    Then  an auto-generated Transaction-Id value is used in logs
+    Then  an auto-generated Correlator value is used in logs
 
     Examples:
-    | transaction_id      | probe_name      |
-    |                     | no_transaction  |
-    | [MISSING_PARAM]     | no_transaction2 |
+    | correlator      | probe_name     |
+    |                 | no_correlator  |
+    | [MISSING_PARAM] | no_correlator2 |

@@ -41,14 +41,14 @@ def before_all():
 
 @before.each_feature
 def before_each_feature(feature):
-    auth_token = world.config[MONITORING_CONFIG_SERVICE_ADAPTER][MONITORING_CONFIG_SERVICE_AUTH_TOKEN]
+    world.auth_token = world.config[MONITORING_CONFIG_SERVICE_ADAPTER][MONITORING_CONFIG_SERVICE_AUTH_TOKEN]
     world.ngsi_adapter_client = NgsiAdapterClient(world.config[MONITORING_CONFIG_SERVICE_ADAPTER]
                                                   [MONITORING_CONFIG_SERVICE_PROTOCOL],
                                                   world.config[MONITORING_CONFIG_SERVICE_ADAPTER]
                                                   [MONITORING_CONFIG_SERVICE_HOST],
                                                   world.config[MONITORING_CONFIG_SERVICE_ADAPTER]
                                                   [MONITORING_CONFIG_SERVICE_PORT],
-                                                  auth_token=auth_token)
+                                                  auth_token=world.auth_token)
 
 
 @before.each_scenario
