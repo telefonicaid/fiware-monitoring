@@ -96,10 +96,10 @@ def the_response_status_code_is(step, status_code):
 @step(u'the header Correlator "(.*)"$')
 def the_header_correlator(step, correlator):
     world.correlator = prepare_param(correlator)
-    world.ngsi_adapter_client.init_headers(correlator=world.correlator)
+    world.ngsi_adapter_client.init_headers(correlator=world.correlator, auth_token=world.auth_token)
 
 
-@step(u'an auto-generated Transaction-Id value is used in logs')
+@step(u'an auto-generated Correlator value is used in logs')
 @step(u'the given Correlator value is used in logs')
 def the_given_correlator_value_is_used_in_logs(step):
     log_utils = LogUtils()
