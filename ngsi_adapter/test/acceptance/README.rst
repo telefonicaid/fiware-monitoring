@@ -24,7 +24,8 @@ Acceptance Project Structure
     │   │   ├───e2e
     │   │   └───integration
     │   ├───resources
-    │   │   └───probe_sample_data
+    │   │   ├───probe_sample_data
+    │   │   └───probe_parsers
     │   └───settings
     │
 
@@ -35,12 +36,34 @@ FIWARE Monitoring Automation Framework
 Features:
 
 - Lettuce-Tools support
-- Settings using json files and Lettuce-Tools utility
-- Test report using Lettuce-Tools XUnit output
-- NGSI Adapter Client
+- Settings using JSON files and Lettuce-Tools utility
+- Test report using Lettuce-Tools xUnit output
+- NGSI Adapter client
 - Logging
 - Remote NGSI Adapter log capturing
 - Test data management using templates (resources)
+
+
+Acceptance tests configuration
+==============================
+
+**Local configuration**
+
+Before executing the acceptance tests, you will have configure the properties
+file ``ngsi_adapter/test/acceptance/settings/dev-properties.json`` and setup
+the attributes to run the tests on the experimentation environment. Please note
+that host running NGSI Adapter requires a public IP address to be accessed.
+
+You will also need a valid private key (*private_key_location*) to connect to
+NGSI Adapter host to capture remote logs. This way you will be able to execute
+scenarios that require the logs capturing for test validations.
+
+
+**Remote configuration**
+
+Please copy ``ngsi_adapter/test/acceptance/resources/probe_parsers`` somewhere
+at NGSI Adapter host and add its full path to the ADAPTER_PARSERS_PATH parameter
+in the service configuration file.
 
 
 Acceptance tests execution
@@ -50,7 +73,7 @@ Execute the following command in the test project root directory:
 
 ::
 
-    $ cd ngsi_adapter/src/test/acceptance
+    $ cd ngsi_adapter/test/acceptance
     $ lettuce_tools -ft send_data_api_resource -ts comp -sd features/ --tags=-skip -en dev
 
 With this command, you will execute:
@@ -72,7 +95,7 @@ __ `NGSI Adapter sources`_
 
 **Test case execution using virtualenv**
 
-1. Create a virtual environment somewhere::
+1. Create a virtual environment under ``$WORKON_HOME`` directory::
 
     $ virtualenv $WORKON_HOME/venv
 
@@ -82,7 +105,7 @@ __ `NGSI Adapter sources`_
 
 #. Go to the acceptance tests folder in the project::
 
-    $ cd ngsi_adapter/src/test/acceptance
+    $ cd ngsi_adapter/test/acceptance
 
 #. Install requirements for the acceptance tests in the virtual environment::
 
@@ -99,7 +122,7 @@ As a prerequisite, first download and install Vagrant
 
 1. Go to the acceptance tests folder in the project::
 
-    $ cd ngsi_adapter/src/test/acceptance
+    $ cd ngsi_adapter/test/acceptance
 
 #. Launch a VM from the provided *Vagrantfile*::
 
@@ -115,16 +138,6 @@ As a prerequisite, first download and install Vagrant
 For more information about how to use Vagrant, please check `this document`__.
 
 __ `Vagrant Getting Started`_
-
-**Settings**
-
-Before executing the acceptance tests, you will have configure the properties
-file ``settings/dev-properties.json`` and setup the attributes to run the
-acceptance tests on the experimentation environment.
-
-You will also need a valid private key (*private_key_location*) to connect to
-NGSI Adapter host to capture remote logs. This way you will be able to execute
-scenarios that require the logs capturing for test validations.
 
 
 .. REFERENCES

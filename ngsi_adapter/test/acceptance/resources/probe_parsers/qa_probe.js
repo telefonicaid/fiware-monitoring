@@ -29,7 +29,7 @@ parser.parseRequest = function (reqdomain) {
 
 
 parser.getContextAttrs = function(probeEntityData) {
-    var data = probeEntityData.data.split('\n')[0];     // only consider first line of probe data, discard perfData
+    var data = probeEntityData.data.split('\n')[0];  // only consider first line of probe data, discard perfData
     var attrs = { users: NaN };
 
     var items = data.split('-');
