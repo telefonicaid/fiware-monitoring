@@ -111,13 +111,13 @@ def the_given_correlator_value_is_used_in_logs(step):
     time.sleep(WAIT_FOR_REMOTE_LOGGING)
 
     if world.correlator is not None and len(world.correlator) != 0:
-        log_value_correlator = {"CORRELATOR": "corr={correlator}".format(
+        log_value_correlator = {"UNICA_CORRELATOR": "corr={correlator}".format(
             correlator=world.correlator)}
         log_utils.search_in_log(remote_log_local_path, service_log_file_name, log_value_correlator)
     else:
         log_value_message = {"MESSAGE": "msg={probe}".format(probe=world.probe)}
         log_line = log_utils.search_in_log(remote_log_local_path, service_log_file_name, log_value_message)
 
-        correlator = log_line[log_utils.LOG_TAG["CORRELATOR"].replace("=", "")]
+        correlator = log_line[log_utils.LOG_TAG["UNICA_CORRELATOR"].replace("=", "")]
         assert_true(len(correlator) != 0,
                     "Correlator not found in logs. Expected value. Value in logs: " + correlator)
