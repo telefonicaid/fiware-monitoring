@@ -68,22 +68,22 @@ Feature: Sending probe data
     | [STRING_WITH_LENGTH_60] |
 
 
-  Scenario Outline: Valid probe data is sent to CB using an existing parser, with valid probe name values.
+  Scenario Outline: Valid probe data is sent to CB using an existing parser, with valid and invalid probe name values.
     Given the probe name "<probe_name>"
     And   the monitored resource with id "qa:1234567890" and type "host"
     When  I send raw data according to the selected probe
-    Then  the response status code is "200"
+    Then  the response status code is "<status_code>"
 
     Examples:
-    | probe_name |
-    | 1           |
-    | a           |
-    | B           |
-    | 12345678    |
-    | qa.probe    |
-    | qa-probe    |
-    | qa_probe    |
-    | qa@probe    |
+    | probe_name  | status_code |
+    | 1           | 404         |
+    | a           | 404         |
+    | B           | 404         |
+    | 12345678    | 404         |
+    | qa.probe    | 404         |
+    | qa-probe    | 404         |
+    | qa@probe    | 404         |
+    | qa_probe    | 200         |
 
 
   Scenario Outline: Valid probe data is sent to CB using an existing parser, with invalid entity ID values.
