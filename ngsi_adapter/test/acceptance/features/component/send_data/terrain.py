@@ -29,7 +29,7 @@ from commons.terrain_utils import set_up, tear_down
 from commons.ngsi_adapter_api_utils.ngsi_adapter_client import NgsiAdapterClient
 from commons.logger_utils import get_logger
 from commons.constants import MONITORING_CONFIG_SERVICE_ADAPTER, MONITORING_CONFIG_SERVICE_HOST, \
-    MONITORING_CONFIG_SERVICE_PORT, MONITORING_CONFIG_SERVICE_PROTOCOL
+    MONITORING_CONFIG_SERVICE_PORT, MONITORING_CONFIG_SERVICE_PROTOCOL, MONITORING_CONFIG_SERVICE_AUTH_TOKEN
 
 logger = get_logger("terrain_utils")
 
@@ -41,12 +41,14 @@ def before_all():
 
 @before.each_feature
 def before_each_feature(feature):
+    auth_token = world.config[MONITORING_CONFIG_SERVICE_ADAPTER][MONITORING_CONFIG_SERVICE_AUTH_TOKEN]
     world.ngsi_adapter_client = NgsiAdapterClient(world.config[MONITORING_CONFIG_SERVICE_ADAPTER]
                                                   [MONITORING_CONFIG_SERVICE_PROTOCOL],
                                                   world.config[MONITORING_CONFIG_SERVICE_ADAPTER]
                                                   [MONITORING_CONFIG_SERVICE_HOST],
                                                   world.config[MONITORING_CONFIG_SERVICE_ADAPTER]
-                                                  [MONITORING_CONFIG_SERVICE_PORT])
+                                                  [MONITORING_CONFIG_SERVICE_PORT],
+                                                  auth_token=auth_token)
 
 
 @before.each_scenario
