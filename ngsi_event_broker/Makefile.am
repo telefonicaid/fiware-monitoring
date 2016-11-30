@@ -68,7 +68,7 @@ else GCOV_ENABLED
 coverage:
 	@echo "Running tests..."
 	@$(MAKE) check >/dev/null
-	cd src/.libs; gcovr --root=. --print-summary
+	cd src; gcovr --root=. --print-summary
 
 # generate coverage report
 coverage-report: REPORT_DIR = $(call relpath,$(COVERAGE_REPORT_DIR))
@@ -79,11 +79,11 @@ coverage-report:
 	@rm -rf $(COVERAGE_LCOV_DIR)
 	@mkdir -p $(COVERAGE_LCOV_DIR)
 	@mkdir -p $(COVERAGE_REPORT_DIR)
-	lcov -d src/.libs --capture --output-file $(COVERAGE_REPORT_DIR)/lcov.info
+	lcov -d src --capture --output-file $(COVERAGE_REPORT_DIR)/lcov.info
 	lcov -r $(COVERAGE_REPORT_DIR)/lcov.info "/usr/include/*" -o $(COVERAGE_REPORT_DIR)/lcov.info
 	genhtml -o $(COVERAGE_LCOV_DIR) $(COVERAGE_REPORT_DIR)/lcov.info
 	@sed -i s:"$(CURDIR)":".":g $(COVERAGE_REPORT_DIR)/lcov.info
-	cd src/.libs; gcovr --root=. -x -o $(COVERAGE_REPORT_DIR)/cobertura-coverage.xml
+	cd src; gcovr --root=. -x -o $(COVERAGE_REPORT_DIR)/cobertura-coverage.xml
 	@sed -i s#filename=\"#filename=\"src/#g $(COVERAGE_REPORT_DIR)/cobertura-coverage.xml
 	@for i in $(REPORT_DIR)/*; do echo "Generated \`$$i'"; done
 	@if [ -d "$(LCOV_DIR)" ]; then  echo "Generated \`$(LCOV_DIR)'"; fi
