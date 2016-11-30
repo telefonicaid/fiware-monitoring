@@ -194,21 +194,23 @@ data:
   a new probe execution detected by the *collector*::
 
    $ cat /var/log/nagios/nagios.log
-   [1439283831] lvl=INFO | trans=rdPmJ/uHE62a |
-                  comp=fiware-monitoring-ngsi-event-broker | op=NGSIAdapter |
-                  msg=Request sent to http://host:1337/check_xxx?id=xxx&type=host
-
+   [1439283831] lvl=INFO | corr=rdPmJ/uHE62a | comp=ngsi-event-broker-fiware |
+   ... op=NGSIAdapter |
+   ... msg=Request sent to http://host:1337/check_xxx?id=xxx&type=host
 
 - Check NGSI Adapter logs for incoming requests with raw data, and for the
   corresponding updateContext() request to Context Broker::
 
    $ cat /var/log/ngsi_adapter/ngsi_adapter.log
-   time=... | lvl=INFO | trans=rdPmJ/uHE62a | op=POST |
-                  msg=Request on resource /check_xxx with params id=xxx&type=xxx
-
-   time=... | lvl=INFO | trans=rdPmJ/uHE62a | op=POST | msg=Response status 200 OK
-   time=... | lvl=INFO | trans=rdPmJ/uHE62a | op=UpdateContext |
-                  msg=Request to ContextBroker at http://host:1026/...
+   time=xxx | lvl=INFO | corr=rdPmJ/uHE62a | trans=ciw4p8cc6ar6dt5iz3c8qurf5 |
+   ... op=POST |
+   ... msg=Request on resource /check_xxx with params id=xxx&type=xxx
+   time=xxx | lvl=INFO | corr=rdPmJ/uHE62a | trans=ciw4p8cc6ar6dt5iz3c8qurf5 |
+   ... op=POST |
+   ... msg=Response status 200 OK
+   time=xxx | lvl=INFO | corr=rdPmJ/uHE62a | trans=ciw4p8cc6ar6dt5iz3c8qurf5 |
+   ... op=UpdateContext |
+   ... msg=Request to ContextBroker at http://host:1026/...
 
 - Finally, query Context Broker API to check whether entity attributes have
   been updated according to the new monitoring data (see details here__)
