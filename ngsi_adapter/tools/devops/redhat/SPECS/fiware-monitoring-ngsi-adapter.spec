@@ -194,6 +194,14 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Wed 30 Nov 2016 Telefónica I+D <opensource@tid.es> 2.1.0-1
+- Fix acceptance tests scenario
+- Add support to RSA keys
+- Fix constant for correlator in logs
+- Add support for Pep Proxy in acceptance tests
+- Add required test probe parser
+- Fix scenario with correlator
+
 * Fri Nov 11 2016 Telefónica I+D <opensource@tid.es> 2.0.0-1
 - Add correlator for traceability
 
