@@ -1,3 +1,14 @@
+fiware-monitoring-ngsi-adapter (2.1.0-1) precise; urgency=low
+
+  * Fix acceptance tests scenario
+  * Add support to RSA keys
+  * Fix constant for correlator in logs
+  * Add support for Pep Proxy in acceptance tests
+  * Add required test probe parser
+  * Fix scenario with correlator
+
+ -- Telefónica I+D <opensource@tid.es>  Wed, 30 Nov 2016 17:24:51 +0100
+
 fiware-monitoring-ngsi-adapter (2.0.0-1) precise; urgency=low
 
   * Add correlator for traceability
