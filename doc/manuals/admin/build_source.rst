@@ -21,7 +21,7 @@ some special privileges):
 
 - Install an updated ``node`` interpreter::
 
-    $ curl -sL https://rpm.nodesource.com/setup | sudo bash -
+    $ curl -sL https://rpm.nodesource.com/setup_4.x | sudo bash -
     $ sudo yum install -y nodejs
 
 - Install development tools::
@@ -52,7 +52,7 @@ some special privileges):
   then run the ``ngsi_adapter`` service::
 
     $ cd fiware-monitoring/ngsi_adapter
-    $ tools/build/package.sh
+    $ tools/devops/package.sh
     $ sudo rpm -i fiware-monitoring-ngsi-adapter-X.Y.Z-1.noarch.rpm
     $ sudo service ngsi_adapter start
 
@@ -103,7 +103,7 @@ a valid Makefile to drive the build and install process.
   building and running the unit tests), and install it::
 
     $ cd fiware-monitoring/ngsi_event_broker
-    $ tools/build/package.sh
+    $ tools/devops/package.sh
     $ sudo rpm -i fiware-monitoring-ngsi-event-broker-X.Y.Z-1.noarch.rpm
 
 
@@ -117,7 +117,7 @@ NGSI Adapter
 
 - Install an updated ``node`` interpreter::
 
-    $ curl -sL https://deb.nodesource.com/setup | sudo bash -
+    $ curl -sL https://deb.nodesource.com/setup_4.x | sudo bash -
     $ sudo apt-get install -y nodejs
 
 - Install development tools::
