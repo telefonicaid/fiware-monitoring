@@ -192,7 +192,7 @@ update_rpm_changelog() {
 	local pkgrevision=$(expr "$pkgversion" : "$VERSION-\([0-9]*\)" '|' 0)
 	local header
 	pkgversion=$VERSION-$((pkgrevision + 1))
-	header="* $(LC_ALL=C date +'%a %d %b %Y') $pkgmaint $pkgversion"
+	header="* $(LC_ALL=C date +'%a %b %d %Y') $pkgmaint $pkgversion"
 	cp $CHANGELOG $TMPFILE
 	sed -i "1i $header" $TMPFILE
 	printf "\n" >> $TMPFILE
