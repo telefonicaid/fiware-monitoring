@@ -194,7 +194,7 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
-* Wed 30 Nov 2016 Telefónica I+D <opensource@tid.es> 2.1.0-1
+* Wed Nov 30 2016 Telefónica I+D <opensource@tid.es> 2.1.0-1
 - Fix acceptance tests scenario
 - Add support to RSA keys
 - Fix constant for correlator in logs
